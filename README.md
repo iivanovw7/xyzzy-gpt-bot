@@ -29,7 +29,7 @@ Contents:
 TOKEN=XXX
 OPEN_API_KEY=XXXX
 USER_ID=99999
-MODEL=gpt-4
+MODEL=gpt-4-turbo
 ```
 
 -   Install rust
@@ -40,8 +40,6 @@ rustup default stable
 ```
 
 ## Scripts
-
--   Development server
 
 ```bash
 cargo run
