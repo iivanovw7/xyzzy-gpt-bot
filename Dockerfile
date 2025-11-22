@@ -1,49 +1,55 @@
-FROM lukemathwalker/cargo-chef:latest-rust-1 AS chef
+FROM rust:slim-bookworm AS rust_base
+
+RUN cargo install cargo-chef --locked
+
+# === STAGE 1: Chef Planner ===
+FROM rust_base AS chef
+
 WORKDIR /app
 
 FROM chef AS planner
-COPY . .
 
+COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
+# === STAGE 2: Rust Builder ===
 FROM chef AS rust_builder
 COPY --from=planner /app/recipe.json recipe.json
 
 RUN apt-get update -y \
-    && apt-get install -y openssl \
+    && apt-get install -y openssl perl build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 RUN cargo chef cook --release --recipe-path recipe.json
 
 COPY . .
-
 RUN cargo build --release
 
-FROM node:20-bookworm-slim AS node_builder
+# === STAGE 3: Node Builder ===
+FROM node:bookworm-slim as node_builder
 
 WORKDIR /app
 
-RUN npm install -g corepack@latest && corepack enable
+RUN npm install -g corepack@latest --force && corepack enable
 
 COPY .env .
 COPY .nvmrc .
 
 RUN npm install pm2 -g
 
-RUN npm cache clean --force
-
+# === STAGE 4: Final Runtime Image ===
 FROM debian:bookworm-slim AS runtime
 
 WORKDIR /app
 
 COPY --from=rust_builder /app/target/release/xyzzy-gpt-bot ./server
-
 COPY --from=node_builder /app/.env .
 
-RUN apt-get update -y \
-    && apt-get install -y ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -y && \
+    apt-get install -y ca-certificates
 
+EXPOSE 80
+EXPOSE 443
 EXPOSE 8080
 
 ENTRYPOINT ["/app/server"]
