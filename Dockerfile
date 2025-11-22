@@ -19,7 +19,7 @@ FROM node:bookworm-slim as node_builder
 
 WORKDIR /app
 
-RUN corepack enable
+RUN npm install -g corepack@latest && corepack enable
 
 COPY .env .
 COPY .nvmrc .
