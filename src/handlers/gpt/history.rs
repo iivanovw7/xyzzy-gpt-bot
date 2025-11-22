@@ -1,28 +1,39 @@
-use crate::types::{HandleResult, State};
 use async_openai::types::ChatCompletionRequestMessage;
-use teloxide::prelude::*;
+use async_openai::types::ChatCompletionRequestToolMessageContent;
+use teloxide::{prelude::*, sugar::request::RequestReplyExt};
+
+use crate::types::main::ChatHistoryState;
+use crate::types::main::HandleResult;
 
 fn print_msg(msg: &ChatCompletionRequestMessage) -> String {
     match msg {
         ChatCompletionRequestMessage::User(f) => {
-            format!("[{}]: {:?}", f.role, f.content.to_owned())
+            format!("[User]: {:?}", f.content.to_owned())
+        }
+        ChatCompletionRequestMessage::Developer(f) => {
+            format!("[Developer]: {:?}", f.content.to_owned())
         }
         ChatCompletionRequestMessage::Tool(f) => {
-            format!("[{}]: {}", f.role, f.content)
+            let content_str = match f.content {
+                ChatCompletionRequestToolMessageContent::Text(ref s) => s,
+                _ => "No content or complex tool output (Tool response).",
+            };
+
+            format!("[Tool]: {}", content_str)
         }
         ChatCompletionRequestMessage::System(f) => {
-            format!("[{}]: {}", f.role, f.content)
+            format!("[System]: {:?}", f.content)
         }
         ChatCompletionRequestMessage::Function(f) => {
-            format!("[{}]: {:?}", f.role, f.content)
+            format!("[Function]: {:?}", f.content)
         }
         ChatCompletionRequestMessage::Assistant(f) => {
-            format!("[{}]: {:?}", f.role, f.content.to_owned())
+            format!("[Assistant]: {:?}", f.content.to_owned())
         }
     }
 }
 
-pub async fn view(bot: Bot, state: State, msg: Message) -> HandleResult {
+pub async fn view(bot: Bot, state: ChatHistoryState, msg: Message) -> HandleResult {
     let content = {
         let mut guard = state.lock().unwrap();
         let messages = guard.entry(msg.chat.id).or_default();
@@ -39,13 +50,13 @@ pub async fn view(bot: Bot, state: State, msg: Message) -> HandleResult {
     };
 
     bot.send_message(msg.chat.id, content)
-        .reply_to_message_id(msg.id)
+        .reply_to(msg.id)
         .await?;
 
     Ok(())
 }
 
-pub async fn clear(bot: Bot, state: State, msg: Message) -> HandleResult {
+pub async fn clear(bot: Bot, state: ChatHistoryState, msg: Message) -> HandleResult {
     {
         let mut guard = state.lock().unwrap();
         let messages = guard.entry(msg.chat.id).or_default();
@@ -54,7 +65,7 @@ pub async fn clear(bot: Bot, state: State, msg: Message) -> HandleResult {
     }
 
     bot.send_message(msg.chat.id, "Chat history cleared.")
-        .reply_to_message_id(msg.id)
+        .reply_to(msg.id)
         .await?;
 
     Ok(())

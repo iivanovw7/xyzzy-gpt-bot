@@ -1,6 +1,5 @@
-pub mod chat;
+pub mod budgeting;
 pub mod dice;
+pub mod gpt;
 pub mod help;
-pub mod history;
 pub mod maintainer;
-pub mod prompt;

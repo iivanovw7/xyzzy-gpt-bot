@@ -5,18 +5,23 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.82"
-async-openai = "0.20.0"
+async-openai = "0.30.1"
 dotenv = "0.15.0"
-dptree = "0.3.0"
+dptree = "0.5.1"
 envy = "0.4.2"
 openssl = { version = "0.10.64", features = ["vendored"] }
 futures = "0.3.30"
 lazy_static = "1.4.0"
 serde = { version = "1.0.198", features = ["derive"] }
-teloxide = { version = "0.12.2", features = ["macros", "bincode-serializer"] }
-thiserror = "1.0.58"
+strum = { version = "0.27.2", features = ["derive"] }
+strum_macros = "0.27.2"
+teloxide = { version = "0.17.0", features = ["macros", "bincode-serializer"] }
+thiserror = "2.0.17"
 tokio = { version = "1.37.0", features = ["full"] }
 tokio-stream = "0.1.15"
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 uuid = { version = "1.8.0", features = ["v4", "fast-rng"] }
+reqwest = "0.12.8"
+serde_json = "1.0.145"
+url = "2.5.7"

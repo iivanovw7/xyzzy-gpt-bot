@@ -1,8 +1,9 @@
-use crate::types::{ConfigParameters, HandleResult};
 use teloxide::prelude::*;
 
+use crate::types::main::{ConfigParameters, HandleResult};
+
 pub async fn log(cfg: ConfigParameters, bot: Bot, msg: Message) -> HandleResult {
-    let is_maintainer = msg.from().unwrap().id == cfg.bot_maintainer;
+    let is_maintainer = msg.from.unwrap().id == cfg.bot_maintainer;
 
     if is_maintainer {
         bot.send_message(msg.chat.id, "Maintainer is you!".to_string())

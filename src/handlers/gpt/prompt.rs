@@ -1,10 +1,11 @@
-use crate::types::{HandleResult, State};
-use async_openai::types::{ChatCompletionRequestUserMessageArgs, Role};
+use async_openai::types::ChatCompletionRequestUserMessageArgs;
 
-use teloxide::prelude::*;
+use teloxide::{prelude::*, sugar::request::RequestReplyExt};
 use tracing::info;
 
-pub async fn set(prompt: String, bot: Bot, state: State, msg: Message) -> HandleResult {
+use crate::types::main::{ChatHistoryState, HandleResult};
+
+pub async fn set(prompt: String, bot: Bot, state: ChatHistoryState, msg: Message) -> HandleResult {
     info!("Set prompt, user: {}, prompt: {}", msg.chat.id, prompt);
 
     {
@@ -14,7 +15,6 @@ pub async fn set(prompt: String, bot: Bot, state: State, msg: Message) -> Handle
         messages.clear();
         messages.push(
             ChatCompletionRequestUserMessageArgs::default()
-                .role(Role::System)
                 .content(prompt)
                 .build()?
                 .into(),
@@ -22,7 +22,7 @@ pub async fn set(prompt: String, bot: Bot, state: State, msg: Message) -> Handle
     }
 
     bot.send_message(msg.chat.id, "Prompt set.")
-        .reply_to_message_id(msg.id)
+        .reply_to(msg.id)
         .await?;
 
     Ok(())

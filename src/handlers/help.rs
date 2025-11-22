@@ -1,15 +1,17 @@
-use crate::types::{ConfigParameters, HandleResult, MaintainerCommands, PublicCommands};
 use teloxide::{prelude::*, types::Me, utils::command::BotCommands};
 
+use crate::types::main::{ConfigParameters, HandleResult, MaintainerCommands, PublicCommands};
+
 pub async fn commands(cfg: ConfigParameters, bot: Bot, me: Me, msg: Message) -> HandleResult {
-    let is_maintainer = msg.from().unwrap().id == cfg.bot_maintainer;
+    let is_maintainer = msg.from.unwrap().id == cfg.bot_maintainer;
     let is_group_or_supergroup = msg.chat.is_group() || msg.chat.is_supergroup();
 
     if is_maintainer {
         bot.send_message(
             msg.chat.id,
             format!(
-                "{}\n\n{}",
+                "Chat id: {}\n\n{}\n\n{}",
+                msg.chat.id,
                 PublicCommands::descriptions(),
                 MaintainerCommands::descriptions()
             ),

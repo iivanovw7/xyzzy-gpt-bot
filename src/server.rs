@@ -1,14 +1,20 @@
 use crate::{
     commands::{maintainer_commands, public_commands},
     env::ENV,
-    types::{ChatHistories, ConfigParameters, MaintainerCommands, PublicCommands},
+    handlers,
+    menu::main::handle_menu_button,
+    types::main::{
+        ChatHistories, ConfigParameters, DialogueState, MaintainerCommands, PublicCommands,
+    },
 };
 use async_openai::{config::OpenAIConfig, Client};
 use dotenv::dotenv;
 use std::sync::{Arc, Mutex};
-use teloxide::{prelude::*, utils::command::BotCommands};
+use teloxide::{dispatching::dialogue::InMemStorage, types::MenuButton};
+use teloxide::{prelude::*, types::*};
 use tracing::{error, info, warn};
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use url::Url;
 
 pub async fn server() {
     match dotenv() {
@@ -29,44 +35,74 @@ pub async fn server() {
     let bot = Bot::new(&ENV.token);
     let client: Client<OpenAIConfig> = Client::with_config(config);
     let state = Arc::new(Mutex::new(ChatHistories::new()));
+
     let parameters = ConfigParameters {
         bot_maintainer: UserId(ENV.user_id),
         maintainer_username: None,
     };
 
-    let mut commands = Vec::new();
+    let dialogue_storage = InMemStorage::<DialogueState>::new();
 
-    for public_command in PublicCommands::bot_commands().iter() {
-        commands.push(public_command.clone());
-    }
+    let web_app_url_str = "https://your-webapp-domain.com/index.html";
+    let web_app_url = Url::parse(web_app_url_str).expect("Failed to parse Web App URL");
+    let web_app_info = WebAppInfo { url: web_app_url };
 
-    for maintainer_command in MaintainerCommands::bot_commands().iter() {
-        commands.push(maintainer_command.clone());
-    }
+    let menu_button_value = MenuButton::WebApp {
+        text: "Open".to_string(),
+        web_app: web_app_info,
+    };
 
-    match bot.set_my_commands(commands).await {
-        Ok(_) => info!("Commands loaded"),
-        Err(_) => error!("Commands loading error"),
-    }
+    bot.set_chat_menu_button()
+        .menu_button(menu_button_value)
+        .await
+        .ok();
+
+    let maintainer_filter = dptree::filter(|cfg: ConfigParameters, msg: Message| {
+        msg.from
+            .map(|user| user.id == cfg.bot_maintainer)
+            .unwrap_or_default()
+    });
 
     let handler = Update::filter_message()
+        .enter_dialogue::<Message, InMemStorage<DialogueState>, DialogueState>()
+        .branch(
+            dptree::case![DialogueState::InChatMode]
+                .branch(
+                    maintainer_filter
+                        .clone()
+                        .filter_command::<MaintainerCommands>()
+                        .endpoint(maintainer_commands),
+                )
+                .branch(
+                    dptree::filter(|msg: Message| msg.text().is_some())
+                        .filter_map(|msg: Message| msg.text().map(ToOwned::to_owned))
+                        .endpoint(handle_menu_button),
+                )
+                .branch(
+                    dptree::filter(|msg: Message| msg.text().is_some())
+                        .filter_map(|msg: Message| msg.text().map(ToOwned::to_owned))
+                        .endpoint(handlers::gpt::chat::message_in_chat_mode),
+                ),
+        )
         .branch(
             dptree::entry()
                 .filter_command::<PublicCommands>()
                 .endpoint(public_commands),
         )
         .branch(
-            dptree::filter(|cfg: ConfigParameters, msg: Message| {
-                msg.from()
-                    .map(|user| user.id == cfg.bot_maintainer)
-                    .unwrap_or_default()
-            })
-            .filter_command::<MaintainerCommands>()
-            .endpoint(maintainer_commands),
+            maintainer_filter
+                .clone()
+                .filter_command::<MaintainerCommands>()
+                .endpoint(maintainer_commands),
+        )
+        .branch(
+            dptree::filter(|msg: Message| msg.text().is_some())
+                .filter_map(|msg: Message| msg.text().map(ToOwned::to_owned))
+                .endpoint(handle_menu_button),
         );
 
     Dispatcher::builder(bot, handler)
-        .dependencies(dptree::deps![client, state, parameters])
+        .dependencies(dptree::deps![client, state, parameters, dialogue_storage])
         .default_handler(|upd| async move {
             warn!("Unhandled update: {:?}", upd);
         })
