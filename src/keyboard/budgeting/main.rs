@@ -8,7 +8,10 @@ pub fn create_budgeting_menu_keyboard() -> ReplyMarkup {
             KeyboardButton::new(BudgetingMenuItems::Statistics),
             KeyboardButton::new(BudgetingMenuItems::AddExpense),
         ],
-        vec![KeyboardButton::new(BudgetingMenuItems::Settings)],
+        vec![
+            KeyboardButton::new(BudgetingMenuItems::Settings),
+            KeyboardButton::new(BudgetingMenuItems::Categories),
+        ],
         vec![KeyboardButton::new(BudgetingMenuItems::Back)],
     ];
 

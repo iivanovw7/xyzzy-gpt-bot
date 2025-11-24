@@ -1,6 +1,6 @@
 use crate::{
     env::ENV,
-    types::main::{BotDialogue, ChatHistoryState, DialogueState, HandleResult},
+    types::common::{BotDialogue, ChatHistoryState, DialogueState, HandleResult},
     utils::markdown::escape_markdown_v2,
 };
 use async_openai::{
@@ -86,10 +86,13 @@ pub async fn enter(bot: Bot, dialogue: BotDialogue, msg: Message) -> HandleResul
     match dialogue_state {
         DialogueState::Start
         | DialogueState::WaitingForChatRequest
-        | DialogueState::WaitingForNewPrompt => {
+        | DialogueState::WaitingForNewPrompt
+        | DialogueState::CategoriesIdle => {
             dialogue.update(DialogueState::InChatMode).await?;
 
-            if dialogue_state == DialogueState::Start {
+            if dialogue_state == DialogueState::Start
+                || dialogue_state == DialogueState::CategoriesIdle
+            {
                 dialogue.update(DialogueState::InChatMode).await?;
 
                 let message = escape_markdown_v2("🤖 **AI Chat Mode Activated**");
@@ -106,6 +109,7 @@ pub async fn enter(bot: Bot, dialogue: BotDialogue, msg: Message) -> HandleResul
             bot.send_message(msg.chat.id, "You are already in AI Chat Mode.")
                 .await?;
         }
+        _ => {}
     }
 
     Ok(())

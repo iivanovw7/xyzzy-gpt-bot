@@ -1,8 +1,13 @@
+use std::sync::Arc;
+
 use crate::{
-    handlers, menu,
-    types::main::{
-        BotDialogue, ChatHistoryState, ConfigParameters, HandleResult, MaintainerCommands,
-        PublicCommands,
+    handlers, keyboard,
+    types::{
+        common::{
+            BotDialogue, ChatHistoryState, ConfigParameters, HandleResult, MaintainerCommands,
+            PublicCommands,
+        },
+        databases::Database,
     },
 };
 use async_openai::{config::OpenAIConfig, Client};
@@ -14,11 +19,12 @@ pub async fn public_commands(
     me: Me,
     _dialogue: BotDialogue,
     msg: Message,
+    _db: Arc<Database>,
     cmd: PublicCommands,
 ) -> HandleResult {
     match cmd {
         PublicCommands::Start => {
-            menu::main::start(bot, msg).await?;
+            keyboard::core::start(bot, msg).await?;
         }
         PublicCommands::Help => {
             handlers::help::commands(cfg, bot, me, msg).await?;
@@ -40,6 +46,7 @@ pub async fn maintainer_commands(
     bot: Bot,
     dialogue: BotDialogue,
     msg: Message,
+    db: Arc<Database>,
     cmd: MaintainerCommands,
 ) -> HandleResult {
     match cmd {
@@ -65,7 +72,33 @@ pub async fn maintainer_commands(
             handlers::budgeting::statistics::overview(bot, msg).await?;
         }
         MaintainerCommands::Add => {
-            handlers::budgeting::records::add(bot, msg).await?;
+            handlers::budgeting::transactions::add(bot, msg).await?;
+        }
+        MaintainerCommands::Categories => {
+            handlers::budgeting::categories::list(bot, msg, &db.categories()).await?;
+        }
+        MaintainerCommands::AddIncomeCategory(category) => {
+            handlers::budgeting::categories::add(
+                category,
+                "income".to_string(),
+                bot,
+                msg,
+                &db.categories(),
+            )
+            .await?;
+        }
+        MaintainerCommands::AddSpendingCategory(category) => {
+            handlers::budgeting::categories::add(
+                category,
+                "spending".to_string(),
+                bot,
+                msg,
+                &db.categories(),
+            )
+            .await?;
+        }
+        MaintainerCommands::RemoveCategory(id) => {
+            handlers::budgeting::categories::remove(id, &db.categories(), bot, msg).await?
         }
     }
 

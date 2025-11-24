@@ -1,10 +1,12 @@
 use crate::{
     commands::{maintainer_commands, public_commands},
     env::ENV,
-    handlers,
-    menu::main::handle_menu_button,
-    types::main::{
-        ChatHistories, ConfigParameters, DialogueState, MaintainerCommands, PublicCommands,
+    handlers, keyboard,
+    types::{
+        common::{
+            ChatHistories, ConfigParameters, DialogueState, MaintainerCommands, PublicCommands,
+        },
+        databases::Database,
     },
 };
 use async_openai::{config::OpenAIConfig, Client};
@@ -35,6 +37,7 @@ pub async fn server() {
     let bot = Bot::new(&ENV.token);
     let client: Client<OpenAIConfig> = Client::with_config(config);
     let state = Arc::new(Mutex::new(ChatHistories::new()));
+    let db = Arc::new(Database::new().await);
 
     let parameters = ConfigParameters {
         bot_maintainer: UserId(ENV.user_id),
@@ -63,46 +66,50 @@ pub async fn server() {
             .unwrap_or_default()
     });
 
+    let message_filter = dptree::filter(|msg: Message| msg.text().is_some())
+        .filter_map(|msg: Message| msg.text().map(ToOwned::to_owned));
+
+    let maintainer_commands = maintainer_filter
+        .clone()
+        .filter_command::<MaintainerCommands>()
+        .endpoint(maintainer_commands);
+
+    let public_commands = dptree::entry()
+        .filter_command::<PublicCommands>()
+        .endpoint(public_commands);
+
     let handler = Update::filter_message()
         .enter_dialogue::<Message, InMemStorage<DialogueState>, DialogueState>()
         .branch(
             dptree::case![DialogueState::InChatMode]
+                .branch(maintainer_commands.clone())
                 .branch(
-                    maintainer_filter
+                    message_filter
                         .clone()
-                        .filter_command::<MaintainerCommands>()
-                        .endpoint(maintainer_commands),
+                        .endpoint(keyboard::core::handle_keyboard),
                 )
                 .branch(
-                    dptree::filter(|msg: Message| msg.text().is_some())
-                        .filter_map(|msg: Message| msg.text().map(ToOwned::to_owned))
-                        .endpoint(handle_menu_button),
-                )
-                .branch(
-                    dptree::filter(|msg: Message| msg.text().is_some())
-                        .filter_map(|msg: Message| msg.text().map(ToOwned::to_owned))
+                    message_filter
+                        .clone()
                         .endpoint(handlers::gpt::chat::message_in_chat_mode),
                 ),
         )
+        .branch(public_commands.clone())
+        .branch(maintainer_commands.clone())
         .branch(
-            dptree::entry()
-                .filter_command::<PublicCommands>()
-                .endpoint(public_commands),
-        )
-        .branch(
-            maintainer_filter
+            message_filter
                 .clone()
-                .filter_command::<MaintainerCommands>()
-                .endpoint(maintainer_commands),
-        )
-        .branch(
-            dptree::filter(|msg: Message| msg.text().is_some())
-                .filter_map(|msg: Message| msg.text().map(ToOwned::to_owned))
-                .endpoint(handle_menu_button),
+                .endpoint(keyboard::core::handle_keyboard),
         );
 
     Dispatcher::builder(bot, handler)
-        .dependencies(dptree::deps![client, state, parameters, dialogue_storage])
+        .dependencies(dptree::deps![
+            client,
+            state,
+            parameters,
+            dialogue_storage,
+            db.clone()
+        ])
         .default_handler(|upd| async move {
             warn!("Unhandled update: {:?}", upd);
         })

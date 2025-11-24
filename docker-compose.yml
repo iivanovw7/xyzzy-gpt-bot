@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+    xyzzy-bot:
+        image: xyzzy-gpt-bot:latest
+        container_name: xyzzy-gpt-bot
+        restart: unless-stopped
+        ports:
+            - "8080:8080"
+        volumes:
+            - ./db:/app/db
+        environment:
+            - DATABASE_URL=sqlite:/app/db/data.db

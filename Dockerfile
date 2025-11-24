@@ -45,11 +45,14 @@ WORKDIR /app
 COPY --from=rust_builder /app/target/release/xyzzy-gpt-bot ./server
 COPY --from=node_builder /app/.env .
 
-RUN apt-get update -y && \
-    apt-get install -y ca-certificates
+RUN mkdir -p /app/db
 
-EXPOSE 80
-EXPOSE 443
-EXPOSE 8080
+ENV DATABASE_URL=/app/data/data.db
+
+RUN apt-get update -y \
+    && apt-get install -y ca-certificates libssl3 \
+    && rm -rf /var/lib/apt/lists/*
+
+EXPOSE 80 443 8080
 
 ENTRYPOINT ["/app/server"]

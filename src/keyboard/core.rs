@@ -1,17 +1,16 @@
 use async_openai::{config::OpenAIConfig, Client};
-use std::str::FromStr;
+use std::{str::FromStr, sync::Arc};
 use teloxide::{
     prelude::*,
     types::{KeyboardButton, KeyboardMarkup, Me, ReplyMarkup},
 };
 
 use crate::{
-    handlers::{self},
-    menu::{budgeting::create_budgeting_menu_keyboard, gpt::create_gpt_menu_keyboard},
+    handlers, keyboard,
     types::{
-        self,
-        main::{BotDialogue, ChatHistoryState, ConfigParameters, DialogueState, HandleResult},
-        menu::{BudgetingMenuItems, MainMenuItems, OpenAIMenuItems},
+        common::{BotDialogue, ChatHistoryState, ConfigParameters, DialogueState, HandleResult},
+        databases::Database,
+        menu::{BudgetingCategoriesMenuItems, BudgetingMenuItems, MainMenuItems, OpenAIMenuItems},
     },
 };
 
@@ -41,7 +40,7 @@ pub fn create_main_menu_keyboard() -> ReplyMarkup {
 }
 
 #[allow(clippy::too_many_arguments)]
-pub async fn handle_menu_button(
+pub async fn handle_keyboard(
     cfg: ConfigParameters,
     client: Client<OpenAIConfig>,
     state: ChatHistoryState,
@@ -49,6 +48,7 @@ pub async fn handle_menu_button(
     me: Me,
     dialogue: BotDialogue,
     msg: Message,
+    db: Arc<Database>,
     text: String,
 ) -> HandleResult {
     let chat_id = msg.chat.id;
@@ -66,12 +66,12 @@ pub async fn handle_menu_button(
             }
             MainMenuItems::AiTools => {
                 bot.send_message(chat_id, "AI Chat tools")
-                    .reply_markup(create_gpt_menu_keyboard())
+                    .reply_markup(keyboard::gpt::create_gpt_menu_keyboard())
                     .await?;
             }
             MainMenuItems::Budgeting => {
                 bot.send_message(chat_id, "Budgeting")
-                    .reply_markup(create_budgeting_menu_keyboard())
+                    .reply_markup(keyboard::budgeting::main::create_budgeting_menu_keyboard())
                     .await?;
             }
         };
@@ -122,11 +122,52 @@ pub async fn handle_menu_button(
             BudgetingMenuItems::Statistics => {
                 handlers::budgeting::statistics::overview(bot, msg).await?
             }
-            BudgetingMenuItems::AddExpense => handlers::budgeting::records::add(bot, msg).await?,
+            BudgetingMenuItems::AddExpense => {
+                handlers::budgeting::transactions::add(bot, msg).await?
+            }
             BudgetingMenuItems::Settings => handlers::budgeting::settings::open(bot, msg).await?,
+            BudgetingMenuItems::Categories => {
+                bot.send_message(chat_id, "Budgeting categories")
+                    .reply_markup(
+                        keyboard::budgeting::categories::create_budgeting_categories_menu_keyboard(
+                        ),
+                    )
+                    .await?;
+
+                handlers::budgeting::categories::list(bot, msg, &db.categories()).await?
+            }
             BudgetingMenuItems::Back => {
                 bot.send_message(chat_id, "Returning to Main Menu.")
                     .reply_markup(create_main_menu_keyboard())
+                    .await?;
+            }
+        }
+
+        return Ok(());
+    }
+
+    if let Ok(item) = <BudgetingCategoriesMenuItems as FromStr>::from_str(&text) {
+        match item {
+            BudgetingCategoriesMenuItems::List => {
+                handlers::budgeting::categories::list(bot, msg, &db.categories()).await?
+            }
+            BudgetingCategoriesMenuItems::Add => {
+                dialogue.update(DialogueState::CategoriesAddingKind).await?;
+
+                bot.send_message(msg.chat.id, "➡️ What kind? (`income` or `spending`)")
+                    .await?;
+            }
+            BudgetingCategoriesMenuItems::Remove => {
+                dialogue.update(DialogueState::CategoriesRemoving).await?;
+
+                bot.send_message(msg.chat.id, "🗑 Send category id to remove:")
+                    .await?;
+            }
+            BudgetingCategoriesMenuItems::Back => {
+                dialogue.update(DialogueState::Start).await?;
+
+                bot.send_message(chat_id, "Budgeting")
+                    .reply_markup(keyboard::budgeting::main::create_budgeting_menu_keyboard())
                     .await?;
             }
         }
@@ -149,14 +190,12 @@ pub async fn handle_menu_button(
 
             dialogue.update(DialogueState::Start).await?;
         }
-
         DialogueState::WaitingForNewPrompt => {
             handlers::gpt::prompt::set(text.clone(), bot.clone(), state.clone(), msg.clone())
                 .await?;
 
             dialogue.update(DialogueState::Start).await?;
         }
-
         DialogueState::InChatMode => {
             handlers::gpt::chat::message_in_chat_mode(
                 client.clone(),
@@ -167,7 +206,26 @@ pub async fn handle_menu_button(
             )
             .await?;
         }
+        DialogueState::CategoriesIdle => {
+            bot.send_message(
+                msg.chat.id,
+                "❓ Use Add or Remove button to edit categories",
+            )
+            .await?;
+        }
+        DialogueState::CategoriesAddingKind => {
+            handlers::budgeting::categories::add_kind(text, dialogue, bot, msg).await?;
+        }
+        DialogueState::CategoriesRemoving => {
+            handlers::budgeting::categories::remove(text, &db.categories(), bot, msg).await?;
 
+            dialogue.update(DialogueState::CategoriesIdle).await?;
+        }
+        DialogueState::CategoriesAddingName { kind } => {
+            handlers::budgeting::categories::add(text, kind, bot, msg, &db.categories()).await?;
+
+            dialogue.update(DialogueState::CategoriesIdle).await?;
+        }
         DialogueState::Start => {
             return Ok(());
         }
@@ -176,7 +234,7 @@ pub async fn handle_menu_button(
     Ok(())
 }
 
-pub async fn start(bot: Bot, msg: Message) -> Result<(), types::main::AppError> {
+pub async fn start(bot: Bot, msg: Message) -> HandleResult {
     let keyboard = create_main_menu_keyboard();
 
     bot.send_message(msg.chat.id, "Welcome! Here is your main menu:")

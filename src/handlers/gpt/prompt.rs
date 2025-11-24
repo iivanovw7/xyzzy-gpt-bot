@@ -3,7 +3,7 @@ use async_openai::types::ChatCompletionRequestUserMessageArgs;
 use teloxide::{prelude::*, sugar::request::RequestReplyExt};
 use tracing::info;
 
-use crate::types::main::{ChatHistoryState, HandleResult};
+use crate::types::common::{ChatHistoryState, HandleResult};
 
 pub async fn set(prompt: String, bot: Bot, state: ChatHistoryState, msg: Message) -> HandleResult {
     info!("Set prompt, user: {}, prompt: {}", msg.chat.id, prompt);

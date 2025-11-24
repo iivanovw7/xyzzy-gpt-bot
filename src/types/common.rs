@@ -83,8 +83,16 @@ pub enum MaintainerCommands {
     Clear,
     #[command(description = "Budget statistics.")]
     Stats,
-    #[command(description = "Adds a new expense.")]
+    #[command(description = "Adds a new transaction.")]
     Add,
+    #[command(description = "Show list of categories.")]
+    Categories,
+    #[command(description = "Remove income/spending category by id.")]
+    RemoveCategory(String),
+    #[command(description = "Add spenging category.")]
+    AddSpendingCategory(String),
+    #[command(description = "Add income category.")]
+    AddIncomeCategory(String),
 }
 
 pub type OpenAIClient = async_openai::Client<OpenAIConfig>;
@@ -103,4 +111,10 @@ pub enum DialogueState {
     InChatMode,
     WaitingForChatRequest,
     WaitingForNewPrompt,
+    CategoriesIdle,
+    CategoriesAddingKind,
+    CategoriesAddingName {
+        kind: String,
+    },
+    CategoriesRemoving,
 }

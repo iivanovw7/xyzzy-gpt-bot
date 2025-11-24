@@ -44,6 +44,20 @@ pub enum BudgetingMenuItems {
     AddExpense,
     #[strum(serialize = "⚙️ Settings", props(Label = "⚙️ Settings"))]
     Settings,
+    #[strum(serialize = "Categories", props(Label = "Categories"))]
+    Categories,
+    #[strum(serialize = "⬅️ Back", props(Label = "⬅️ Back"))]
+    Back,
+}
+
+#[derive(Debug, Clone, Copy, EnumString, EnumProperty, EnumIter)]
+pub enum BudgetingCategoriesMenuItems {
+    #[strum(serialize = "List Categories", props(Label = "Categories"))]
+    List,
+    #[strum(serialize = "Add Category", props(Label = "Add Category"))]
+    Add,
+    #[strum(serialize = "Remove Category", props(Label = "Remove Category"))]
+    Remove,
     #[strum(serialize = "⬅️ Back", props(Label = "⬅️ Back"))]
     Back,
 }
@@ -66,6 +80,12 @@ impl From<BudgetingMenuItems> for String {
     }
 }
 
+impl From<BudgetingCategoriesMenuItems> for String {
+    fn from(item: BudgetingCategoriesMenuItems) -> Self {
+        item.to_string()
+    }
+}
+
 impl fmt::Display for MainMenuItems {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.get_str("Label").unwrap())
@@ -79,6 +99,12 @@ impl fmt::Display for OpenAIMenuItems {
 }
 
 impl fmt::Display for BudgetingMenuItems {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.get_str("Label").unwrap())
+    }
+}
+
+impl fmt::Display for BudgetingCategoriesMenuItems {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.get_str("Label").unwrap())
     }
