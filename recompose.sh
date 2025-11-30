@@ -1,11 +1,7 @@
 #!/bin/bash
-imageName=xyzzy-gpt-bot
-containerName=xyzzy-gpt-bot
 
-docker build -t $imageName -f Dockerfile .
+echo "Stopping and removing old container..."
+docker compose down --remove-orphans || true
 
-echo Delete old container...
-docker rm -f $containerName
-
-echo Run new container...
-docker run -d -p 8080:8080 --name $containerName $imageName
+echo "Building new image and running service..."
+docker compose up --build -d

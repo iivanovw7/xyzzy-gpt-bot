@@ -1,14 +1,21 @@
 use teloxide::types::{KeyboardButton, KeyboardMarkup, ReplyMarkup};
 
-use crate::types::menu::BudgetingMenuItems;
+use crate::types::keyboard::BudgetingMenuItems;
 
 pub fn create_budgeting_menu_keyboard() -> ReplyMarkup {
     let keyboard_rows: Vec<Vec<KeyboardButton>> = vec![
         vec![
-            KeyboardButton::new(BudgetingMenuItems::Statistics),
-            KeyboardButton::new(BudgetingMenuItems::AddExpense),
+            KeyboardButton::new(BudgetingMenuItems::AddIncome),
+            KeyboardButton::new(BudgetingMenuItems::AddSpending),
         ],
-        vec![KeyboardButton::new(BudgetingMenuItems::Settings)],
+        vec![
+            KeyboardButton::new(BudgetingMenuItems::Statistics),
+            KeyboardButton::new(BudgetingMenuItems::Transactions),
+        ],
+        vec![
+            KeyboardButton::new(BudgetingMenuItems::Settings),
+            KeyboardButton::new(BudgetingMenuItems::Categories),
+        ],
         vec![KeyboardButton::new(BudgetingMenuItems::Back)],
     ];
 

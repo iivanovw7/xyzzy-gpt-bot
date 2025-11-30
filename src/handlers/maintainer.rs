@@ -1,6 +1,6 @@
 use teloxide::prelude::*;
 
-use crate::types::main::{ConfigParameters, HandleResult};
+use crate::types::common::{ConfigParameters, HandleResult};
 
 pub async fn log(cfg: ConfigParameters, bot: Bot, msg: Message) -> HandleResult {
     let is_maintainer = msg.from.unwrap().id == cfg.bot_maintainer;

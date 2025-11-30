@@ -4,22 +4,22 @@ Telegram bot for `chat-gpt`.
 
 Contents:
 
--   [Crates](#crates)
--   [Requirements](#requirements)
--   [Installation](#installation)
--   [Scripts](#scripts)
--   [Dockerfile](#dockerfile)
+- [Crates](#crates)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Scripts](#scripts)
+- [Dockerfile](#dockerfile)
 
 ## Crates
 
--   [teloxide](https://github.com/teloxide/teloxide)
--   [asyncopenapi](https://github.com/64bit/async-openai)
--   [tokio](https://docs.rs/tokio/latest/tokio)
+- [teloxide](https://github.com/teloxide/teloxide)
+- [asyncopenapi](https://github.com/64bit/async-openai)
+- [tokio](https://docs.rs/tokio/latest/tokio)
 
 ## Requirements
 
--   cargo 1.77.2 (e52e36006 2024-03-26)
--   Rustc 1.77.2 (25ef9e3d8 2024-04-09)
+- cargo 1.77.2 (e52e36006 2024-03-26)
+- Rustc 1.77.2 (25ef9e3d8 2024-04-09)
 
 ## Installation
 
@@ -30,18 +30,37 @@ TOKEN=XXX
 OPEN_API_KEY=XXXX
 USER_ID=99999
 MODEL=gpt-4-turbo
+DATABASE_URL=sqlite:data.db
 ```
 
--   Install rust
+- Install
 
 ```bash
-pacman -S rustup
+sufo pacman -S rustup
+sudo pacman -S sqlite
+
 rustup default stable
+```
+
+## Setup `db` locally
+
+```bash
+rm -rf db
+mkdir -p db
+
+export DATABASE_URL=sqlite:///$(pwd)/db/data.db
+
+sqlx database create
+sqlx migrate run
+
+cargo sqlx migrate run
 ```
 
 ## Scripts
 
 ```bash
+
+cargo check
 cargo run
 cargo run --release
 cargo build
@@ -50,7 +69,7 @@ cargo build --release
 
 ## Dockerfile
 
--   Install docker
+- Install docker
 
 ```bash
 sudo pacman -Syu
@@ -69,7 +88,7 @@ docker-compose --version
 
 ```
 
--   Build and run container
+- Build and run container
 
 ```bash
 docker build -t image-name -f Dockerfile .

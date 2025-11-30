@@ -8,6 +8,7 @@ pub struct Env {
     pub open_api_key: String,
     pub user_id: u64,
     pub model: String,
+    pub database_url: String,
 }
 
 lazy_static! {

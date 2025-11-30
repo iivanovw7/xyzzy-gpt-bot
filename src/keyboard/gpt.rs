@@ -1,14 +1,26 @@
 use teloxide::types::{KeyboardButton, KeyboardMarkup, ReplyMarkup};
 
-use crate::types::menu::OpenAIMenuItems;
+use crate::types::{
+    common::{AppError, BotDialogue, DialogueState},
+    keyboard::OpenAIMenuItems,
+};
 
-pub fn create_gpt_menu_keyboard() -> ReplyMarkup {
+pub async fn create_gpt_menu_keyboard(dialogue: BotDialogue) -> Result<ReplyMarkup, AppError> {
+    let state = dialogue.get_or_default().await?;
+
+    let mut chat_controls = vec![KeyboardButton::new(OpenAIMenuItems::StartChat)];
+
+    match state {
+        DialogueState::InChatMode => {
+            chat_controls.push(KeyboardButton::new(OpenAIMenuItems::ExitChatMode));
+        }
+        _ => {
+            chat_controls.push(KeyboardButton::new(OpenAIMenuItems::EnterChatMode));
+        }
+    }
+
     let keyboard_rows: Vec<Vec<KeyboardButton>> = vec![
-        vec![
-            KeyboardButton::new(OpenAIMenuItems::StartChat),
-            KeyboardButton::new(OpenAIMenuItems::EnterChatMode),
-            KeyboardButton::new(OpenAIMenuItems::ExitChatMode),
-        ],
+        chat_controls,
         vec![
             KeyboardButton::new(OpenAIMenuItems::SetPrompt),
             KeyboardButton::new(OpenAIMenuItems::ViewHistory),
@@ -26,5 +38,5 @@ pub fn create_gpt_menu_keyboard() -> ReplyMarkup {
         selective: false,
     };
 
-    custom_keyboard.into()
+    Ok(custom_keyboard.into())
 }

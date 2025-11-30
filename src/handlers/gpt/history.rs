@@ -2,8 +2,7 @@ use async_openai::types::ChatCompletionRequestMessage;
 use async_openai::types::ChatCompletionRequestToolMessageContent;
 use teloxide::{prelude::*, sugar::request::RequestReplyExt};
 
-use crate::types::main::ChatHistoryState;
-use crate::types::main::HandleResult;
+use crate::types::common::{ChatHistoryState, HandleResult};
 
 fn print_msg(msg: &ChatCompletionRequestMessage) -> String {
     match msg {

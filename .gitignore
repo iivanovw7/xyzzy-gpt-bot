@@ -3,3 +3,8 @@
 /assets/css/main.css
 /node_modules
 /target
+
+*.db
+*.db*
+*.sqlite
+*.sqlite3

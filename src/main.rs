@@ -4,9 +4,11 @@ use crate::server::server;
 extern crate lazy_static;
 
 pub mod commands;
+pub mod database;
+pub mod databases;
 pub mod env;
 pub mod handlers;
-pub mod menu;
+pub mod keyboard;
 pub mod server;
 pub mod types;
 pub mod utils;
