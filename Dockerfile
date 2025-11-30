@@ -1,58 +1,60 @@
+# ================================
+# STAGE 0: Base Rust Setup
+# ================================
 FROM rust:slim-bookworm AS rust_base
+
+RUN apt-get update -y \
+    && apt-get install -y \
+        pkg-config \
+        libssl-dev \
+        openssl \
+        perl \
+        build-essential \
+        libsqlite3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN cargo install cargo-chef --locked
 
-# === STAGE 1: Chef Planner ===
+# ================================
+# STAGE 1: Chef Planner
+# ================================
 FROM rust_base AS chef
-
 WORKDIR /app
-
-FROM chef AS planner
-
 COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
-# === STAGE 2: Rust Builder ===
-FROM chef AS rust_builder
-COPY --from=planner /app/recipe.json recipe.json
+# ================================
+# STAGE 2: Rust Builder
+# ================================
+FROM rust_base AS rust_builder
+WORKDIR /app
 
-RUN apt-get update -y \
-    && apt-get install -y openssl perl build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
+COPY --from=chef /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 
 COPY . .
 RUN cargo build --release
 
-# === STAGE 3: Node Builder ===
-FROM node:bookworm-slim as node_builder
-
-WORKDIR /app
-
-RUN npm install -g corepack@latest --force && corepack enable
-
-COPY .env .
-COPY .nvmrc .
-
-RUN npm install pm2 -g
-
-# === STAGE 4: Final Runtime Image ===
+# ================================
+# STAGE 3: Final Runtime Image
+# ================================
 FROM debian:bookworm-slim AS runtime
-
 WORKDIR /app
-
-COPY --from=rust_builder /app/target/release/xyzzy-gpt-bot ./server
-COPY --from=node_builder /app/.env .
-
-RUN mkdir -p /app/db
-
-ENV DATABASE_URL=/app/data/data.db
 
 RUN apt-get update -y \
-    && apt-get install -y ca-certificates libssl3 \
+    && apt-get install -y \
+        libssl3 \
+        libsqlite3-0 \
+        ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /db 
+
+COPY --from=rust_builder /app/target/release/xyzzy-gpt-bot ./server
+COPY .env .
 
 EXPOSE 80 443 8080
 
-ENTRYPOINT ["/app/server"]
+USER root
+
+ENTRYPOINT ["sh", "-c", "mkdir -p /db && chmod -R 777 /db && /app/server"]

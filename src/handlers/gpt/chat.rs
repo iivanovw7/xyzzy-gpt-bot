@@ -1,5 +1,6 @@
 use crate::{
     env::ENV,
+    keyboard::gpt::create_gpt_menu_keyboard,
     types::common::{BotDialogue, ChatHistoryState, DialogueState, HandleResult},
     utils::markdown::escape_markdown_v2,
 };
@@ -81,35 +82,24 @@ pub async fn message(
 }
 
 pub async fn enter(bot: Bot, dialogue: BotDialogue, msg: Message) -> HandleResult {
-    let dialogue_state = dialogue.get_or_default().await?;
+    let state = dialogue.get_or_default().await?;
 
-    match dialogue_state {
-        DialogueState::Start
-        | DialogueState::WaitingForChatRequest
-        | DialogueState::WaitingForNewPrompt
-        | DialogueState::CategoriesIdle => {
-            dialogue.update(DialogueState::InChatMode).await?;
-
-            if dialogue_state == DialogueState::Start
-                || dialogue_state == DialogueState::CategoriesIdle
-            {
-                dialogue.update(DialogueState::InChatMode).await?;
-
-                let message = escape_markdown_v2("🤖 **AI Chat Mode Activated**");
-
-                bot.send_message(msg.chat.id, message)
-                    .parse_mode(ParseMode::MarkdownV2)
-                    .await?;
-            } else {
-                bot.send_message(msg.chat.id, "You are already in a AI Chat Mode.")
-                    .await?;
-            }
-        }
+    match state {
         DialogueState::InChatMode => {
             bot.send_message(msg.chat.id, "You are already in AI Chat Mode.")
                 .await?;
         }
-        _ => {}
+        _ => {
+            dialogue.update(DialogueState::InChatMode).await?;
+
+            let message = escape_markdown_v2("🤖 **AI Chat Mode Activated**");
+            let gpt_menu_keyboard = create_gpt_menu_keyboard(dialogue.clone()).await?;
+
+            bot.send_message(msg.chat.id, message)
+                .parse_mode(ParseMode::MarkdownV2)
+                .reply_markup(gpt_menu_keyboard)
+                .await?;
+        }
     }
 
     Ok(())
@@ -122,9 +112,11 @@ pub async fn exit(bot: Bot, dialogue: BotDialogue, msg: Message) -> HandleResult
         dialogue.update(DialogueState::Start).await?;
 
         let message = escape_markdown_v2("👋 **AI Chat Mode Deactivated**");
+        let gpt_menu_keyboard = create_gpt_menu_keyboard(dialogue.clone()).await?;
 
         bot.send_message(msg.chat.id, message)
             .parse_mode(ParseMode::MarkdownV2)
+            .reply_markup(gpt_menu_keyboard)
             .await?;
     } else {
         bot.send_message(msg.chat.id, "You are not currently in AI Chat Mode.")

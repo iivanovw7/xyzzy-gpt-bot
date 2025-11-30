@@ -1,30 +1,31 @@
+use strum::EnumProperty;
 use teloxide::prelude::*;
 
 use crate::{
     types::{
-        common::{BotDialogue, DialogueState, HandleResult},
-        databases::CategoriesDb,
+        common::{BotDialogue, DialogueState, HandleResult, TransactionKind},
+        databases::{CategoriesDb, TransactionsDb},
     },
     utils::markdown::escape_markdown_v2,
 };
 
 pub async fn list(bot: Bot, msg: Message, categories_db: &CategoriesDb) -> HandleResult {
-    let kinds = [("income", "💰 Income"), ("spending", "🛒 Spending")];
+    let kinds: Vec<TransactionKind> = vec![TransactionKind::Income, TransactionKind::Spending];
 
     let mut output = Vec::new();
 
-    for (kind_key, kind_label) in kinds.iter() {
-        let mut categories = categories_db.list(kind_key).await;
+    for kind in kinds.iter() {
+        let mut categories = categories_db.list(*kind).await;
 
-        categories.sort_by(|a, b| a.0.cmp(&b.0));
+        categories.sort_by(|a, b| a.id.cmp(&b.id));
 
         let list_text = categories
             .iter()
-            .map(|(id, name)| format!("{} - {}", id, escape_markdown_v2(name)))
+            .map(|category| format!("{} - {}", category.id, escape_markdown_v2(&category.name)))
             .collect::<Vec<_>>()
             .join("\n");
 
-        output.push(kind_label.to_string());
+        output.push(kind.get_str("label").unwrap().to_string());
         output.push(list_text.to_string());
     }
 
@@ -39,29 +40,19 @@ pub async fn list(bot: Bot, msg: Message, categories_db: &CategoriesDb) -> Handl
 
 pub async fn add(
     category: String,
-    kind: String,
+    kind: TransactionKind,
     bot: Bot,
     msg: Message,
     categories_db: &CategoriesDb,
 ) -> HandleResult {
-    let kind = kind.to_lowercase();
-
     if category.trim().is_empty() {
         bot.send_message(msg.chat.id, "❌ Category name cannot be empty")
             .await?;
+
         return Ok(());
     }
 
-    if kind != "income" && kind != "spending" {
-        bot.send_message(
-            msg.chat.id,
-            "❌ Invalid category type. Use income or spending",
-        )
-        .await?;
-        return Ok(());
-    }
-
-    let result = categories_db.add(&category, &kind).await;
+    let result = categories_db.add(&category, kind).await;
 
     if result.rows_affected() == 0 {
         bot.send_message(
@@ -83,49 +74,68 @@ pub async fn add(
 pub async fn remove(
     text: String,
     categories_db: &CategoriesDb,
+    transactions_db: &TransactionsDb,
     bot: Bot,
-    msg: Message,
+    chat_id: String,
 ) -> HandleResult {
     let id: i64 = match text.trim().parse() {
         Ok(n) if n > 0 => n,
         _ => {
-            bot.send_message(
-                msg.chat.id,
-                "⚠️ Please provide a valid category id to remove.",
-            )
-            .await?;
+            bot.send_message(chat_id, "⚠️ Please provide a valid category id to remove.")
+                .await?;
+
             return Ok(());
         }
     };
 
     if !categories_db.has(id).await {
-        bot.send_message(msg.chat.id, "⚠️ The category does not exist")
+        bot.send_message(chat_id, "⚠️ The category does not exist")
             .await?;
+
+        return Ok(());
+    }
+
+    let has_transactions = transactions_db.has_transactions_for_category(id).await;
+
+    if has_transactions {
+        bot.send_message(
+            chat_id.clone(),
+            "⚠️ Cannot remove this category because it has transactions.",
+        )
+        .await?;
+
         return Ok(());
     }
 
     categories_db.remove(id).await;
 
-    bot.send_message(msg.chat.id, format!("🗑 Removed category with id: {}", id))
+    bot.send_message(chat_id, format!("🗑 Removed category with id: {}", id))
         .parse_mode(teloxide::types::ParseMode::MarkdownV2)
         .await?;
 
     Ok(())
 }
 
-pub async fn add_kind(text: String, dialogue: BotDialogue, bot: Bot, msg: Message) -> HandleResult {
-    if text != "income" && text != "spending" {
-        bot.send_message(msg.chat.id, "⚠️ Please type `income` or `spending`.")
-            .await?;
-
-        return Ok(());
-    }
-
+pub async fn add_kind(
+    kind: TransactionKind,
+    dialogue: BotDialogue,
+    bot: Bot,
+    chat_id: String,
+) -> HandleResult {
     dialogue
-        .update(DialogueState::CategoriesAddingName { kind: text.clone() })
+        .update(DialogueState::WaitingForNewCategoryName { kind })
         .await?;
 
-    bot.send_message(msg.chat.id, "✏️ Category name?").await?;
+    let kind_string: &str = kind.into();
+
+    bot.send_message(
+        chat_id,
+        format!(
+            "✏️ Please enter the new category name for a new {} category",
+            kind_string
+        ),
+    )
+    .await?;
 
     Ok(())
 }

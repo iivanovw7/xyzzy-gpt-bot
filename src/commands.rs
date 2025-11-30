@@ -4,8 +4,8 @@ use crate::{
     handlers, keyboard,
     types::{
         common::{
-            BotDialogue, ChatHistoryState, ConfigParameters, HandleResult, MaintainerCommands,
-            PublicCommands,
+            BotDialogue, ChatHistoryState, ConfigParameters, DateFilter, HandleResult,
+            MaintainerCommands, PublicCommands, TransactionKind,
         },
         databases::Database,
     },
@@ -69,10 +69,13 @@ pub async fn maintainer_commands(
             handlers::gpt::history::clear(bot, state, msg).await?;
         }
         MaintainerCommands::Stats => {
-            handlers::budgeting::statistics::overview(bot, msg).await?;
-        }
-        MaintainerCommands::Add => {
-            handlers::budgeting::transactions::add(bot, msg).await?;
+            handlers::budgeting::statistics::overview(
+                bot,
+                msg.chat.id.to_string(),
+                &db.transactions(),
+                DateFilter::AllTime,
+            )
+            .await?;
         }
         MaintainerCommands::Categories => {
             handlers::budgeting::categories::list(bot, msg, &db.categories()).await?;
@@ -80,7 +83,7 @@ pub async fn maintainer_commands(
         MaintainerCommands::AddIncomeCategory(category) => {
             handlers::budgeting::categories::add(
                 category,
-                "income".to_string(),
+                TransactionKind::Income,
                 bot,
                 msg,
                 &db.categories(),
@@ -90,7 +93,7 @@ pub async fn maintainer_commands(
         MaintainerCommands::AddSpendingCategory(category) => {
             handlers::budgeting::categories::add(
                 category,
-                "spending".to_string(),
+                TransactionKind::Spending,
                 bot,
                 msg,
                 &db.categories(),
@@ -98,7 +101,14 @@ pub async fn maintainer_commands(
             .await?;
         }
         MaintainerCommands::RemoveCategory(id) => {
-            handlers::budgeting::categories::remove(id, &db.categories(), bot, msg).await?
+            handlers::budgeting::categories::remove(
+                id,
+                &db.categories(),
+                &db.transactions(),
+                bot,
+                msg.chat.id.to_string(),
+            )
+            .await?
         }
     }
 

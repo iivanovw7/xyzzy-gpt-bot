@@ -1,2 +1,2 @@
 pub mod categories;
-pub mod main;
+pub mod core;

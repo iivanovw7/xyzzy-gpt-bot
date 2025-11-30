@@ -4,14 +4,32 @@ use teloxide::{
     prelude::*,
     types::{KeyboardButton, KeyboardMarkup, Me, ReplyMarkup},
 };
+use tracing::info;
 
 use crate::{
-    handlers, keyboard,
-    types::{
-        common::{BotDialogue, ChatHistoryState, ConfigParameters, DialogueState, HandleResult},
-        databases::Database,
-        menu::{BudgetingCategoriesMenuItems, BudgetingMenuItems, MainMenuItems, OpenAIMenuItems},
+    handlers,
+    keyboard::{
+        budgeting::{
+            categories::{
+                create_budgeting_categories_menu_keyboard, create_categories_keyboard,
+                create_kinds_keyboard,
+            },
+            core::create_budgeting_menu_keyboard,
+        },
+        gpt::create_gpt_menu_keyboard,
+        util::create_date_filter_keyboard,
     },
+    types::{
+        common::{
+            BotDialogue, ChatHistoryState, ConfigParameters, DateFilter, DialogueState,
+            HandleResult, TransactionKind,
+        },
+        databases::Database,
+        keyboard::{
+            BudgetingCategoriesMenuItems, BudgetingMenuItems, MainMenuItems, OpenAIMenuItems,
+        },
+    },
+    utils::{markdown::escape_markdown_v2, strings::parse_amount},
 };
 
 pub fn create_main_menu_keyboard() -> ReplyMarkup {
@@ -65,13 +83,15 @@ pub async fn handle_keyboard(
                 handlers::maintainer::log(cfg, bot.clone(), msg.clone()).await?;
             }
             MainMenuItems::AiTools => {
+                let gpt_menu_keyboard = create_gpt_menu_keyboard(dialogue.clone()).await?;
+
                 bot.send_message(chat_id, "AI Chat tools")
-                    .reply_markup(keyboard::gpt::create_gpt_menu_keyboard())
+                    .reply_markup(gpt_menu_keyboard)
                     .await?;
             }
             MainMenuItems::Budgeting => {
                 bot.send_message(chat_id, "Budgeting")
-                    .reply_markup(keyboard::budgeting::main::create_budgeting_menu_keyboard())
+                    .reply_markup(create_budgeting_menu_keyboard())
                     .await?;
             }
         };
@@ -120,18 +140,47 @@ pub async fn handle_keyboard(
     if let Ok(item) = <BudgetingMenuItems as FromStr>::from_str(&text) {
         match item {
             BudgetingMenuItems::Statistics => {
-                handlers::budgeting::statistics::overview(bot, msg).await?
+                let keyboard = create_date_filter_keyboard("statistics");
+                let message = escape_markdown_v2("Select statistics date filter:");
+
+                bot.send_message(msg.chat.id, message)
+                    .reply_markup(keyboard)
+                    .await?;
             }
-            BudgetingMenuItems::AddExpense => {
-                handlers::budgeting::transactions::add(bot, msg).await?
+            BudgetingMenuItems::Transactions => {
+                let keyboard = create_date_filter_keyboard("transactions");
+                let message = escape_markdown_v2("Select transactions date filter:");
+
+                bot.send_message(msg.chat.id, message)
+                    .reply_markup(keyboard)
+                    .await?;
             }
-            BudgetingMenuItems::Settings => handlers::budgeting::settings::open(bot, msg).await?,
+            BudgetingMenuItems::AddIncome => {
+                handlers::budgeting::transactions::add_kind(
+                    TransactionKind::Income,
+                    dialogue,
+                    &db.categories(),
+                    bot,
+                    msg,
+                )
+                .await?;
+            }
+            BudgetingMenuItems::AddSpending => {
+                handlers::budgeting::transactions::add_kind(
+                    TransactionKind::Spending,
+                    dialogue,
+                    &db.categories(),
+                    bot,
+                    msg,
+                )
+                .await?;
+            }
+            BudgetingMenuItems::Settings => {
+                handlers::budgeting::settings::open(bot, msg).await?;
+            }
             BudgetingMenuItems::Categories => {
                 bot.send_message(chat_id, "Budgeting categories")
-                    .reply_markup(
-                        keyboard::budgeting::categories::create_budgeting_categories_menu_keyboard(
-                        ),
-                    )
+                    .reply_markup(create_budgeting_categories_menu_keyboard())
                     .await?;
 
                 handlers::budgeting::categories::list(bot, msg, &db.categories()).await?
@@ -152,22 +201,28 @@ pub async fn handle_keyboard(
                 handlers::budgeting::categories::list(bot, msg, &db.categories()).await?
             }
             BudgetingCategoriesMenuItems::Add => {
-                dialogue.update(DialogueState::CategoriesAddingKind).await?;
+                let prefix = "category:kind";
+                let keyboard = create_kinds_keyboard(prefix);
+                let message = escape_markdown_v2("✏️ Category kind ?");
 
-                bot.send_message(msg.chat.id, "➡️ What kind? (`income` or `spending`)")
+                bot.send_message(msg.chat.id, message)
+                    .reply_markup(keyboard)
                     .await?;
             }
             BudgetingCategoriesMenuItems::Remove => {
-                dialogue.update(DialogueState::CategoriesRemoving).await?;
+                let prefix = "category:remove";
+                let keyboard = create_categories_keyboard(prefix, &db.categories()).await;
+                let message = escape_markdown_v2("🗑 Select category to remove");
 
-                bot.send_message(msg.chat.id, "🗑 Send category id to remove:")
+                bot.send_message(msg.chat.id, message)
+                    .reply_markup(keyboard)
                     .await?;
             }
             BudgetingCategoriesMenuItems::Back => {
                 dialogue.update(DialogueState::Start).await?;
 
-                bot.send_message(chat_id, "Budgeting")
-                    .reply_markup(keyboard::budgeting::main::create_budgeting_menu_keyboard())
+                bot.send_message(chat_id, "Returning to Budgeting.")
+                    .reply_markup(create_budgeting_menu_keyboard())
                     .await?;
             }
         }
@@ -206,25 +261,44 @@ pub async fn handle_keyboard(
             )
             .await?;
         }
-        DialogueState::CategoriesIdle => {
-            bot.send_message(
-                msg.chat.id,
-                "❓ Use Add or Remove button to edit categories",
-            )
-            .await?;
+        DialogueState::InCategoriesMode => {
+            handlers::budgeting::categories::list(bot, msg, &db.categories()).await?;
         }
-        DialogueState::CategoriesAddingKind => {
-            handlers::budgeting::categories::add_kind(text, dialogue, bot, msg).await?;
-        }
-        DialogueState::CategoriesRemoving => {
-            handlers::budgeting::categories::remove(text, &db.categories(), bot, msg).await?;
-
-            dialogue.update(DialogueState::CategoriesIdle).await?;
-        }
-        DialogueState::CategoriesAddingName { kind } => {
+        DialogueState::WaitingForNewCategoryName { kind } => {
             handlers::budgeting::categories::add(text, kind, bot, msg, &db.categories()).await?;
 
-            dialogue.update(DialogueState::CategoriesIdle).await?;
+            dialogue.update(DialogueState::InCategoriesMode).await?;
+        }
+        DialogueState::InTransactionsMode => {
+            bot.send_message(msg.chat.id, "Add new transaction").await?;
+        }
+        DialogueState::WaitingForTransactionAmount { kind, category_id } => {
+            let mut parts = text.splitn(2, ' ');
+
+            let amount_str = parts.next().unwrap_or("0").trim();
+            let description = parts.next().unwrap_or("no description").trim();
+
+            let amount = match parse_amount(amount_str) {
+                Some(a) => a,
+                None => {
+                    let msg_text =
+                        "Invalid amount. Example: `188 Coffee` or `5 Coffee` -> becomes 500";
+                    bot.send_message(msg.chat.id, msg_text).await?;
+
+                    return Ok(());
+                }
+            };
+
+            crate::handlers::budgeting::transactions::add_transaction(
+                amount,
+                description.to_string(),
+                category_id.clone(),
+                &db.transactions(),
+                bot.clone(),
+                msg.chat.id.to_string(),
+                kind,
+            )
+            .await?;
         }
         DialogueState::Start => {
             return Ok(());
@@ -240,6 +314,109 @@ pub async fn start(bot: Bot, msg: Message) -> HandleResult {
     bot.send_message(msg.chat.id, "Welcome! Here is your main menu:")
         .reply_markup(keyboard)
         .await?;
+
+    Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+pub async fn callback(
+    _cfg: ConfigParameters,
+    _client: Client<OpenAIConfig>,
+    _state: ChatHistoryState,
+    bot: Bot,
+    _me: Me,
+    dialogue: BotDialogue,
+    db: Arc<Database>,
+    q: CallbackQuery,
+) -> HandleResult {
+    if let Some(data) = &q.data {
+        let parts: Vec<&str> = data.split(':').collect();
+
+        match parts.as_slice() {
+            ["category", "kind", "income"] => {
+                handlers::budgeting::categories::add_kind(
+                    TransactionKind::Income,
+                    dialogue,
+                    bot.clone(),
+                    q.from.id.to_string(),
+                )
+                .await?;
+            }
+            ["category", "kind", "spending"] => {
+                handlers::budgeting::categories::add_kind(
+                    TransactionKind::Spending,
+                    dialogue,
+                    bot.clone(),
+                    q.from.id.to_string(),
+                )
+                .await?;
+            }
+            ["category", "remove", id_str] => {
+                handlers::budgeting::categories::remove(
+                    id_str.to_string(),
+                    &db.categories(),
+                    &db.transactions(),
+                    bot.clone(),
+                    q.from.id.to_string(),
+                )
+                .await?;
+
+                dialogue.update(DialogueState::InCategoriesMode).await?;
+            }
+            ["transaction", kind_string, "add", "category", id] => {
+                let category_id = id.to_string();
+
+                let kind = TransactionKind::from_str(kind_string).unwrap_or_else(|_| {
+                    panic!("Invalid transaction kind received: {}", kind_string)
+                });
+
+                bot.send_message(
+                    q.from.id.to_string(),
+                    "Add transaction (amount description)",
+                )
+                .await?;
+
+                dialogue
+                    .update(DialogueState::WaitingForTransactionAmount { kind, category_id })
+                    .await?;
+            }
+            ["transactions", "filter", filter] => {
+                let parsed_filter =
+                    DateFilter::from_str(filter).expect("Invalid filter string received");
+
+                handlers::budgeting::transactions::list(
+                    bot.clone(),
+                    q.from.id.to_string(),
+                    &db.transactions(),
+                    parsed_filter,
+                )
+                .await?;
+
+                dialogue.update(DialogueState::Start).await?;
+            }
+            ["statistics", "filter", filter] => {
+                let parsed_filter = DateFilter::from_str(filter)
+                    .unwrap_or_else(|_| panic!("Invalid filter string received: {}", filter));
+
+                handlers::budgeting::statistics::overview(
+                    bot.clone(),
+                    q.from.id.to_string(),
+                    &db.transactions(),
+                    parsed_filter,
+                )
+                .await?;
+
+                dialogue.update(DialogueState::Start).await?;
+            }
+            _ => {
+                info!("Received unknown callback data: {}", data);
+            }
+        }
+    } else {
+        info!("callback query has no data");
+    }
+
+    bot.answer_callback_query(q.id).await?;
 
     Ok(())
 }

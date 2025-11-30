@@ -1,23 +1,35 @@
 use sqlx::sqlite::SqliteQueryResult;
 
-use crate::types::databases::CategoriesDb;
+use crate::types::{common::TransactionKind, databases::CategoriesDb, models::CategoryRow};
 
 impl CategoriesDb {
-    pub async fn list(&self, kind: &str) -> Vec<(i64, String)> {
-        sqlx::query!("SELECT id, name FROM categories WHERE kind = ?", kind)
-            .fetch_all(&self.pool)
-            .await
-            .unwrap()
-            .into_iter()
-            .map(|r| (r.id.unwrap(), r.name))
-            .collect()
+    pub async fn list(&self, kind: TransactionKind) -> Vec<CategoryRow> {
+        let kind_string: &str = kind.into();
+
+        sqlx::query_as!(
+            CategoryRow,
+            r#"
+            SELECT 
+                id as "id!: _",
+                name,
+                kind as "kind!: _"
+            FROM categories
+            WHERE kind = ?
+            "#,
+            kind_string
+        )
+        .fetch_all(&self.pool)
+        .await
+        .unwrap()
     }
 
-    pub async fn add(&self, name: &str, kind: &str) -> SqliteQueryResult {
+    pub async fn add(&self, name: &str, kind: TransactionKind) -> SqliteQueryResult {
+        let kind_string: &str = kind.into();
+
         sqlx::query!(
             "INSERT OR IGNORE INTO categories (name, kind) VALUES (?, ?)",
             name,
-            kind
+            kind_string
         )
         .execute(&self.pool)
         .await

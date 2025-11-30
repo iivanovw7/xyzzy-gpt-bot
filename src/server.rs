@@ -66,8 +66,9 @@ pub async fn server() {
             .unwrap_or_default()
     });
 
-    let message_filter = dptree::filter(|msg: Message| msg.text().is_some())
-        .filter_map(|msg: Message| msg.text().map(ToOwned::to_owned));
+    let message_filter = Update::filter_message()
+        .filter(|msg: Message| msg.text().is_some())
+        .map(|msg: Message| msg.text().unwrap().to_string());
 
     let maintainer_commands = maintainer_filter
         .clone()
@@ -78,37 +79,46 @@ pub async fn server() {
         .filter_command::<PublicCommands>()
         .endpoint(public_commands);
 
-    let handler = Update::filter_message()
-        .enter_dialogue::<Message, InMemStorage<DialogueState>, DialogueState>()
+    let handler = dptree::entry()
         .branch(
-            dptree::case![DialogueState::InChatMode]
+            Update::filter_callback_query()
+                .enter_dialogue::<CallbackQuery, InMemStorage<DialogueState>, DialogueState>()
+                .endpoint(keyboard::core::callback),
+        )
+        .branch(
+            Update::filter_message()
+                .enter_dialogue::<Message, InMemStorage<DialogueState>, DialogueState>()
+                .branch(
+                    dptree::case![DialogueState::InChatMode]
+                        .branch(maintainer_commands.clone())
+                        .branch(
+                            message_filter
+                                .clone()
+                                .endpoint(keyboard::core::handle_keyboard),
+                        )
+                        .branch(
+                            message_filter
+                                .clone()
+                                .endpoint(handlers::gpt::chat::message_in_chat_mode),
+                        ),
+                )
+                .branch(public_commands.clone())
                 .branch(maintainer_commands.clone())
                 .branch(
                     message_filter
                         .clone()
                         .endpoint(keyboard::core::handle_keyboard),
-                )
-                .branch(
-                    message_filter
-                        .clone()
-                        .endpoint(handlers::gpt::chat::message_in_chat_mode),
                 ),
-        )
-        .branch(public_commands.clone())
-        .branch(maintainer_commands.clone())
-        .branch(
-            message_filter
-                .clone()
-                .endpoint(keyboard::core::handle_keyboard),
         );
 
-    Dispatcher::builder(bot, handler)
+    Dispatcher::builder(bot.clone(), handler)
         .dependencies(dptree::deps![
             client,
             state,
             parameters,
             dialogue_storage,
-            db.clone()
+            db.clone(),
+            bot.clone().get_me().await.unwrap()
         ])
         .default_handler(|upd| async move {
             warn!("Unhandled update: {:?}", upd);

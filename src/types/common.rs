@@ -3,9 +3,10 @@ use serde::{Deserialize, Serialize};
 use std::{
     cmp::PartialEq,
     collections::HashMap,
+    fmt,
     sync::{Arc, Mutex},
 };
-use strum::Display;
+use strum::{Display, EnumIter, EnumProperty, EnumString, IntoStaticStr};
 use teloxide::{
     dispatching::dialogue::{InMemStorage, InMemStorageError},
     prelude::*,
@@ -83,8 +84,6 @@ pub enum MaintainerCommands {
     Clear,
     #[command(description = "Budget statistics.")]
     Stats,
-    #[command(description = "Adds a new transaction.")]
-    Add,
     #[command(description = "Show list of categories.")]
     Categories,
     #[command(description = "Remove income/spending category by id.")]
@@ -93,6 +92,37 @@ pub enum MaintainerCommands {
     AddSpendingCategory(String),
     #[command(description = "Add income category.")]
     AddIncomeCategory(String),
+}
+
+#[derive(Debug, Clone, Copy, EnumString, EnumProperty, PartialEq, EnumIter, IntoStaticStr)]
+pub enum TransactionKind {
+    #[strum(serialize = "income", props(label = "💰 Income"))]
+    Income,
+    #[strum(serialize = "spending", props(label = "🛒 Spending"))]
+    Spending,
+}
+
+impl fmt::Display for TransactionKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let label = self.get_str("label").unwrap_or_else(|| self.into());
+
+        write!(f, "{}", label)
+    }
+}
+
+impl From<TransactionKind> for String {
+    fn from(item: TransactionKind) -> Self {
+        item.to_string()
+    }
+}
+
+impl TransactionKind {
+    pub fn apply_sign(&self, amount: i64) -> i64 {
+        match self {
+            TransactionKind::Income => amount,
+            TransactionKind::Spending => -amount,
+        }
+    }
 }
 
 pub type OpenAIClient = async_openai::Client<OpenAIConfig>;
@@ -111,10 +141,38 @@ pub enum DialogueState {
     InChatMode,
     WaitingForChatRequest,
     WaitingForNewPrompt,
-    CategoriesIdle,
-    CategoriesAddingKind,
-    CategoriesAddingName {
-        kind: String,
+    InCategoriesMode,
+    WaitingForNewCategoryName {
+        kind: TransactionKind,
     },
-    CategoriesRemoving,
+    InTransactionsMode,
+    WaitingForTransactionAmount {
+        kind: TransactionKind,
+        category_id: String,
+    },
+}
+
+#[derive(Debug, Clone, Copy, EnumString, EnumIter)]
+pub enum DateFilter {
+    Today,
+    CurrentWeek,
+    CurrentMonth,
+    LastMonth,
+    Last3Months,
+    CurrentYear,
+    AllTime,
+}
+
+impl DateFilter {
+    pub fn label(&self) -> &'static str {
+        match self {
+            DateFilter::Today => "📅 Today",
+            DateFilter::CurrentWeek => "📅 Current Week",
+            DateFilter::CurrentMonth => "📅 Current Month",
+            DateFilter::LastMonth => "📅 Last Month",
+            DateFilter::Last3Months => "📅 Last 3 Months",
+            DateFilter::CurrentYear => "📅 This Year",
+            DateFilter::AllTime => "📅 All Time",
+        }
+    }
 }
