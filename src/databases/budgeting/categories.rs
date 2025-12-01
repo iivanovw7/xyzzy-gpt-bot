@@ -1,6 +1,10 @@
 use sqlx::sqlite::SqliteQueryResult;
 
-use crate::types::{common::TransactionKind, databases::CategoriesDb, models::CategoryRow};
+use crate::types::{
+    common::{AppError, TransactionKind},
+    databases::CategoriesDb,
+    models::CategoryRow,
+};
 
 impl CategoriesDb {
     pub async fn list(&self, kind: TransactionKind) -> Vec<CategoryRow> {
@@ -36,39 +40,46 @@ impl CategoriesDb {
         .unwrap()
     }
 
-    pub async fn remove(&self, id: i64) -> SqliteQueryResult {
-        let cat = sqlx::query!("SELECT kind FROM categories WHERE id = ?", id)
-            .fetch_optional(&self.pool)
-            .await
-            .unwrap();
+    pub async fn add_many(
+        &self,
+        names: Vec<String>,
+        kind: TransactionKind,
+    ) -> Result<u64, AppError> {
+        let kind_string: &str = kind.into();
 
-        if cat.is_none() {
-            return sqlx::query("SELECT 1").execute(&self.pool).await.unwrap();
+        let mut transaction = self.pool.begin().await?;
+        let mut total_rows_affected: u64 = 0;
+
+        for name in names {
+            let result = sqlx::query!(
+                "INSERT OR IGNORE INTO categories (name, kind) VALUES (?, ?)",
+                name,
+                kind_string
+            )
+            .execute(&mut *transaction)
+            .await?;
+
+            total_rows_affected += result.rows_affected();
         }
 
-        let kind = cat.unwrap().kind;
+        transaction.commit().await?;
 
-        let fallback = sqlx::query!(
-            "SELECT id FROM categories WHERE kind = ? AND name = 'unknown' LIMIT 1",
-            kind
-        )
-        .fetch_one(&self.pool)
-        .await
-        .unwrap();
+        Ok(total_rows_affected)
+    }
 
-        sqlx::query!(
-            "UPDATE transactions SET category_id = ? WHERE category_id = ?",
-            fallback.id,
-            id
-        )
-        .execute(&self.pool)
-        .await
-        .unwrap();
-
-        sqlx::query!("DELETE FROM categories WHERE id = ?", id)
+    pub async fn remove(&self, id: i64) -> Result<SqliteQueryResult, AppError> {
+        let result = sqlx::query!("DELETE FROM categories WHERE id = ?", id)
             .execute(&self.pool)
-            .await
-            .unwrap()
+            .await?;
+
+        if result.rows_affected() == 0 {
+            return Err(AppError::InternalError(format!(
+                "Category with id:{} not found.",
+                id
+            )));
+        }
+
+        Ok(result)
     }
 
     pub async fn has(&self, id: i64) -> bool {

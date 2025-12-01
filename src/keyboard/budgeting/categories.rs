@@ -3,11 +3,8 @@ use teloxide::types::{
     InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, KeyboardMarkup, ReplyMarkup,
 };
 
-use crate::{
-    types::{
-        common::TransactionKind, databases::CategoriesDb, keyboard::BudgetingCategoriesMenuItems,
-    },
-    utils::markdown::escape_markdown_v2,
+use crate::types::{
+    common::TransactionKind, databases::CategoriesDb, keyboard::BudgetingCategoriesMenuItems,
 };
 
 pub fn create_budgeting_categories_menu_keyboard() -> ReplyMarkup {
@@ -75,7 +72,7 @@ pub async fn create_categories_keyboard(
             let name = category.name.clone();
 
             rows.push(vec![InlineKeyboardButton::callback(
-                escape_markdown_v2(&name),
+                name,
                 format!("{}:{}", prefix, id),
             )]);
         }

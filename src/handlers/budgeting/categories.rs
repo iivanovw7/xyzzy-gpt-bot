@@ -21,7 +21,7 @@ pub async fn list(bot: Bot, msg: Message, categories_db: &CategoriesDb) -> Handl
 
         let list_text = categories
             .iter()
-            .map(|category| format!("{} - {}", category.id, escape_markdown_v2(&category.name)))
+            .map(|category| format!("{} - {}", category.id, &category.name))
             .collect::<Vec<_>>()
             .join("\n");
 
@@ -45,25 +45,76 @@ pub async fn add(
     msg: Message,
     categories_db: &CategoriesDb,
 ) -> HandleResult {
-    if category.trim().is_empty() {
+    let trimmed_category = category.trim();
+
+    if trimmed_category.is_empty() {
         bot.send_message(msg.chat.id, "❌ Category name cannot be empty")
             .await?;
-
         return Ok(());
     }
 
-    let result = categories_db.add(&category, kind).await;
+    if trimmed_category.starts_with('[') && trimmed_category.ends_with(']') {
+        let list_content = &trimmed_category[1..trimmed_category.len() - 1];
+
+        let names: Vec<String> = list_content
+            .split(',')
+            .filter_map(|s| {
+                let name = s.trim().to_string();
+                if name.is_empty() {
+                    None
+                } else {
+                    Some(name)
+                }
+            })
+            .collect();
+
+        if !names.is_empty() {
+            let num_to_add = names.len();
+
+            let result = categories_db.add_many(names, kind).await;
+
+            match result {
+                Ok(inserted_count) => {
+                    bot.send_message(
+                        msg.chat.id,
+                        format!(
+                            "✅ Added {} of {} categories for {} ({} already existed).",
+                            inserted_count,
+                            num_to_add,
+                            kind,
+                            num_to_add - inserted_count as usize
+                        ),
+                    )
+                    .await?;
+                }
+                Err(e) => {
+                    bot.send_message(
+                        msg.chat.id,
+                        format!("❌ Database error while adding categories: {}", e),
+                    )
+                    .await?;
+                }
+            }
+
+            return Ok(());
+        }
+    }
+
+    let result = categories_db.add(trimmed_category, kind).await;
 
     if result.rows_affected() == 0 {
         bot.send_message(
             msg.chat.id,
-            format!("⚠️ The category '{}' already exists for {}", category, kind),
+            format!(
+                "⚠️ The category '{}' already exists for {}",
+                trimmed_category, kind
+            ),
         )
         .await?;
     } else {
         bot.send_message(
             msg.chat.id,
-            format!("✅ Category {} added for {}", category, kind),
+            format!("✅ Category {} added for {}", trimmed_category, kind),
         )
         .await?;
     }
@@ -107,7 +158,7 @@ pub async fn remove(
         return Ok(());
     }
 
-    categories_db.remove(id).await;
+    categories_db.remove(id).await?;
 
     bot.send_message(chat_id, format!("🗑 Removed category with id: {}", id))
         .parse_mode(teloxide::types::ParseMode::MarkdownV2)

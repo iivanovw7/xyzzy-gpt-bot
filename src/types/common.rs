@@ -28,6 +28,8 @@ pub enum AppError {
     Json(serde_json::Error),
     #[error("In-memory storage error: {0}")]
     DialogueStorage(String),
+    #[error("Internal database error")]
+    Database(#[from] sqlx::Error),
 }
 
 impl From<serde_json::Error> for AppError {
@@ -88,13 +90,25 @@ pub enum MaintainerCommands {
     Categories,
     #[command(description = "Remove income/spending category by id.")]
     RemoveCategory(String),
-    #[command(description = "Add spenging category.")]
+    #[command(description = "Add spenging category ([a,b,c] - to add many).")]
     AddSpendingCategory(String),
-    #[command(description = "Add income category.")]
+    #[command(description = "Add income category ([a,b,c] - to add many).")]
     AddIncomeCategory(String),
 }
 
-#[derive(Debug, Clone, Copy, EnumString, EnumProperty, PartialEq, EnumIter, IntoStaticStr)]
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    EnumString,
+    EnumProperty,
+    PartialEq,
+    EnumIter,
+    IntoStaticStr,
+    Hash,
+    sqlx::Type,
+)]
+#[sqlx(type_name = "TEXT")]
 pub enum TransactionKind {
     #[strum(serialize = "income", props(label = "💰 Income"))]
     Income,
