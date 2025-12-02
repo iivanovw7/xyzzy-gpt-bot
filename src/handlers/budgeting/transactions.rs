@@ -94,10 +94,11 @@ pub async fn add_transaction(
 }
 
 fn table(title: &str, data: &HashMap<String, Vec<(f64, String)>>, total: f64) -> String {
-    let mut out = String::new();
+    let mut output = String::new();
 
-    out.push_str(&format!("{:<28} {:>12} {:>6}\n", "Category", title, "(%)"));
-    out.push_str("--------------------------------------------------\n");
+    output.push_str("---------------------------------------------------\n");
+    output.push_str(&format!("{:<28} {:>12} {:>6}\n", title, "Amount", "(%)"));
+    output.push_str("---------------------------------------------------\n");
 
     let mut cat_totals: Vec<(String, f64)> = data
         .iter()
@@ -112,29 +113,27 @@ fn table(title: &str, data: &HashMap<String, Vec<(f64, String)>>, total: f64) ->
         } else {
             0
         };
+
         let amount_str = format_transaction_amount((cat_total * 100.0) as i64, "");
 
-        out.push_str(&format!("{:<28} {:>12} {:>6}%\n", cat, amount_str, pct));
+        output.push_str(&format!("{:<28} {:>12} {:>6}%\n", cat, amount_str, pct));
 
         if let Some(entries) = data.get(&cat) {
             for (amt, comment) in entries {
                 let amt_str = format_transaction_amount((*amt * 100.0) as i64, "");
-                out.push_str(&format!(
-                    "  {:>10}  - {}\n",
-                    amt_str,
-                    escape_markdown_v2(comment)
-                ));
+
+                output.push_str(&format!(" - {:<12} {:>25}\n", comment, amt_str));
             }
         }
     }
 
-    out.push_str(&format!(
-        "\nTotal {}: {}\n",
+    output.push_str(&format!(
+        "\nTotal {} {}\n",
         title,
         format_transaction_amount((total * 100.0) as i64, "")
     ));
 
-    out
+    output
 }
 
 pub async fn list(
