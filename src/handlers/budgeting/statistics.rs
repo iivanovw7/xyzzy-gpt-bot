@@ -49,9 +49,11 @@ fn table(title: &str, data: &HashMap<String, Vec<MonthlyTransaction>>, total: f6
             for tx in entries {
                 let amt_str = format_transaction_amount((tx.amount * 100.0) as i64, "");
 
-                output.push_str(&format!(" - {:<12} {:>25}\n", tx.description, amt_str));
+                output.push_str(&format!("  {:<6} - {:<12}\n", amt_str, tx.description));
             }
         }
+
+        output.push_str(" \n");
     }
 
     output
