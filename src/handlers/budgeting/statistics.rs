@@ -24,7 +24,8 @@ type MonthlyMap = BTreeMap<(i32, u32), Vec<MonthlyTransaction>>;
 fn table(title: &str, data: &HashMap<String, Vec<MonthlyTransaction>>, total: f64) -> String {
     let mut output = String::new();
 
-    output.push_str(&format!("{:<28} {:>12} {:>6}\n", "Category", title, "(%)"));
+    output.push_str("---------------------------------------------------\n");
+    output.push_str(&format!("{:<28} {:>12} {:>6}\n", title, "Amount", "(%)"));
     output.push_str("---------------------------------------------------\n");
 
     let mut cat_totals: Vec<(String, f64)> = data
@@ -47,16 +48,12 @@ fn table(title: &str, data: &HashMap<String, Vec<MonthlyTransaction>>, total: f6
         if let Some(entries) = data.get(&cat) {
             for tx in entries {
                 let amt_str = format_transaction_amount((tx.amount * 100.0) as i64, "");
-                output.push_str(&format!("  {:>10}  - {}\n", amt_str, tx.description));
+
+                output.push_str(&format!(" - {:<12} {:>25}\n", tx.description, amt_str));
             }
         }
     }
 
-    output.push_str(&format!(
-        "\nTotal {}: {}\n",
-        title,
-        format_transaction_amount((total * 100.0) as i64, "")
-    ));
     output
 }
 
@@ -74,6 +71,7 @@ pub async fn overview(
     if transactions.is_empty() {
         bot.send_message(user_id.clone(), "No transactions found.")
             .await?;
+
         return Ok(());
     }
 
@@ -97,7 +95,7 @@ pub async fn overview(
             });
     }
 
-    let output = match filter {
+    let table_output = match filter {
         DateFilter::Today
         | DateFilter::CurrentWeek
         | DateFilter::CurrentMonth
@@ -139,19 +137,21 @@ pub async fn overview(
                 _ => "Statistics",
             };
 
-            let mut out = format!("{}\n\n```\n", title);
+            let mut output = format!("{}\n\n```\n", title);
 
-            out.push_str(&table("Income  ", &per_category_income, total_income));
-            out.push_str("\n\n");
-            out.push_str(&table("Spending", &per_category_spending, total_spending));
-            out.push_str(&format!(
-                "\nTotal income:   {:>34}\nTotal spending: {:>34}\nTotal:          {:>34}\n",
+            output.push_str(&table("Income  ", &per_category_income, total_income));
+            output.push_str(" \n");
+            output.push_str(&table("Spending", &per_category_spending, total_spending));
+            output.push_str("\n---------------------------------------------------");
+            output.push_str(&format!(
+                "\nTotal income   {:>34}\nTotal spending {:>34}\nTotal          {:>34}\n",
                 format_transaction_amount((total_income * 100.0) as i64, ""),
                 format_transaction_amount((total_spending * 100.0) as i64, ""),
                 format_transaction_amount(((total_income - total_spending) * 100.0) as i64, "")
             ));
-            out.push_str("```\n");
-            out
+            output.push_str("---------------------------------------------------\n");
+            output.push_str("```\n");
+            output
         }
 
         DateFilter::Last3Months | DateFilter::CurrentYear | DateFilter::AllTime => {
@@ -164,7 +164,7 @@ pub async fn overview(
                 _ => "Statistics",
             };
 
-            let mut out = format!("{}\n\n```\n", title);
+            let mut output = format!("{}\n\n```\n", title);
 
             for ((year, month), txs) in &monthly_transactions {
                 let mut per_category_spending: HashMap<String, Vec<MonthlyTransaction>> =
@@ -193,12 +193,21 @@ pub async fn overview(
                 total_spending_period += month_spending;
                 total_income_period += month_income;
 
-                out.push_str(&format!("Month: {:04}-{:02}\n\n", year, month));
-                out.push_str(&table("Income  ", &per_category_income, month_income));
-                out.push_str("\n\n");
-                out.push_str(&table("Spending", &per_category_spending, month_spending));
-                out.push_str(&format!(
-                    "\nMonth total income:   {:>28}\nMonth total spending: {:>28}\nMonth total:          {:>28}\n\n",
+                output.push_str(&format!("Month: {:04}-{:02}\n", year, month));
+                output.push_str(&table(
+                    "Income category  ",
+                    &per_category_income,
+                    month_income,
+                ));
+                output.push_str(" \n");
+                output.push_str(&table(
+                    "Spending category",
+                    &per_category_spending,
+                    month_spending,
+                ));
+                output.push_str("\n---------------------------------------------------");
+                output.push_str(&format!(
+                    "\nMonth total income   {:>28}\nMonth total spending {:>28}\nMonth total          {:>28}\n",
                     format_transaction_amount((month_income * 100.0) as i64, ""),
                     format_transaction_amount((month_spending * 100.0) as i64, ""),
                     format_transaction_amount(((month_income - month_spending) * 100.0) as i64, "")
@@ -206,19 +215,20 @@ pub async fn overview(
             }
 
             let total_sum = total_income_period - total_spending_period;
-            out.push_str("===================================================\n");
-            out.push_str(&format!(
-                "Overall total income:   {:>26}\nOverall total spending: {:>26}\nOverall total:          {:>26}\n",
+
+            output.push_str("===================================================\n");
+            output.push_str(&format!(
+                "Overall total income   {:>26}\nOverall total spending {:>26}\nOverall total          {:>26}\n",
                 format_transaction_amount((total_income_period * 100.0) as i64, ""),
                 format_transaction_amount((total_spending_period * 100.0) as i64, ""),
                 format_transaction_amount((total_sum * 100.0) as i64, "")
             ));
-            out.push_str("```\n");
-            out
+            output.push_str("```\n");
+            output
         }
     };
 
-    bot.send_message(user_id, output)
+    bot.send_message(user_id, table_output)
         .parse_mode(teloxide::types::ParseMode::MarkdownV2)
         .await?;
 
