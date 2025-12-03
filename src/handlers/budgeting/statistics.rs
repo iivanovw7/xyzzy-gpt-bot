@@ -16,7 +16,6 @@ struct MonthlyTransaction {
     amount: f64,
     category: String,
     is_income: bool,
-    description: String,
 }
 
 type MonthlyMap = BTreeMap<(i32, u32), Vec<MonthlyTransaction>>;
@@ -44,14 +43,6 @@ fn table(title: &str, data: &HashMap<String, Vec<MonthlyTransaction>>, total: f6
         let amount_str = format_transaction_amount((cat_total * 100.0) as i64, "");
 
         output.push_str(&format!("{:<28} {:>12} {:>6}%\n", cat, amount_str, pct));
-
-        if let Some(entries) = data.get(&cat) {
-            for tx in entries {
-                let amt_str = format_transaction_amount((tx.amount * 100.0) as i64, "");
-
-                output.push_str(&format!("  {:<6} - {:<12}\n", amt_str, tx.description));
-            }
-        }
 
         output.push_str(" \n");
     }
@@ -83,7 +74,6 @@ pub async fn overview(
         let amount = transaction.amount;
         let date = transaction.date;
         let category = transaction.category.clone();
-        let description = transaction.description.clone();
         let amount_f = amount_to_float(amount);
 
         monthly_transactions
@@ -93,15 +83,11 @@ pub async fn overview(
                 amount: amount_f.abs(),
                 category: category.clone(),
                 is_income: amount > 0,
-                description: description.clone(),
             });
     }
 
     let table_output = match filter {
-        DateFilter::Today
-        | DateFilter::CurrentWeek
-        | DateFilter::CurrentMonth
-        | DateFilter::LastMonth => {
+        DateFilter::Today | DateFilter::CurrentMonth | DateFilter::LastMonth => {
             let mut per_category_spending: HashMap<String, Vec<MonthlyTransaction>> =
                 HashMap::new();
             let mut per_category_income: HashMap<String, Vec<MonthlyTransaction>> = HashMap::new();
@@ -114,7 +100,6 @@ pub async fn overview(
                     amount: amount_f.abs(),
                     category: tx.category.clone(),
                     is_income: tx.amount > 0,
-                    description: tx.description.clone(),
                 };
                 if tx.amount < 0 {
                     total_spending += -amount_f;
@@ -133,7 +118,6 @@ pub async fn overview(
 
             let title = match filter {
                 DateFilter::Today => "Statistics for today",
-                DateFilter::CurrentWeek => "Statistics for current week",
                 DateFilter::CurrentMonth => "Statistics for current month",
                 DateFilter::LastMonth => "Statistics for last month",
                 _ => "Statistics",
@@ -156,13 +140,12 @@ pub async fn overview(
             output
         }
 
-        DateFilter::Last3Months | DateFilter::CurrentYear | DateFilter::AllTime => {
+        DateFilter::Last3Months | DateFilter::CurrentYear => {
             let mut total_spending_period = 0.0;
             let mut total_income_period = 0.0;
             let title = match filter {
                 DateFilter::Last3Months => "Statistics for last 3 months",
                 DateFilter::CurrentYear => "Statistics for current year",
-                DateFilter::AllTime => "Statistics for all time",
                 _ => "Statistics",
             };
 
@@ -209,7 +192,7 @@ pub async fn overview(
                 ));
                 output.push_str("\n---------------------------------------------------");
                 output.push_str(&format!(
-                    "\nMonth total income   {:>28}\nMonth total spending {:>28}\nMonth total          {:>28}\n",
+                    "\nMonth income   {:>34}\nMonth spending {:>34}\nMonth total    {:>34}\n",
                     format_transaction_amount((month_income * 100.0) as i64, ""),
                     format_transaction_amount((month_spending * 100.0) as i64, ""),
                     format_transaction_amount(((month_income - month_spending) * 100.0) as i64, "")
@@ -220,7 +203,7 @@ pub async fn overview(
 
             output.push_str("===================================================\n");
             output.push_str(&format!(
-                "Overall total income   {:>26}\nOverall total spending {:>26}\nOverall total          {:>26}\n",
+                "Total income   {:>34}\nTotal spending {:>34}\nTotal          {:>34}\n",
                 format_transaction_amount((total_income_period * 100.0) as i64, ""),
                 format_transaction_amount((total_spending_period * 100.0) as i64, ""),
                 format_transaction_amount((total_sum * 100.0) as i64, "")

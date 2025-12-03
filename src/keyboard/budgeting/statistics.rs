@@ -2,15 +2,13 @@ use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup};
 
 use crate::types::common::DateFilter;
 
-pub fn create_date_filter_keyboard(prefix: &str) -> InlineKeyboardMarkup {
+pub fn create_statistics_date_filter_keyboard() -> InlineKeyboardMarkup {
     let filters: Vec<DateFilter> = vec![
         DateFilter::Today,
-        DateFilter::CurrentWeek,
         DateFilter::CurrentMonth,
         DateFilter::LastMonth,
         DateFilter::Last3Months,
         DateFilter::CurrentYear,
-        DateFilter::AllTime,
     ];
 
     let rows: Vec<Vec<InlineKeyboardButton>> = filters
@@ -18,7 +16,7 @@ pub fn create_date_filter_keyboard(prefix: &str) -> InlineKeyboardMarkup {
         .map(|date| {
             vec![InlineKeyboardButton::callback(
                 date.label(),
-                format!("{}:filter:{:?}", prefix, date),
+                format!("statistics:filter:{:?}", date),
             )]
         })
         .collect();
