@@ -15,9 +15,10 @@ use crate::{
                 create_kinds_keyboard,
             },
             core::create_budgeting_menu_keyboard,
+            statistics::create_statistics_date_filter_keyboard,
+            transactions::create_transactions_date_filter_keyboard,
         },
         gpt::create_gpt_menu_keyboard,
-        util::create_date_filter_keyboard,
     },
     types::{
         common::{
@@ -140,7 +141,7 @@ pub async fn handle_keyboard(
     if let Ok(item) = <BudgetingMenuItems as FromStr>::from_str(&text) {
         match item {
             BudgetingMenuItems::Statistics => {
-                let keyboard = create_date_filter_keyboard("statistics");
+                let keyboard = create_statistics_date_filter_keyboard();
                 let message = escape_markdown_v2("Select statistics date filter:");
 
                 bot.send_message(msg.chat.id, message)
@@ -148,7 +149,7 @@ pub async fn handle_keyboard(
                     .await?;
             }
             BudgetingMenuItems::Transactions => {
-                let keyboard = create_date_filter_keyboard("transactions");
+                let keyboard = create_transactions_date_filter_keyboard();
                 let message = escape_markdown_v2("Select transactions date filter:");
 
                 bot.send_message(msg.chat.id, message)

@@ -73,7 +73,7 @@ pub async fn maintainer_commands(
                 bot,
                 msg.chat.id.to_string(),
                 &db.transactions(),
-                DateFilter::AllTime,
+                DateFilter::CurrentYear,
             )
             .await?;
         }

@@ -169,24 +169,20 @@ pub enum DialogueState {
 #[derive(Debug, Clone, Copy, EnumString, EnumIter)]
 pub enum DateFilter {
     Today,
-    CurrentWeek,
     CurrentMonth,
     LastMonth,
     Last3Months,
     CurrentYear,
-    AllTime,
 }
 
 impl DateFilter {
     pub fn label(&self) -> &'static str {
         match self {
             DateFilter::Today => "📅 Today",
-            DateFilter::CurrentWeek => "📅 Current Week",
             DateFilter::CurrentMonth => "📅 Current Month",
             DateFilter::LastMonth => "📅 Last Month",
             DateFilter::Last3Months => "📅 Last 3 Months",
             DateFilter::CurrentYear => "📅 This Year",
-            DateFilter::AllTime => "📅 All Time",
         }
     }
 }

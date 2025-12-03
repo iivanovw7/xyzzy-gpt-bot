@@ -31,10 +31,6 @@ impl DateFilter {
 
         match self {
             DateFilter::Today => (Some(today), Some(today)),
-            DateFilter::CurrentWeek => {
-                let start = today - Duration::days(today.weekday().num_days_from_monday() as i64);
-                (Some(start), Some(today))
-            }
             DateFilter::CurrentMonth => {
                 let start = NaiveDate::from_ymd_opt(today.year(), today.month(), 1).unwrap();
                 (Some(start), Some(today))
@@ -72,7 +68,6 @@ impl DateFilter {
 
                 (Some(start), Some(today))
             }
-            DateFilter::AllTime => (None, None),
         }
     }
 }
