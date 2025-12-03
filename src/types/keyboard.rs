@@ -10,8 +10,6 @@ pub enum MainMenuItems {
     Roll,
     #[strum(serialize = "❓ Help", props(Label = "❓ Help"))]
     Help,
-    #[strum(serialize = "🧑‍💻 Maintainer", props(Label = "🧑‍💻 Maintainer"))]
-    Maintainer,
     #[strum(serialize = "🤖 AI Chat Tools", props(Label = "🤖 AI Chat Tools"))]
     AiTools,
     #[strum(serialize = "💰 Budgeting", props(Label = "💰 Budgeting"))]

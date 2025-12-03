@@ -4,71 +4,52 @@ use crate::{
     handlers, keyboard,
     types::{
         common::{
-            BotDialogue, ChatHistoryState, ConfigParameters, DateFilter, HandleResult,
-            MaintainerCommands, PublicCommands, TransactionKind,
+            BotDialogue, ChatHistoryState, Commands, DateFilter, HandleResult, TransactionKind,
         },
         databases::Database,
     },
 };
 use async_openai::{config::OpenAIConfig, Client};
-use teloxide::{prelude::*, types::Me};
+use teloxide::prelude::*;
 
-pub async fn public_commands(
-    cfg: ConfigParameters,
-    bot: Bot,
-    me: Me,
-    _dialogue: BotDialogue,
-    msg: Message,
-    _db: Arc<Database>,
-    cmd: PublicCommands,
-) -> HandleResult {
-    match cmd {
-        PublicCommands::Start => {
-            keyboard::core::start(bot, msg).await?;
-        }
-        PublicCommands::Help => {
-            handlers::help::commands(cfg, bot, me, msg).await?;
-        }
-        PublicCommands::Roll => {
-            handlers::dice::roll(bot, msg).await?;
-        }
-        PublicCommands::Maintainer => {
-            handlers::maintainer::log(cfg, bot, msg).await?;
-        }
-    }
-
-    Ok(())
-}
-
-pub async fn maintainer_commands(
+pub async fn commands(
     client: Client<OpenAIConfig>,
     state: ChatHistoryState,
     bot: Bot,
     dialogue: BotDialogue,
     msg: Message,
     db: Arc<Database>,
-    cmd: MaintainerCommands,
+    cmd: Commands,
 ) -> HandleResult {
     match cmd {
-        MaintainerCommands::Prompt(prompt) => {
+        Commands::Start => {
+            keyboard::core::start(bot, msg).await?;
+        }
+        Commands::Help => {
+            handlers::help::commands(bot, msg).await?;
+        }
+        Commands::Roll => {
+            handlers::dice::roll(bot, msg).await?;
+        }
+        Commands::Prompt(prompt) => {
             handlers::gpt::prompt::set(prompt, bot, state, msg).await?;
         }
-        MaintainerCommands::Chat(content) => {
+        Commands::Chat(content) => {
             handlers::gpt::chat::message(content, bot, client, state, msg).await?;
         }
-        MaintainerCommands::Enter => {
+        Commands::Enter => {
             handlers::gpt::chat::enter(bot, dialogue, msg).await?;
         }
-        MaintainerCommands::Exit => {
+        Commands::Exit => {
             handlers::gpt::chat::exit(bot, dialogue, msg).await?;
         }
-        MaintainerCommands::View => {
+        Commands::View => {
             handlers::gpt::history::view(bot, state, msg).await?;
         }
-        MaintainerCommands::Clear => {
+        Commands::Clear => {
             handlers::gpt::history::clear(bot, state, msg).await?;
         }
-        MaintainerCommands::Stats => {
+        Commands::Stats => {
             handlers::budgeting::statistics::overview(
                 bot,
                 msg.chat.id.to_string(),
@@ -77,10 +58,10 @@ pub async fn maintainer_commands(
             )
             .await?;
         }
-        MaintainerCommands::Categories => {
+        Commands::Categories => {
             handlers::budgeting::categories::list(bot, msg, &db.categories()).await?;
         }
-        MaintainerCommands::AddIncomeCategory(category) => {
+        Commands::AddIncomeCategory(category) => {
             handlers::budgeting::categories::add(
                 category,
                 TransactionKind::Income,
@@ -90,7 +71,7 @@ pub async fn maintainer_commands(
             )
             .await?;
         }
-        MaintainerCommands::AddSpendingCategory(category) => {
+        Commands::AddSpendingCategory(category) => {
             handlers::budgeting::categories::add(
                 category,
                 TransactionKind::Spending,
@@ -100,7 +81,7 @@ pub async fn maintainer_commands(
             )
             .await?;
         }
-        MaintainerCommands::RemoveCategory(id) => {
+        Commands::RemoveCategory(id) => {
             handlers::budgeting::categories::remove(
                 id,
                 &db.categories(),

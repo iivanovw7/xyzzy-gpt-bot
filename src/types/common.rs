@@ -6,7 +6,7 @@ use std::{
     fmt,
     sync::{Arc, Mutex},
 };
-use strum::{Display, EnumIter, EnumProperty, EnumString, IntoStaticStr};
+use strum::{EnumIter, EnumProperty, EnumString, IntoStaticStr};
 use teloxide::{
     dispatching::dialogue::{InMemStorage, InMemStorageError},
     prelude::*,
@@ -50,28 +50,18 @@ pub struct ConfigParameters {
     pub maintainer_username: Option<String>,
 }
 
-#[derive(BotCommands, Clone, Serialize, Deserialize, Display)]
+#[derive(BotCommands, Clone, Serialize, Deserialize)]
 #[command(
     rename_rule = "lowercase",
-    description = "These public commands are supported:"
+    description = "These commands are supported:"
 )]
-pub enum PublicCommands {
+pub enum Commands {
     #[command(description = "Start")]
     Start,
     #[command(description = "Display this text.")]
     Help,
     #[command(description = "Roll the dice.")]
     Roll,
-    #[command(description = "Maintainer info.")]
-    Maintainer,
-}
-
-#[derive(BotCommands, Clone, Serialize, Deserialize)]
-#[command(
-    rename_rule = "lowercase",
-    description = "These maintainer commands are supported:"
-)]
-pub enum MaintainerCommands {
     #[command(description = "Set prompt text.")]
     Prompt(String),
     #[command(description = "Chat with gpt.")]

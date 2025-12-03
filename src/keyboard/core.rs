@@ -42,7 +42,6 @@ pub fn create_main_menu_keyboard() -> ReplyMarkup {
         vec![
             KeyboardButton::new(MainMenuItems::Roll),
             KeyboardButton::new(MainMenuItems::Help),
-            KeyboardButton::new(MainMenuItems::Maintainer),
         ],
     ];
 
@@ -60,11 +59,11 @@ pub fn create_main_menu_keyboard() -> ReplyMarkup {
 
 #[allow(clippy::too_many_arguments)]
 pub async fn handle_keyboard(
-    cfg: ConfigParameters,
+    _cfg: ConfigParameters,
     client: Client<OpenAIConfig>,
     state: ChatHistoryState,
     bot: Bot,
-    me: Me,
+    _me: Me,
     dialogue: BotDialogue,
     msg: Message,
     db: Arc<Database>,
@@ -78,10 +77,7 @@ pub async fn handle_keyboard(
                 handlers::dice::roll(bot.clone(), msg.clone()).await?;
             }
             MainMenuItems::Help => {
-                handlers::help::commands(cfg, bot.clone(), me, msg.clone()).await?;
-            }
-            MainMenuItems::Maintainer => {
-                handlers::maintainer::log(cfg, bot.clone(), msg.clone()).await?;
+                handlers::help::commands(bot.clone(), msg.clone()).await?;
             }
             MainMenuItems::AiTools => {
                 let gpt_menu_keyboard = create_gpt_menu_keyboard(dialogue.clone()).await?;

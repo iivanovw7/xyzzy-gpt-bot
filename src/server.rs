@@ -1,11 +1,13 @@
 use crate::{
-    commands::{maintainer_commands, public_commands},
+    commands::commands,
     env::ENV,
-    handlers, keyboard,
+    handlers::{
+        self,
+        auth::{unauthorized_access_callback, unauthorized_access_command},
+    },
+    keyboard,
     types::{
-        common::{
-            ChatHistories, ConfigParameters, DialogueState, MaintainerCommands, PublicCommands,
-        },
+        common::{ChatHistories, Commands, ConfigParameters, DialogueState},
         databases::Database,
     },
 };
@@ -46,6 +48,7 @@ pub async fn server() {
 
     let dialogue_storage = InMemStorage::<DialogueState>::new();
 
+    // TODO: add stats and setting pages
     let web_app_url_str = "https://your-webapp-domain.com/index.html";
     let web_app_url = Url::parse(web_app_url_str).expect("Failed to parse Web App URL");
     let web_app_info = WebAppInfo { url: web_app_url };
@@ -60,37 +63,48 @@ pub async fn server() {
         .await
         .ok();
 
-    let maintainer_filter = dptree::filter(|cfg: ConfigParameters, msg: Message| {
+    let is_authorized = dptree::filter(|msg: Message| {
         msg.from
-            .map(|user| user.id == cfg.bot_maintainer)
-            .unwrap_or_default()
+            .map(|user| user.id == UserId(ENV.user_id))
+            .unwrap_or(false)
+    });
+
+    let is_unauthorized = dptree::filter(|msg: Message| {
+        msg.from
+            .map(|user| user.id != UserId(ENV.user_id))
+            .unwrap_or(true)
     });
 
     let message_filter = Update::filter_message()
         .filter(|msg: Message| msg.text().is_some())
         .map(|msg: Message| msg.text().unwrap().to_string());
 
-    let maintainer_commands = maintainer_filter
+    let commands_handler = is_authorized
         .clone()
-        .filter_command::<MaintainerCommands>()
-        .endpoint(maintainer_commands);
-
-    let public_commands = dptree::entry()
-        .filter_command::<PublicCommands>()
-        .endpoint(public_commands);
+        .filter_command::<Commands>()
+        .endpoint(commands);
 
     let handler = dptree::entry()
         .branch(
             Update::filter_callback_query()
                 .enter_dialogue::<CallbackQuery, InMemStorage<DialogueState>, DialogueState>()
-                .endpoint(keyboard::core::callback),
+                .branch(
+                    dptree::filter(|q: CallbackQuery| q.from.id == UserId(ENV.user_id))
+                        .clone()
+                        .endpoint(keyboard::core::callback),
+                )
+                .branch(
+                    dptree::filter(|q: CallbackQuery| q.from.id != UserId(ENV.user_id))
+                        .clone()
+                        .endpoint(unauthorized_access_callback),
+                ),
         )
         .branch(
             Update::filter_message()
                 .enter_dialogue::<Message, InMemStorage<DialogueState>, DialogueState>()
                 .branch(
                     dptree::case![DialogueState::InChatMode]
-                        .branch(maintainer_commands.clone())
+                        .branch(commands_handler.clone())
                         .branch(
                             message_filter
                                 .clone()
@@ -102,13 +116,9 @@ pub async fn server() {
                                 .endpoint(handlers::gpt::chat::message_in_chat_mode),
                         ),
                 )
-                .branch(public_commands.clone())
-                .branch(maintainer_commands.clone())
-                .branch(
-                    message_filter
-                        .clone()
-                        .endpoint(keyboard::core::handle_keyboard),
-                ),
+                .branch(commands_handler.clone())
+                .branch(message_filter.endpoint(keyboard::core::handle_keyboard))
+                .branch(is_unauthorized.endpoint(unauthorized_access_command)),
         );
 
     Dispatcher::builder(bot.clone(), handler)
