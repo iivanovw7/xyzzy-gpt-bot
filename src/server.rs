@@ -89,36 +89,46 @@ pub async fn server() {
             Update::filter_callback_query()
                 .enter_dialogue::<CallbackQuery, InMemStorage<DialogueState>, DialogueState>()
                 .branch(
-                    dptree::filter(|q: CallbackQuery| q.from.id == UserId(ENV.user_id))
-                        .clone()
-                        .endpoint(keyboard::core::callback),
-                )
-                .branch(
                     dptree::filter(|q: CallbackQuery| q.from.id != UserId(ENV.user_id))
                         .clone()
                         .endpoint(unauthorized_access_callback),
+                )
+                .branch(
+                    dptree::filter(|q: CallbackQuery| q.from.id == UserId(ENV.user_id))
+                        .clone()
+                        .endpoint(keyboard::core::callback),
                 ),
         )
         .branch(
             Update::filter_message()
                 .enter_dialogue::<Message, InMemStorage<DialogueState>, DialogueState>()
                 .branch(
-                    dptree::case![DialogueState::InChatMode]
-                        .branch(commands_handler.clone())
-                        .branch(
-                            message_filter
-                                .clone()
-                                .endpoint(keyboard::core::handle_keyboard),
-                        )
-                        .branch(
-                            message_filter
-                                .clone()
-                                .endpoint(handlers::gpt::chat::message_in_chat_mode),
-                        ),
+                    is_unauthorized
+                        .clone()
+                        .endpoint(unauthorized_access_command),
                 )
-                .branch(commands_handler.clone())
-                .branch(message_filter.endpoint(keyboard::core::handle_keyboard))
-                .branch(is_unauthorized.endpoint(unauthorized_access_command)),
+                .branch(
+                    is_authorized.clone().branch(
+                        dptree::case![DialogueState::InChatMode]
+                            .branch(commands_handler.clone())
+                            .branch(
+                                message_filter
+                                    .clone()
+                                    .endpoint(keyboard::core::handle_keyboard),
+                            )
+                            .branch(
+                                message_filter
+                                    .clone()
+                                    .endpoint(handlers::gpt::chat::message_in_chat_mode),
+                            ),
+                    ),
+                )
+                .branch(is_authorized.clone().branch(commands_handler.clone()))
+                .branch(
+                    is_authorized
+                        .clone()
+                        .branch(message_filter.endpoint(keyboard::core::handle_keyboard)),
+                ),
         );
 
     Dispatcher::builder(bot.clone(), handler)

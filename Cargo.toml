@@ -31,3 +31,4 @@ tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 uuid = { version = "1.8.0", features = ["v4", "fast-rng"] }
 reqwest = "0.12.8"
 url = "2.5.7"
+num-format = "0.4.4"

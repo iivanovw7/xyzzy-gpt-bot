@@ -1,5 +1,6 @@
 use chrono::Datelike;
 use std::collections::{BTreeMap, HashMap};
+use std::string::String;
 
 use teloxide::{
     prelude::*,
@@ -48,6 +49,41 @@ pub async fn add_kind(
 
     bot.send_message(msg.chat.id, message)
         .reply_markup(keyboard)
+        .await?;
+
+    Ok(())
+}
+
+pub async fn delete_last(bot: Bot, msg: Message, transactions_db: &TransactionsDb) -> HandleResult {
+    let user_id_str = msg.chat.id.to_string();
+    let parsed_user_id: i64 =
+        parse_positive_i64(&bot, user_id_str.clone(), &user_id_str, "user id").await?;
+
+    let last = transactions_db.get_last(parsed_user_id).await;
+
+    let Some(last_tx) = last else {
+        bot.send_message(user_id_str, "No transactions to delete.")
+            .await?;
+        return Ok(());
+    };
+
+    transactions_db.delete(last_tx.id).await?;
+
+    let amount_str = format_transaction_amount(last_tx.amount, "+");
+    let category = escape_markdown_v2(&last_tx.category);
+    let description = escape_markdown_v2(&last_tx.description.clone());
+
+    let confirmation = if description.is_empty() {
+        format!("🗑️ Deleted: *{}* ({})", amount_str, category)
+    } else {
+        format!(
+            "🗑️ Deleted: *{}* ({})\n{}",
+            amount_str, category, description
+        )
+    };
+
+    bot.send_message(user_id_str, escape_markdown_v2(&confirmation))
+        .parse_mode(teloxide::types::ParseMode::MarkdownV2)
         .await?;
 
     Ok(())

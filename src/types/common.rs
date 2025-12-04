@@ -74,16 +74,8 @@ pub enum Commands {
     View,
     #[command(description = "Clear history chats.")]
     Clear,
-    #[command(description = "Budget statistics.")]
-    Stats,
-    #[command(description = "Show list of categories.")]
-    Categories,
-    #[command(description = "Remove income/spending category by id.")]
-    RemoveCategory(String),
-    #[command(description = "Add spenging category ([a,b,c] - to add many).")]
-    AddSpendingCategory(String),
-    #[command(description = "Add income category ([a,b,c] - to add many).")]
-    AddIncomeCategory(String),
+    #[command(description = "Remove last transaction")]
+    Delete,
 }
 
 #[derive(

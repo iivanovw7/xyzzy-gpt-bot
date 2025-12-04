@@ -3,9 +3,7 @@ use std::sync::Arc;
 use crate::{
     handlers, keyboard,
     types::{
-        common::{
-            BotDialogue, ChatHistoryState, Commands, DateFilter, HandleResult, TransactionKind,
-        },
+        common::{BotDialogue, ChatHistoryState, Commands, HandleResult},
         databases::Database,
     },
 };
@@ -49,47 +47,8 @@ pub async fn commands(
         Commands::Clear => {
             handlers::gpt::history::clear(bot, state, msg).await?;
         }
-        Commands::Stats => {
-            handlers::budgeting::statistics::overview(
-                bot,
-                msg.chat.id.to_string(),
-                &db.transactions(),
-                DateFilter::CurrentYear,
-            )
-            .await?;
-        }
-        Commands::Categories => {
-            handlers::budgeting::categories::list(bot, msg, &db.categories()).await?;
-        }
-        Commands::AddIncomeCategory(category) => {
-            handlers::budgeting::categories::add(
-                category,
-                TransactionKind::Income,
-                bot,
-                msg,
-                &db.categories(),
-            )
-            .await?;
-        }
-        Commands::AddSpendingCategory(category) => {
-            handlers::budgeting::categories::add(
-                category,
-                TransactionKind::Spending,
-                bot,
-                msg,
-                &db.categories(),
-            )
-            .await?;
-        }
-        Commands::RemoveCategory(id) => {
-            handlers::budgeting::categories::remove(
-                id,
-                &db.categories(),
-                &db.transactions(),
-                bot,
-                msg.chat.id.to_string(),
-            )
-            .await?
+        Commands::Delete => {
+            handlers::budgeting::transactions::delete_last(bot, msg, &db.transactions()).await?;
         }
     }
 

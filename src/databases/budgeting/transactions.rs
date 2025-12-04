@@ -31,6 +31,7 @@ impl TransactionsDb {
         end_date: Option<NaiveDate>,
     ) -> Vec<TransactionRow> {
         let mut query = "SELECT 
+                        t.id,
                         t.amount,
                         t.description,
                         DATE(t.date, 'unixepoch') AS date,
@@ -61,6 +62,7 @@ impl TransactionsDb {
 
         rows.into_iter()
             .map(|r| {
+                let id: i64 = r.try_get("id").unwrap();
                 let amount: i64 = r.try_get("amount").unwrap();
                 let date_str: String = r.try_get("date").unwrap();
                 let category: String = r.try_get("category").unwrap();
@@ -68,6 +70,7 @@ impl TransactionsDb {
                 let date = NaiveDate::parse_from_str(&date_str, "%Y-%m-%d").unwrap();
 
                 TransactionRow {
+                    id,
                     amount,
                     date,
                     category,
@@ -75,6 +78,73 @@ impl TransactionsDb {
                 }
             })
             .collect()
+    }
+
+    pub async fn delete(&self, id: i64) -> sqlx::Result<bool> {
+        let result = sqlx::query!(
+            r#"
+            DELETE FROM transactions
+            WHERE id = ?
+            "#,
+            id
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(result.rows_affected() > 0)
+    }
+
+    pub async fn delete_last(&self, user_id: i64) -> sqlx::Result<bool> {
+        let result = sqlx::query!(
+            r#"
+        DELETE FROM transactions
+        WHERE id = (
+            SELECT id FROM transactions
+            WHERE user_id = ?
+            ORDER BY date DESC, id DESC
+            LIMIT 1
+        )
+        "#,
+            user_id
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(result.rows_affected() > 0)
+    }
+
+    pub async fn get_last(&self, user_id: i64) -> Option<TransactionRow> {
+        let row = sqlx::query!(
+            r#"
+            SELECT 
+                t.id,
+                t.amount,
+                t.description,
+                DATE(t.date, 'unixepoch') AS date,
+                c.name AS category
+            FROM transactions t
+            JOIN categories c ON c.id = t.category_id
+            WHERE t.user_id = ?
+            ORDER BY t.date DESC, t.id DESC
+            LIMIT 1
+            "#,
+            user_id
+        )
+        .fetch_optional(&self.pool)
+        .await
+        .unwrap();
+
+        row.map(|r| {
+            let date = NaiveDate::parse_from_str(&r.date.unwrap(), "%Y-%m-%d").unwrap();
+
+            TransactionRow {
+                id: r.id,
+                amount: r.amount,
+                date,
+                category: r.category,
+                description: r.description.unwrap(),
+            }
+        })
     }
 
     pub async fn list_filtered(&self, user_id: i64, filter: DateFilter) -> Vec<TransactionRow> {

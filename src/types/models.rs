@@ -17,6 +17,7 @@ pub struct CategoryRow {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TransactionRow {
+    pub id: i64,
     pub amount: i64,
     pub date: NaiveDate,
     pub category: String,

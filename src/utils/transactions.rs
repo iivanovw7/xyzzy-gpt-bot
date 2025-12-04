@@ -1,6 +1,6 @@
-use chrono::{Datelike, Duration, Local, NaiveDate};
-
 use crate::types::common::DateFilter;
+use chrono::{Datelike, Duration, Local, NaiveDate};
+use num_format::{Locale, ToFormattedString};
 
 pub fn format_transaction_date(date: NaiveDate) -> String {
     date.format("%B %e, %Y").to_string()
@@ -10,7 +10,12 @@ pub fn format_transaction_amount(amount: i64, plus_sign: &str) -> String {
     let sign = if amount < 0 { "-" } else { plus_sign };
     let abs = amount.abs();
 
-    format!("{}{}.{:02} EUR", sign, abs / 100, abs % 100)
+    let units = abs / 100;
+    let cents = abs % 100;
+
+    let units_formatted = units.to_formatted_string(&Locale::en);
+
+    format!("{sign}{units_formatted}.{cents:02} €")
 }
 
 pub fn day_key_from_timestamp(ts: NaiveDate) -> String {

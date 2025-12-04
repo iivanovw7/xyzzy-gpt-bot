@@ -182,7 +182,7 @@ pub async fn add_kind(
     bot.send_message(
         chat_id,
         format!(
-            "✏️ Please enter the new category name for a new {} category",
+            "✏️ Please enter the new category name for a new {} category ([a,b,c] - to add many).",
             kind_string
         ),
     )
