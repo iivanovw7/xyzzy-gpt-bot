@@ -7,6 +7,8 @@ use teloxide::{
     types::{InlineKeyboardButton, InlineKeyboardMarkup},
 };
 
+use crate::types::common::AppError;
+use crate::types::models::TransactionRow;
 use crate::{
     handlers::util::parse_positive_i64,
     types::{
@@ -32,14 +34,15 @@ pub async fn add_kind(
 
     for category in categories {
         let id = category.id;
-        let name = category.name.clone();
+        let name = category.name;
 
         rows.push(vec![InlineKeyboardButton::callback(
-            name,
+            name.to_string(),
             format!(
-                "transaction:{}:add:category:{}",
+                "transaction:{}:add:category:{}:{}",
                 <TransactionKind as Into<&'static str>>::into(kind),
-                id
+                id,
+                name
             ),
         )]);
     }
@@ -64,21 +67,22 @@ pub async fn delete_last(bot: Bot, msg: Message, transactions_db: &TransactionsD
     let Some(last_tx) = last else {
         bot.send_message(user_id_str, "No transactions to delete.")
             .await?;
+
         return Ok(());
     };
 
     transactions_db.delete(last_tx.id).await?;
 
     let amount_str = format_transaction_amount(last_tx.amount, "+");
-    let category = escape_markdown_v2(&last_tx.category);
+    let category_name = escape_markdown_v2(&last_tx.category_name);
     let description = escape_markdown_v2(&last_tx.description.clone());
 
     let confirmation = if description.is_empty() {
-        format!("🗑️ Deleted: *{}* ({})", amount_str, category)
+        format!("🗑️ Deleted: *{}* ({})", amount_str, category_name)
     } else {
         format!(
             "🗑️ Deleted: *{}* ({})\n{}",
-            amount_str, category, description
+            amount_str, category_name, description
         )
     };
 
@@ -87,6 +91,23 @@ pub async fn delete_last(bot: Bot, msg: Message, transactions_db: &TransactionsD
         .await?;
 
     Ok(())
+}
+
+pub async fn search(
+    bot: Bot,
+    user_id: String,
+    transactions_db: &TransactionsDb,
+    search: &str,
+) -> Result<Vec<TransactionRow>, AppError> {
+    let user_id_str = user_id.to_string();
+    let parsed_user_id: i64 =
+        parse_positive_i64(&bot, user_id_str.clone(), &user_id_str, "user id").await?;
+
+    let transactions = transactions_db
+        .search_by_description(parsed_user_id, search, 5)
+        .await;
+
+    Ok(transactions)
 }
 
 pub async fn add_transaction(
@@ -130,7 +151,7 @@ pub async fn add_transaction(
 #[derive(Debug, Clone)]
 struct MonthlyTransaction {
     amount: f64,
-    category: String,
+    category_name: String,
     is_income: bool,
     description: String,
 }
@@ -198,7 +219,7 @@ pub async fn list(
     for transaction in &transactions {
         let amount = transaction.amount;
         let date = transaction.date;
-        let category = transaction.category.clone();
+        let category_name = transaction.category_name.clone();
         let description = transaction.description.clone();
         let amount_f = amount_to_float(amount);
 
@@ -207,7 +228,7 @@ pub async fn list(
             .or_default()
             .push(MonthlyTransaction {
                 amount: amount_f.abs(),
-                category: category.clone(),
+                category_name: category_name.clone(),
                 is_income: amount > 0,
                 description: description.clone(),
             });
@@ -225,20 +246,20 @@ pub async fn list(
                 let amount_f = amount_to_float(tx.amount);
                 let entry = MonthlyTransaction {
                     amount: amount_f.abs(),
-                    category: tx.category.clone(),
+                    category_name: tx.category_name.clone(),
                     is_income: tx.amount > 0,
                     description: tx.description.clone(),
                 };
                 if tx.amount < 0 {
                     total_spending += -amount_f;
                     per_category_spending
-                        .entry(tx.category.clone())
+                        .entry(tx.category_name.clone())
                         .or_default()
                         .push(entry);
                 } else {
                     total_income += amount_f;
                     per_category_income
-                        .entry(tx.category.clone())
+                        .entry(tx.category_name.clone())
                         .or_default()
                         .push(entry);
                 }
@@ -291,13 +312,13 @@ pub async fn list(
                     if tx.is_income {
                         month_income += tx.amount;
                         per_category_income
-                            .entry(tx.category.clone())
+                            .entry(tx.category_name.clone())
                             .or_default()
                             .push(tx.clone());
                     } else {
                         month_spending += tx.amount;
                         per_category_spending
-                            .entry(tx.category.clone())
+                            .entry(tx.category_name.clone())
                             .or_default()
                             .push(tx.clone());
                     }

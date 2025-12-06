@@ -20,6 +20,7 @@ pub struct TransactionRow {
     pub id: i64,
     pub amount: i64,
     pub date: NaiveDate,
-    pub category: String,
+    pub category_id: i64,
+    pub category_name: String,
     pub description: String,
 }

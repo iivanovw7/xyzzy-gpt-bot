@@ -69,11 +69,11 @@ pub async fn create_categories_keyboard(
 
         for category in categories {
             let id = category.id;
-            let name = category.name.clone();
+            let name = category.name;
 
             rows.push(vec![InlineKeyboardButton::callback(
-                name,
-                format!("{}:{}", prefix, id),
+                name.to_string(),
+                format!("{}:{}:{}", prefix, id, name),
             )]);
         }
     }

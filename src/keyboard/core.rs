@@ -16,7 +16,9 @@ use crate::{
             },
             core::create_budgeting_menu_keyboard,
             statistics::create_statistics_date_filter_keyboard,
-            transactions::create_transactions_date_filter_keyboard,
+            transactions::{
+                create_transactions_date_filter_keyboard, create_transactions_suggestions_keyboard,
+            },
         },
         gpt::create_gpt_menu_keyboard,
     },
@@ -90,6 +92,8 @@ pub async fn handle_keyboard(
                 bot.send_message(chat_id, "Budgeting")
                     .reply_markup(create_budgeting_menu_keyboard())
                     .await?;
+
+                dialogue.update(DialogueState::InBudgetingMenu).await?;
             }
         };
 
@@ -269,11 +273,16 @@ pub async fn handle_keyboard(
         DialogueState::InTransactionsMode => {
             bot.send_message(msg.chat.id, "Add new transaction").await?;
         }
-        DialogueState::WaitingForTransactionAmount { kind, category_id } => {
+        DialogueState::WaitingForTransactionAmount {
+            kind,
+            category_id,
+            description,
+        } => {
             let mut parts = text.splitn(2, ' ');
 
             let amount_str = parts.next().unwrap_or("0").trim();
-            let description = parts.next().unwrap_or("no description").trim();
+            let user_description = parts.next().unwrap_or("no description").trim();
+            let transaction_description = description.unwrap_or(user_description.to_string());
 
             let amount = match parse_amount(amount_str) {
                 Some(a) => a,
@@ -288,7 +297,7 @@ pub async fn handle_keyboard(
 
             crate::handlers::budgeting::transactions::add_transaction(
                 amount,
-                description.to_string(),
+                transaction_description,
                 category_id.clone(),
                 &db.transactions(),
                 bot.clone(),
@@ -296,6 +305,26 @@ pub async fn handle_keyboard(
                 kind,
             )
             .await?;
+
+            dialogue.update(DialogueState::InBudgetingMenu).await?;
+        }
+        DialogueState::InBudgetingMenu => {
+            let keyboard = create_transactions_suggestions_keyboard(
+                bot.clone(),
+                msg.chat.id.to_string(),
+                &db.transactions(),
+                &text,
+            )
+            .await;
+
+            if keyboard.inline_keyboard.is_empty() {
+                bot.send_message(msg.chat.id, "No recent transactions found.")
+                    .await?;
+            } else {
+                bot.send_message(msg.chat.id, "Repeat one of the recent transactions: ")
+                    .reply_markup(keyboard)
+                    .await?;
+            }
         }
         DialogueState::Start => {
             return Ok(());
@@ -331,6 +360,8 @@ pub async fn callback(
 
         match parts.as_slice() {
             ["category", "kind", "income"] => {
+                dialogue.update(DialogueState::InBudgetingMenu).await?;
+
                 handlers::budgeting::categories::add_kind(
                     TransactionKind::Income,
                     dialogue,
@@ -340,6 +371,8 @@ pub async fn callback(
                 .await?;
             }
             ["category", "kind", "spending"] => {
+                dialogue.update(DialogueState::InBudgetingMenu).await?;
+
                 handlers::budgeting::categories::add_kind(
                     TransactionKind::Spending,
                     dialogue,
@@ -348,7 +381,7 @@ pub async fn callback(
                 )
                 .await?;
             }
-            ["category", "remove", id_str] => {
+            ["category", "remove", id_str, _name] => {
                 handlers::budgeting::categories::remove(
                     id_str.to_string(),
                     &db.categories(),
@@ -360,26 +393,30 @@ pub async fn callback(
 
                 dialogue.update(DialogueState::InCategoriesMode).await?;
             }
-            ["transaction", kind_string, "add", "category", id] => {
+            ["transaction", kind_string, "add", "category", id, name] => {
                 let category_id = id.to_string();
 
                 let kind = TransactionKind::from_str(kind_string).unwrap_or_else(|_| {
                     panic!("Invalid transaction kind received: {}", kind_string)
                 });
 
-                bot.send_message(
-                    q.from.id.to_string(),
-                    "Add transaction (amount description)",
-                )
-                .await?;
+                let message = format!("Add [{}] transaction (amount description)", name);
+
+                bot.send_message(q.from.id.to_string(), message).await?;
 
                 dialogue
-                    .update(DialogueState::WaitingForTransactionAmount { kind, category_id })
+                    .update(DialogueState::WaitingForTransactionAmount {
+                        kind,
+                        category_id,
+                        description: None,
+                    })
                     .await?;
             }
             ["transactions", "filter", filter] => {
                 let parsed_filter =
                     DateFilter::from_str(filter).expect("Invalid filter string received");
+
+                dialogue.update(DialogueState::InBudgetingMenu).await?;
 
                 handlers::budgeting::transactions::list(
                     bot.clone(),
@@ -388,12 +425,12 @@ pub async fn callback(
                     parsed_filter,
                 )
                 .await?;
-
-                dialogue.update(DialogueState::Start).await?;
             }
             ["statistics", "filter", filter] => {
                 let parsed_filter = DateFilter::from_str(filter)
                     .unwrap_or_else(|_| panic!("Invalid filter string received: {}", filter));
+
+                dialogue.update(DialogueState::InBudgetingMenu).await?;
 
                 handlers::budgeting::statistics::overview(
                     bot.clone(),
@@ -402,8 +439,28 @@ pub async fn callback(
                     parsed_filter,
                 )
                 .await?;
+            }
+            ["transactions", "recent", id, category_name, kind_string, description] => {
+                let category_id = id.to_string();
 
-                dialogue.update(DialogueState::Start).await?;
+                let kind = TransactionKind::from_str(kind_string).unwrap_or_else(|_| {
+                    panic!("Invalid transaction kind received: {}", kind_string)
+                });
+
+                let message = format!(
+                    "{} [{}] transaction {}, add amount:",
+                    kind, category_name, description
+                );
+
+                bot.send_message(q.from.id.to_string(), message).await?;
+
+                dialogue
+                    .update(DialogueState::WaitingForTransactionAmount {
+                        kind,
+                        category_id,
+                        description: Some(description.to_string()),
+                    })
+                    .await?;
             }
             _ => {
                 info!("Received unknown callback data: {}", data);

@@ -6,7 +6,7 @@ use std::{
     fmt,
     sync::{Arc, Mutex},
 };
-use strum::{EnumIter, EnumProperty, EnumString, IntoStaticStr};
+use strum::{AsRefStr, EnumIter, EnumProperty, EnumString, IntoStaticStr};
 use teloxide::{
     dispatching::dialogue::{InMemStorage, InMemStorageError},
     prelude::*,
@@ -89,6 +89,7 @@ pub enum Commands {
     IntoStaticStr,
     Hash,
     sqlx::Type,
+    AsRefStr,
 )]
 #[sqlx(type_name = "TEXT")]
 pub enum TransactionKind {
@@ -137,6 +138,7 @@ pub enum DialogueState {
     InChatMode,
     WaitingForChatRequest,
     WaitingForNewPrompt,
+    InBudgetingMenu,
     InCategoriesMode,
     WaitingForNewCategoryName {
         kind: TransactionKind,
@@ -145,6 +147,7 @@ pub enum DialogueState {
     WaitingForTransactionAmount {
         kind: TransactionKind,
         category_id: String,
+        description: Option<String>,
     },
 }
 

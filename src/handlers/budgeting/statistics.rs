@@ -73,7 +73,7 @@ pub async fn overview(
     for transaction in &transactions {
         let amount = transaction.amount;
         let date = transaction.date;
-        let category = transaction.category.clone();
+        let category_name = transaction.category_name.clone();
         let amount_f = amount_to_float(amount);
 
         monthly_transactions
@@ -81,7 +81,7 @@ pub async fn overview(
             .or_default()
             .push(MonthlyTransaction {
                 amount: amount_f.abs(),
-                category: category.clone(),
+                category: category_name.clone(),
                 is_income: amount > 0,
             });
     }
@@ -98,19 +98,19 @@ pub async fn overview(
                 let amount_f = amount_to_float(tx.amount);
                 let entry = MonthlyTransaction {
                     amount: amount_f.abs(),
-                    category: tx.category.clone(),
+                    category: tx.category_name.clone(),
                     is_income: tx.amount > 0,
                 };
                 if tx.amount < 0 {
                     total_spending += -amount_f;
                     per_category_spending
-                        .entry(tx.category.clone())
+                        .entry(tx.category_name.clone())
                         .or_default()
                         .push(entry);
                 } else {
                     total_income += amount_f;
                     per_category_income
-                        .entry(tx.category.clone())
+                        .entry(tx.category_name.clone())
                         .or_default()
                         .push(entry);
                 }
