@@ -38,12 +38,7 @@ pub async fn add_kind(
 
         rows.push(vec![InlineKeyboardButton::callback(
             name.to_string(),
-            format!(
-                "transaction:{}:add:category:{}:{}",
-                <TransactionKind as Into<&'static str>>::into(kind),
-                id,
-                name
-            ),
+            format!("transaction:{}:add:category:{}:{}", kind.as_ref(), id, name),
         )]);
     }
 

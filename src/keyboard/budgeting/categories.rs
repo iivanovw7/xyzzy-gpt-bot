@@ -37,11 +37,7 @@ pub fn create_kinds_keyboard(prefix: &str) -> InlineKeyboardMarkup {
         .map(|kind| {
             vec![InlineKeyboardButton::callback(
                 kind.get_str("label").unwrap(),
-                format!(
-                    "{}:{}",
-                    prefix,
-                    <TransactionKind as Into<&'static str>>::into(kind)
-                ),
+                format!("{}:{}", prefix, kind.as_ref()),
             )]
         })
         .collect();

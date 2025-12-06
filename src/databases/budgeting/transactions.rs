@@ -213,7 +213,7 @@ impl TransactionsDb {
                 let id: i64 = r.id.unwrap();
                 let amount: i64 = r.amount;
                 let date_str: String = r.date.clone();
-                let category_id: i64 = r.category_id.clone();
+                let category_id: i64 = r.category_id;
                 let category_name: String = r.category_name.clone();
                 let description: String = r.description.unwrap();
                 let date = NaiveDate::parse_from_str(&date_str, "%Y-%m-%d").unwrap();

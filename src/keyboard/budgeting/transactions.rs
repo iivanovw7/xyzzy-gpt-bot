@@ -63,7 +63,7 @@ pub async fn create_transactions_suggestions_keyboard(
                     "transactions:recent:{}:{}:{}:{}",
                     transaction.category_id,
                     transaction.category_name,
-                    <TransactionKind as Into<&'static str>>::into(kind),
+                    kind.as_ref(),
                     transaction.description,
                 ),
             )]
