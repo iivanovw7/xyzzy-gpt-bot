@@ -50,7 +50,7 @@ RUN apt-get update -y \
 
 RUN mkdir -p /db 
 
-COPY --from=rust_builder /app/target/release/xyzzy-gpt-bot ./server
+COPY --from=rust_builder /app/target/release/bot ./server
 COPY .env .
 
 EXPOSE 80 443 8080

@@ -49,8 +49,7 @@ pub async fn server() {
     let dialogue_storage = InMemStorage::<DialogueState>::new();
 
     // TODO: add stats and setting pages
-    let web_app_url_str = "https://your-webapp-domain.com/index.html";
-    let web_app_url = Url::parse(web_app_url_str).expect("Failed to parse Web App URL");
+    let web_app_url = Url::parse(&ENV.web_app_url).expect("Failed to parse Web App URL");
     let web_app_info = WebAppInfo { url: web_app_url };
 
     let menu_button_value = MenuButton::WebApp {

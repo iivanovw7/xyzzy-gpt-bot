@@ -1,7 +1,16 @@
 #!/bin/bash
 
-echo "Stopping and removing old container..."
-docker compose down --remove-orphans || true
+echo "👋 Stopping containers..."
+docker compose -p xyzzy-gpt-bot down --remove-orphans || true
 
-echo "Building new image and running service..."
-docker compose up --build -d
+echo "⬇️ Pulling latest base images..."
+docker compose pull
+
+echo "🔨 Rebuilding & starting..."
+docker compose -p xyzzy-gpt-bot up --build -d
+
+echo "🧹 Cleaning old images..."
+docker image prune -f
+
+echo "📦 Running containers:"
+docker compose ps
