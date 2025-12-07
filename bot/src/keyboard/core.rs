@@ -132,6 +132,8 @@ pub async fn handle_keyboard(
                 bot.send_message(chat_id, "Returning to Main Menu.")
                     .reply_markup(create_main_menu_keyboard())
                     .await?;
+
+                dialogue.update(DialogueState::Start).await?;
             }
         }
 
@@ -190,6 +192,8 @@ pub async fn handle_keyboard(
                 bot.send_message(chat_id, "Returning to Main Menu.")
                     .reply_markup(create_main_menu_keyboard())
                     .await?;
+
+                dialogue.update(DialogueState::Start).await?;
             }
         }
 

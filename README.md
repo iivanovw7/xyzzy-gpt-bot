@@ -1,20 +1,13 @@
 # xyzzy-gpt-bot
 
-Telegram bot for `chat-gpt`.
+Telegram bot for `chat-gpt` and `budgeting`.
 
 Contents:
 
-- [Crates](#crates)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Scripts](#scripts)
 - [Dockerfile](#dockerfile)
-
-## Crates
-
-- [teloxide](https://github.com/teloxide/teloxide)
-- [asyncopenapi](https://github.com/64bit/async-openai)
-- [tokio](https://docs.rs/tokio/latest/tokio)
 
 ## Requirements
 
@@ -23,48 +16,20 @@ Contents:
 
 ## Installation
 
-`.env` file example
-
 ```bash
-TOKEN=XXX
-OPEN_API_KEY=XXXX
-USER_ID=99999
-MODEL=gpt-4-turbo
-DATABASE_URL=sqlite:data.db
-```
-
-- Install
-
-```bash
-sufo pacman -S rustup
+sudo pacman -S rustup
 sudo pacman -S sqlite
 
 rustup default stable
-```
 
-## Setup `db` locally
-
-```bash
-rm -rf db
-mkdir -p db
-
-export DATABASE_URL=sqlite:///$(pwd)/db/data.db
-
-sqlx database create
-sqlx migrate run
-
-cargo sqlx migrate run
+cargo add justfile
+cargo add sqlx
 ```
 
 ## Scripts
 
 ```bash
-
-cargo check
-cargo run
-cargo run --release
-cargo build
-cargo build --release
+just bot
 ```
 
 ## Dockerfile
@@ -73,32 +38,23 @@ cargo build --release
 
 ```bash
 sudo pacman -Syu
-sudo pacman -S docker
+sudo pacman -S docker docker-compose
 sudo systemctl start docker.service
 sudo systemctl enable docker.service
 sudo usermod -aG docker $USER
 
-sudo docker version
-
-sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-
+docker version
 docker-compose --version
-# docker-compose version 1.29.2, build 5becea4c
-
 ```
 
-- Build and run container
+- Commands
 
 ```bash
-docker build -t image-name -f Dockerfile .
-docker run -d -p 8080:8080 --name container-name image-name
-
 # clear cache
 docker system prune -a
 docker image prune
 
 # Update docker image after changes
 chmod +x recompose.sh
-./recompose
+./recompose.sh
 ```
