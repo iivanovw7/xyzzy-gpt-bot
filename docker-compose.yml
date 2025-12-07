@@ -1,6 +1,7 @@
 services:
     bot:
         build: ./bot
+        container_name: bot
         image: xyzzy-gpt-bot:latest
         restart: unless-stopped
         ports:
@@ -8,4 +9,4 @@ services:
         volumes:
             - ./bot/db:/db
         environment:
-            - DATABASE_URL=sqlite:///db/data.db
+            - DATABASE_URL=sqlite://./bot/db/data.db

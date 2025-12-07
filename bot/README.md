@@ -1,5 +1,7 @@
 # bot
 
+teloxide telegram bot
+
 - [Crates](#crates)
 - [Installation](#installation)
 - [Scripts](#scripts)

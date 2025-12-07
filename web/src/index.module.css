@@ -1,0 +1,14 @@
+.container {
+    background-color: #ffe0b2;
+    padding: 25px;
+    border-radius: 10px;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    color: #e65100;
+    border-bottom: 2px solid #e65100;
+    padding-bottom: 10px;
+}

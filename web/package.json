@@ -1,0 +1,19 @@
+{
+    "name": "web",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "bot web app",
+    "main": "index.js",
+    "scripts": {
+        "dev": "rspack serve --mode development",
+        "build": "rspack build --mode production"
+    },
+    "devDependencies": {
+        "@rspack/cli": "latest",
+        "@rspack/core": "latest",
+        "@types/node": "^20.11.24",
+        "@types/react": "^18.2.61",
+        "@types/react-dom": "^18.2.19",
+        "typescript": "^5.3.3"
+    }
+}
