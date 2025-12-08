@@ -1,4 +1,6 @@
 .env
+.angular
+.vercel
 
 node_modules/
 target/
@@ -8,3 +10,4 @@ dist/
 *.db*
 *.sqlite
 *.sqlite3
+.env*.local

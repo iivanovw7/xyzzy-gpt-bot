@@ -1,19 +1,43 @@
 {
     "name": "web",
-    "version": "1.0.0",
-    "type": "module",
-    "description": "bot web app",
-    "main": "index.js",
+    "version": "0.0.1",
     "scripts": {
-        "dev": "rspack serve --mode development",
-        "build": "rspack build --mode production"
+        "ng": "ng",
+        "dev": "ng serve",
+        "build": "ng build",
+        "watch": "ng build --watch --configuration development",
+        "test": "ng test --watch false"
+    },
+    "prettier": {
+        "printWidth": 100,
+        "singleQuote": true,
+        "overrides": [
+            {
+                "files": "*.html",
+                "options": {
+                    "parser": "angular"
+                }
+            }
+        ]
+    },
+    "private": true,
+    "packageManager": "pnpm@10.24.0",
+    "dependencies": {
+        "@angular/common": "^21.0.0",
+        "@angular/compiler": "^21.0.0",
+        "@angular/core": "^21.0.0",
+        "@angular/forms": "^21.0.0",
+        "@angular/platform-browser": "^21.0.0",
+        "@angular/router": "^21.0.0",
+        "rxjs": "~7.8.0",
+        "tslib": "^2.3.0"
     },
     "devDependencies": {
-        "@rspack/cli": "latest",
-        "@rspack/core": "latest",
-        "@types/node": "^20.11.24",
-        "@types/react": "^18.2.61",
-        "@types/react-dom": "^18.2.19",
-        "typescript": "^5.3.3"
+        "@angular/build": "^21.0.2",
+        "@angular/cli": "^21.0.2",
+        "@angular/compiler-cli": "^21.0.0",
+        "jsdom": "^27.1.0",
+        "typescript": "~5.9.2",
+        "vitest": "^4.0.8"
     }
 }

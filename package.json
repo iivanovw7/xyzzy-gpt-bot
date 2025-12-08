@@ -5,7 +5,8 @@
     "main": "index.js",
     "scripts": {
         "test": "pnpm run /^test:/",
-        "test:server": "cargo test",
+        "test:bot": "cargo test",
+        "test:web": "cd web && pnpm run test",
         "prepare": "husky"
     },
     "keywords": [],
