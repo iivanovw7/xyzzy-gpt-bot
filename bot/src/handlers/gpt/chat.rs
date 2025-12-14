@@ -1,5 +1,5 @@
 use crate::{
-    env::ENV,
+    config::CONFIG,
     keyboard::gpt::create_gpt_menu_keyboard,
     types::common::{BotDialogue, ChatHistoryState, DialogueState, HandleResult},
     utils::markdown::escape_markdown_v2,
@@ -23,7 +23,7 @@ pub async fn message(
 ) -> HandleResult {
     info!("Complete chat, user: {}, content: {}", msg.chat.id, content);
 
-    let env = &ENV;
+    let config = &CONFIG;
     let hists;
     {
         let mut guard = state.lock().unwrap();
@@ -43,7 +43,7 @@ pub async fn message(
 
     let msg_id = response.id;
     let request = CreateChatCompletionRequestArgs::default()
-        .model(env.model.clone())
+        .model(config.open_ai.model.clone())
         .messages(hists)
         .build()?;
 

@@ -1,0 +1,6 @@
+{
+    "framework": "angular",
+    "buildCommand": "cd web && pnpm run build",
+    "installCommand": "cd web && pnpm install",
+    "outputDirectory": "web/dist/web/browser"
+}

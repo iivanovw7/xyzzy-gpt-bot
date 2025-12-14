@@ -1,6 +1,14 @@
 # ignore files
 
+**/target
+**/node_modules
+
+tmp/
+
+Dockerfile
+docker-compose.yml
+
+.git
 .gitignore
 
-target
 

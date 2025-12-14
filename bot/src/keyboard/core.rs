@@ -1,11 +1,15 @@
 use async_openai::{config::OpenAIConfig, Client};
 use std::{str::FromStr, sync::Arc};
+use teloxide::types::{MenuButton, WebAppInfo};
 use teloxide::{
     prelude::*,
     types::{KeyboardButton, KeyboardMarkup, Me, ReplyMarkup},
 };
 use tracing::info;
+use url::Url;
 
+use crate::config::CONFIG;
+use crate::env::ENV;
 use crate::{
     handlers,
     keyboard::{
@@ -24,8 +28,7 @@ use crate::{
     },
     types::{
         common::{
-            BotDialogue, ChatHistoryState, ConfigParameters, DateFilter, DialogueState,
-            HandleResult, TransactionKind,
+            BotDialogue, ChatHistoryState, DateFilter, DialogueState, HandleResult, TransactionKind,
         },
         databases::Database,
         keyboard::{
@@ -59,9 +62,56 @@ pub fn create_main_menu_keyboard() -> ReplyMarkup {
     custom_keyboard.into()
 }
 
+pub async fn create_menu_button(bot: Bot, msg: Message) -> HandleResult {
+    let jwt_secret = ENV.jwt_secret.clone();
+
+    let user_id = match msg.from {
+        Some(user) => user.id,
+        None => return Ok(()),
+    };
+
+    if user_id.0 != ENV.user_id {
+        return Ok(());
+    }
+
+    let token = match handlers::auth::jwt::create_jwt(user_id, jwt_secret.as_bytes()) {
+        Ok(t) => t,
+        Err(e) => {
+            tracing::error!("Failed to create JWT for menu button: {:?}", e);
+
+            bot.send_message(msg.chat.id, "Error generating secure link.")
+                .await?;
+
+            return Ok(());
+        }
+    };
+
+    let base_url = CONFIG.web.app_url.trim_end_matches('/');
+    let web_app_url_with_token = format!("{}/?token={}", base_url, token);
+
+    let web_app_info = WebAppInfo {
+        url: Url::parse(&web_app_url_with_token).expect("Invalid web app URL"),
+    };
+
+    let menu_button_value = MenuButton::WebApp {
+        text: "Open".to_string(),
+        web_app: web_app_info,
+    };
+
+    bot.set_chat_menu_button()
+        .chat_id(msg.chat.id)
+        .menu_button(menu_button_value.clone())
+        .await
+        .ok();
+
+    bot.send_message(msg.chat.id, web_app_url_with_token.to_string())
+        .await?;
+
+    Ok(())
+}
+
 #[allow(clippy::too_many_arguments)]
 pub async fn handle_keyboard(
-    _cfg: ConfigParameters,
     client: Client<OpenAIConfig>,
     state: ChatHistoryState,
     bot: Bot,
@@ -339,9 +389,11 @@ pub async fn handle_keyboard(
 }
 
 pub async fn start(bot: Bot, msg: Message) -> HandleResult {
+    create_menu_button(bot.clone(), msg.clone()).await?;
+
     let keyboard = create_main_menu_keyboard();
 
-    bot.send_message(msg.chat.id, "Welcome! Here is your main menu:")
+    bot.send_message(msg.chat.id, "Welcome!")
         .reply_markup(keyboard)
         .await?;
 
@@ -350,7 +402,6 @@ pub async fn start(bot: Bot, msg: Message) -> HandleResult {
 
 #[allow(clippy::too_many_arguments)]
 pub async fn callback(
-    _cfg: ConfigParameters,
     _client: Client<OpenAIConfig>,
     _state: ChatHistoryState,
     bot: Bot,
