@@ -32,7 +32,7 @@ WORKDIR /
 COPY --from=chef /app/recipe.json /bot/recipe.json
 RUN cargo chef cook --release --recipe-path /bot/recipe.json
 
-COPY bot /bot 
+COPY bot /bot
 RUN cd /bot && cargo build --release
 
 # ================================
@@ -47,7 +47,7 @@ COPY web/package.json web/pnpm-lock.yaml ./
 
 RUN pnpm install --frozen-lockfile
 
-COPY web/ . 
+COPY web/ .
 
 RUN pnpm run ng build --configuration production --output-path=dist/web/browser
 
@@ -64,15 +64,16 @@ RUN apt-get update -y \
         ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /db 
+RUN mkdir -p /db
 
 COPY --from=rust_builder /bot/target/release/bot ./server
 COPY --from=frontend_builder /app/web/dist/web/browser /web/dist/web/browser
 
 COPY bot/.env .
+COPY bot/config.toml .
 
 EXPOSE 80 443 8080
 
-USER root 
+USER root
 
 ENTRYPOINT ["sh", "-c", "mkdir -p /db && ./server"]
