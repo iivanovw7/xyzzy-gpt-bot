@@ -1,0 +1,6 @@
+[open_ai]
+model = "gpt-4"
+[web]
+app_auth = true
+app_url = "https://xyzzy-gpt-bot-web.vercel.app"
+api_port = 8080

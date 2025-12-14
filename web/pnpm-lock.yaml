@@ -26,6 +26,9 @@ importers:
       '@angular/router':
         specifier: ^21.0.0
         version: 21.0.3(@angular/common@21.0.3(@angular/core@21.0.3(@angular/compiler@21.0.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.0.3(@angular/compiler@21.0.3)(rxjs@7.8.2))(@angular/platform-browser@21.0.3(@angular/common@21.0.3(@angular/core@21.0.3(@angular/compiler@21.0.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.0.3(@angular/compiler@21.0.3)(rxjs@7.8.2)))(rxjs@7.8.2)
+      ngx-logger:
+        specifier: 5.0.12
+        version: 5.0.12(rxjs@7.8.2)
       rxjs:
         specifier: ~7.8.0
         version: 7.8.2
@@ -2189,6 +2192,11 @@ packages:
     resolution: {integrity: sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==}
     engines: {node: '>= 0.6'}
 
+  ngx-logger@5.0.12:
+    resolution: {integrity: sha512-4kTtPvxQoV2ka6pigtvkbtaLKpMYWqZm7Slu0YQVcwzBKoVR2K+oLmMVcA50S6kCxkZXq7iKcrXUKR2vhMXPqQ==}
+    peerDependencies:
+      rxjs: '>6.0.0'
+
   node-addon-api@6.1.0:
     resolution: {integrity: sha512-+eawOlIgy680F0kBzPUNFhMZGtJ1YmqM6l4+Crf4IkImjYrO/mqPwRMh352g23uIaQKFItcQ64I7KMaJxHgAVA==}
 
@@ -2780,6 +2788,9 @@ packages:
         optional: true
       jsdom:
         optional: true
+
+  vlq@1.0.1:
+    resolution: {integrity: sha512-gQpnTgkubC6hQgdIcRdYGDSDc+SaujOdyesZQMv6JlfQee/9Mp0Qhnys6WxDWvQnL5WZdT7o2Ul187aSt0Rq+w==}
 
   w3c-xmlserializer@5.0.0:
     resolution: {integrity: sha512-o8qghlI8NZHU1lLPrpi2+Uq7abh4GGPpYANlalzWxyWteJOCsr/P+oPBA49TOLu5FTZO4d3F9MnWJfiMo4BkmA==}
@@ -4906,6 +4917,12 @@ snapshots:
 
   negotiator@1.0.0: {}
 
+  ngx-logger@5.0.12(rxjs@7.8.2):
+    dependencies:
+      rxjs: 7.8.2
+      tslib: 2.8.1
+      vlq: 1.0.1
+
   node-addon-api@6.1.0:
     optional: true
 
@@ -5534,6 +5551,8 @@ snapshots:
       - terser
       - tsx
       - yaml
+
+  vlq@1.0.1: {}
 
   w3c-xmlserializer@5.0.0:
     dependencies:

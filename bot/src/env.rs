@@ -7,9 +7,8 @@ pub struct Env {
     pub token: String,
     pub open_api_key: String,
     pub user_id: u64,
-    pub model: String,
     pub database_url: String,
-    pub web_app_url: String,
+    pub jwt_secret: String,
 }
 
 lazy_static! {

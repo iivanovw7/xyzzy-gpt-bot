@@ -1,24 +1,22 @@
 use crate::{
     commands::commands,
+    config::CONFIG,
     env::ENV,
-    handlers::{
-        self,
-        auth::{unauthorized_access_callback, unauthorized_access_command},
-    },
-    keyboard,
+    handlers, keyboard,
     types::{
-        common::{ChatHistories, Commands, ConfigParameters, DialogueState},
+        common::{ChatHistories, Commands, DialogueState},
         databases::Database,
     },
 };
+use actix_cors::Cors;
+use actix_web::{web, App, HttpServer};
 use async_openai::{config::OpenAIConfig, Client};
 use dotenv::dotenv;
 use std::sync::{Arc, Mutex};
-use teloxide::{dispatching::dialogue::InMemStorage, types::MenuButton};
-use teloxide::{prelude::*, types::*};
+use teloxide::dispatching::dialogue::InMemStorage;
+use teloxide::prelude::*;
 use tracing::{error, info, warn};
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
-use url::Url;
 
 pub async fn server() {
     match dotenv() {
@@ -35,32 +33,41 @@ pub async fn server() {
 
     info!("initializing..");
 
-    let config = OpenAIConfig::new().with_api_key(&ENV.open_api_key);
+    let open_ai_config = OpenAIConfig::new().with_api_key(&ENV.open_api_key);
     let bot = Bot::new(&ENV.token);
-    let client: Client<OpenAIConfig> = Client::with_config(config);
+    let client: Client<OpenAIConfig> = Client::with_config(open_ai_config);
     let state = Arc::new(Mutex::new(ChatHistories::new()));
     let db = Arc::new(Database::new().await);
 
-    let parameters = ConfigParameters {
-        bot_maintainer: UserId(ENV.user_id),
-        maintainer_username: None,
-    };
-
     let dialogue_storage = InMemStorage::<DialogueState>::new();
+    let jwt_secret = ENV.jwt_secret.clone();
 
-    // TODO: add stats and setting pages
-    let web_app_url = Url::parse(&ENV.web_app_url).expect("Failed to parse Web App URL");
-    let web_app_info = WebAppInfo { url: web_app_url };
+    let api_server = tokio::spawn(async move {
+        HttpServer::new(move || {
+            let cors = Cors::default()
+                .allowed_origin(&CONFIG.web.app_url)
+                .allowed_origin("http://localhost:4200")
+                .allowed_methods(vec!["GET", "POST", "OPTIONS"])
+                .allowed_headers(vec![
+                    actix_web::http::header::AUTHORIZATION,
+                    actix_web::http::header::ACCEPT,
+                    actix_web::http::header::CONTENT_TYPE,
+                ])
+                .supports_credentials();
 
-    let menu_button_value = MenuButton::WebApp {
-        text: "Open".to_string(),
-        web_app: web_app_info,
-    };
-
-    bot.set_chat_menu_button()
-        .menu_button(menu_button_value)
+            App::new()
+                .wrap(cors)
+                .app_data(web::Data::new(jwt_secret.clone()))
+                .app_data(web::Data::new(Arc::new(ENV.clone())))
+                .app_data(web::Data::new(Arc::new(CONFIG.clone())))
+                .route("/api/user", web::get().to(handlers::web::user::get))
+        })
+        .bind(("0.0.0.0", CONFIG.web.api_port))
+        .unwrap()
+        .run()
         .await
-        .ok();
+        .unwrap();
+    });
 
     let is_authorized = dptree::filter(|msg: Message| {
         msg.from
@@ -73,6 +80,9 @@ pub async fn server() {
             .map(|user| user.id != UserId(ENV.user_id))
             .unwrap_or(true)
     });
+
+    let is_authorized_cb = dptree::filter(|q: CallbackQuery| q.from.id == UserId(ENV.user_id));
+    let is_unathorized_cb = dptree::filter(|q: CallbackQuery| q.from.id != UserId(ENV.user_id));
 
     let message_filter = Update::filter_message()
         .filter(|msg: Message| msg.text().is_some())
@@ -87,16 +97,8 @@ pub async fn server() {
         .branch(
             Update::filter_callback_query()
                 .enter_dialogue::<CallbackQuery, InMemStorage<DialogueState>, DialogueState>()
-                .branch(
-                    dptree::filter(|q: CallbackQuery| q.from.id != UserId(ENV.user_id))
-                        .clone()
-                        .endpoint(unauthorized_access_callback),
-                )
-                .branch(
-                    dptree::filter(|q: CallbackQuery| q.from.id == UserId(ENV.user_id))
-                        .clone()
-                        .endpoint(keyboard::core::callback),
-                ),
+                .branch(is_unathorized_cb.endpoint(handlers::auth::bot::unauthorized_access_cb))
+                .branch(is_authorized_cb.endpoint(keyboard::core::callback)),
         )
         .branch(
             Update::filter_message()
@@ -104,7 +106,7 @@ pub async fn server() {
                 .branch(
                     is_unauthorized
                         .clone()
-                        .endpoint(unauthorized_access_command),
+                        .endpoint(handlers::auth::bot::unauthorized_access),
                 )
                 .branch(
                     is_authorized.clone().branch(
@@ -130,11 +132,10 @@ pub async fn server() {
                 ),
         );
 
-    Dispatcher::builder(bot.clone(), handler)
+    let mut bot_dispatcher = Dispatcher::builder(bot.clone(), handler)
         .dependencies(dptree::deps![
             client,
             state,
-            parameters,
             dialogue_storage,
             db.clone(),
             bot.clone().get_me().await.unwrap()
@@ -146,7 +147,16 @@ pub async fn server() {
             "An error has occurred in the dispatcher",
         ))
         .enable_ctrlc_handler()
-        .build()
-        .dispatch()
-        .await;
+        .build();
+
+    let dispatcher = bot_dispatcher.dispatch();
+
+    let (api_result, _) = tokio::join!(api_server, dispatcher);
+
+    match api_result {
+        Err(e) => error!("API server task failed: {:?}", e),
+        Ok(_) => {
+            info!("API server task completed.");
+        }
+    }
 }

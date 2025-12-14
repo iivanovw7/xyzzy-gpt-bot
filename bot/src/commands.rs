@@ -50,6 +50,9 @@ pub async fn commands(
         Commands::Delete => {
             handlers::budgeting::transactions::delete_last(bot, msg, &db.transactions()).await?;
         }
+        Commands::Reset => {
+            handlers::reset::reset(bot, msg).await?;
+        }
     }
 
     Ok(())

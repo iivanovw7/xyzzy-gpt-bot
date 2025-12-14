@@ -20,9 +20,9 @@ teloxide telegram bot
 TOKEN=XXX
 OPEN_API_KEY=XXXX
 USER_ID=99999
-MODEL=gpt-4-turbo
-DATABASE_URL=sqlite:data.db
-WEB_APP_URL=https://WEB_APP_URL
+SQLX_OFFLINE=true
+DATABASE_URL=sqlite://./db/data.db
+JWT_SECRET=XXXX
 ```
 
 ### Setup `db` locally

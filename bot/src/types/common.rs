@@ -44,12 +44,6 @@ impl From<InMemStorageError> for AppError {
     }
 }
 
-#[derive(Clone)]
-pub struct ConfigParameters {
-    pub bot_maintainer: UserId,
-    pub maintainer_username: Option<String>,
-}
-
 #[derive(BotCommands, Clone, Serialize, Deserialize)]
 #[command(
     rename_rule = "lowercase",
@@ -76,6 +70,8 @@ pub enum Commands {
     Clear,
     #[command(description = "Remove last transaction")]
     Delete,
+    #[command(description = "Reset bot")]
+    Reset,
 }
 
 #[derive(
@@ -171,3 +167,5 @@ impl DateFilter {
         }
     }
 }
+
+pub type UserDataStore = Arc<Mutex<HashMap<String, String>>>;
