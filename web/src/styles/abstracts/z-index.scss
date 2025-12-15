@@ -1,0 +1,23 @@
+@charset "UTF-8";
+
+@use "sass:map";
+@use "sass:list";
+
+$z-index: (
+	default: 0,
+	content: 1,
+	overlay: 1000,
+	progress: 5000,
+);
+
+@function z-index($key) {
+	@if ($key != "" and map.has-key($z-index, $key)) {
+		@return map.get($z-index, $key);
+	} @else {
+		@return map.get($z-index, default);
+	}
+}
+
+@mixin z-index($key) {
+	z-index: z-index($key);
+}

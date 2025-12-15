@@ -1,18 +1,17 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 
 @Component({
-    selector: 'app-auth-page',
-    templateUrl: './auth.component.html',
-    imports: [],
+	selector: "app-auth-page",
+	templateUrl: "./auth.component.html",
+	styleUrl: "./auth.component.scss",
+	imports: [],
 })
 export default class AuthComponent implements OnInit {
-    title = '';
-    destroyRef = inject(DestroyRef);
+	code = "401";
+	message = "Unauthorized";
+	destroyRef = inject(DestroyRef);
 
-    constructor() {}
+	constructor() {}
 
-    ngOnInit(): void {
-        this.title = 'Login';
-        console.log('Login Component Initialized!');
-    }
+	ngOnInit(): void {}
 }

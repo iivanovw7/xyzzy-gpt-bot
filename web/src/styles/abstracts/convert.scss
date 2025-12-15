@@ -1,0 +1,24 @@
+@charset "UTF-8";
+
+@use "sass:meta";
+@use "sass:math";
+@use "sass:map";
+@use "sass:list";
+
+$font-size: 16px;
+
+@function rem($px) {
+	@if math.unit($px) != "px" {
+		@error 'Expected argument $px to be of type `px`, instead received: `#{unit($px)}`';
+	}
+
+	@return math.div($px, $font-size) * 1rem;
+}
+
+@function em($px) {
+	@if math.unit($px) != "px" {
+		@error 'Expected argument $px to be of type `px`, instead received: `#{unit($px)}`';
+	}
+
+	@return math.div($px, $font-size) * 1em;
+}

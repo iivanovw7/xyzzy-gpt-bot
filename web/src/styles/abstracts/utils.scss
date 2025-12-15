@@ -1,0 +1,58 @@
+/* stylelint-disable scss/at-if-no-null */
+
+@charset "UTF-8";
+
+@use "sass:map";
+@use "sass:meta";
+@use "sass:list";
+@use "sass:math";
+
+@function validate-breakpoint($value) {
+	@for $i from 1 through list.length($value) {
+		@if map.has-key($screens, $value) {
+			@return map.get($screens, list.nth($value, $i));
+		} @else {
+			@return list.nth($value, $i);
+		}
+	}
+}
+
+@function validate-length($value) {
+	$list: ("auto", "inherit", "initial", 0);
+
+	@if list.index($list, $value) {
+		@return $value;
+	} @else if meta.type-of($value) == "number" and not math.is-unitless($value) {
+		@return $value;
+	} @else {
+		@warn 'Please pass some values with unit like `#{$value}px`, `#{$value}em`, or `#{$value}%` etc. or pass one of the following arguments: `auto`, ìnherit`, ìnitial` or `0`.';
+
+		@return $value;
+	}
+}
+
+@function shorthand-property($value) {
+	@if list.length($value) == 1 {
+		@return list.nth($value, 1) list.nth($value, 1) list.nth($value, 1) list.nth($value, 1);
+	} @else if list.length($value) == 2 {
+		@return list.nth($value, 1) list.nth($value, 2) list.nth($value, 1) list.nth($value, 2);
+	} @else if list.length($value) == 3 {
+		@return list.nth($value, 1) list.nth($value, 2) list.nth($value, 3) list.nth($value, 2);
+	} @else if list.length($value) == 4 {
+		@return list.nth($value, 1) list.nth($value, 2) list.nth($value, 3) list.nth($value, 4);
+	} @else if list.length($value) > 4 {
+		@error "You've passed #{length($value)} arguments. Please do not pass more than 4.";
+	}
+}
+
+@function null($value, $seperation: comma, $skip: false) {
+	$list: ();
+	@for $i from 1 through list.length($value) {
+		@if list.nth($value, $i) == null {
+			$list: list.append($list, if($skip, null, 0), $seperation);
+		} @else {
+			$list: list.append($list, list.nth($value, $i), $seperation);
+		}
+	}
+	@return $list;
+}

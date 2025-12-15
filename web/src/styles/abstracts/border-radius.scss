@@ -1,0 +1,99 @@
+@charset "UTF-8";
+
+@use "sass:list";
+@use "utils" as *;
+
+$list-of-directions: ("top", "top-right", "right", "bottom-right", "bottom", "bottom-left", "left", "top-left");
+
+// Examples:
+//	@include border-radius(20px);
+//	CSS Output:
+//		border-radius: 20px;
+
+//	@include border-radius(top, 40px);
+//	CSS Output:
+//		border-top-left-radius: 40px;
+//		border-top-right-radius: 40px;
+
+//	@include border-radius(right, 40px);
+//	CSS Output:
+//		border-top-right-radius: 40px;
+//		border-bottom-right-radius: 40px;
+
+//	@include border-radius(cross-left, 40px);
+//	CSS Output:
+//		border-top-left-radius: 40px;
+//		border-bottom-right-radius: 40px;
+//	@include border-radius(25px 50px 100px 150px);
+//	CSS Output:
+//		border-radius: 25px 50px 100px 150px;
+
+//	@include border-radius(25px, 50px, 100px, 150px);
+//	CSS Output:
+//		border-top-left-radius: 25px;
+//		border-top-right-radius: 50px;
+//		border-bottom-right-radius: 100px;
+//		border-bottom-left-radius: 150px;
+
+//	@include border-radius(100px 40px, 50px 20%, 100px 30%, 150px 2rem);
+//	CSS Output:
+//		border-top-left-radius: 100px 40px;
+//		border-top-right-radius: 50px 20%;
+//		border-bottom-right-radius: 100px 30%;
+//		border-bottom-left-radius: 150px 2rem;
+
+//	@include border-radius(null, null, 100px 30%, 150px 2rem);
+//	CSS Output:
+//		border-bottom-right-radius: 100px 30%;
+//		border-bottom-left-radius: 150px 2rem;
+
+@mixin border-radius($args...) {
+	$list: list.join($list-of-directions, ("cross-left", "cross-right", "all"));
+
+	@if list.length($args) == 1 {
+		$value: list.nth($args, 1);
+
+		border-radius: null($value, space);
+	} @else if list.length($args) == 2 {
+		$corner: list.nth($args, 1);
+		$value: list.nth($args, 2);
+
+		@if list.index($list, $corner) {
+			@if $corner == "top" {
+				border-top-left-radius: $value;
+				border-top-right-radius: $value;
+			} @else if $corner == "top-right" {
+				border-top-right-radius: $value;
+			} @else if $corner == "right" {
+				border-top-right-radius: $value;
+				border-bottom-right-radius: $value;
+			} @else if $corner == "bottom-right" {
+				border-bottom-right-radius: $value;
+			} @else if $corner == "bottom" {
+				border-bottom-left-radius: $value;
+				border-bottom-right-radius: $value;
+			} @else if $corner == "bottom-left" {
+				border-bottom-left-radius: $value;
+			} @else if $corner == "left" {
+				border-top-left-radius: $value;
+				border-bottom-left-radius: $value;
+			} @else if $corner == "top-left" {
+				border-top-left-radius: $value;
+			} @else if $corner == "all" {
+				border-radius: $value;
+			} @else if $corner == "cross-left" {
+				border-top-left-radius: $value;
+				border-bottom-right-radius: $value;
+			} @else if $corner == "cross-right" {
+				border-top-right-radius: $value;
+				border-bottom-left-radius: $value;
+			}
+		} @else {
+			@error "Corner value must be one of the followings: #{quote($list)}.";
+		}
+	} @else if list.length($args) == 4 {
+		$args: __null($args, space, true);
+
+		border-radius: list.nth($args, 1) list.nth($args, 2) list.nth($args, 3) list.nth($args, 4);
+	}
+}

@@ -20,6 +20,7 @@ pub struct WebConfig {
     pub app_url: String,
     pub api_port: u16,
     pub app_port: u16,
+    pub app_dist: String,
 }
 
 lazy_static! {

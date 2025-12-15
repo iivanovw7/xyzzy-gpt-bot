@@ -1,0 +1,124 @@
+/* stylelint-disable scss/at-if-no-null */
+/* stylelint-disable at-rule-empty-line-before */
+
+@charset "UTF-8";
+
+@use "sass:map";
+@use "sass:list";
+@use "sizer" as *;
+@use "border-radius" as *;
+@use "variables" as *;
+@use "position" as *;
+@use "z-index" as *;
+
+@mixin justify-align-flex($justify: flex-start, $align: flex-start) {
+	display: flex;
+	align-items: $align;
+	justify-content: $justify;
+}
+
+@mixin scrollbars(
+	$size: 8px,
+	$foreground-color: var(--scrollbar),
+	$background-color: color.mix($foreground-color, white, 50%),
+	$thumb-color: var(--scrollbar-thumb),
+	$thumb-border-color: color.mix($thumb-color, white, 50%)
+) {
+	& {
+		scrollbar-face-color: $foreground-color;
+		scrollbar-track-color: $background-color;
+		scrollbar-color: $background-color;
+		scrollbar-width: thin;
+	}
+
+	&::-webkit-scrollbar {
+		@include sizer($size);
+	}
+
+	&::-webkit-scrollbar-thumb {
+		@include border-radius($border-radius-xx-large);
+
+		background: $foreground-color;
+		background-color: $thumb-color;
+		border: 3px solid $thumb-border-color;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: $background-color;
+		box-shadow: none;
+	}
+}
+
+@mixin border-box($value: null) {
+	@if not & and $value == null {
+		*,
+		*::before,
+		*::after {
+			box-sizing: border-box;
+		}
+	} @else if & and $value == "only" {
+		&,
+		&::before,
+		&::after {
+			box-sizing: border-box;
+		}
+	} @else if & and $value == null {
+		&,
+		&::before,
+		&::after,
+		*,
+		*::before,
+		*::after {
+			box-sizing: border-box;
+		}
+	}
+}
+
+@mixin fullscreen-box {
+	@include position(fixed, 0 0 0 0);
+	@include justify-align-flex;
+
+	flex-flow: column nowrap;
+	flex-direction: column;
+	overflow: hidden;
+
+	&::before {
+		display: flex;
+		flex: 1;
+		width: 100vw;
+		max-height: 25%;
+		content: "";
+	}
+
+	&::after {
+		display: flex;
+		flex: 1;
+		width: 100vw;
+		max-height: 25%;
+		content: "";
+	}
+}
+
+@mixin fullscreen-box-content {
+	position: relative;
+	flex: 2 0;
+	width: 100vw;
+	text-align: center;
+	user-select: none;
+
+	&::after {
+		@include z-index(underlay);
+
+		position: fixed;
+		inset: 0;
+		content: "";
+	}
+
+	&::before {
+		@include z-index(default);
+
+		position: absolute;
+		inset: -10vw 10vw;
+		content: "";
+	}
+}

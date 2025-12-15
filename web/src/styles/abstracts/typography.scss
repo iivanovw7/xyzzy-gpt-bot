@@ -1,0 +1,76 @@
+@charset "UTF-8";
+
+@use "sass:map";
+@use "sass:list";
+
+/* Base font variables. */
+$base-font-size: 1rem;
+$base-line-height: 1.5 * $base-font-size;
+$base-font-family: "Source Code Pro", monospace;
+
+/*  Adaptive font sizes. */
+$adaptive-font-size: 12;
+$adaptive-font-size-additive: 0.3vi;
+
+/* Font weights. */
+$font-weight-light: 100;
+$font-weight-regular: 400;
+$font-weight-bold: 600;
+$font-weight-extra-bold: 800;
+
+$text-settings: (
+	"xs": (
+		font-size: 0.75rem,
+		line-height: $base-line-height,
+	),
+	"sm": (
+		font-size: 0.875rem,
+		line-height: $base-line-height - 0.25,
+	),
+	"base": (
+		font-size: 1rem,
+		line-height: $base-line-height,
+	),
+	"md": (
+		font-size: 1.425rem,
+		line-height: $base-line-height * 2,
+	),
+	"lg": (
+		font-size: 1.65rem,
+		line-height: $base-line-height * 2,
+	),
+	"xl": (
+		font-size: 2.25rem,
+		line-height: $base-line-height * 2,
+	),
+);
+
+@function text-scale($level) {
+	@return map.get(map.get($text-settings, $level), "font-size");
+}
+
+@function line-height($level) {
+	@return map.get(map.get($text-settings, $level), "line-height");
+}
+
+@mixin text-setting($level) {
+	font-size: text-scale($level);
+	line-height: line-height($level);
+}
+
+@mixin text-overflow($text-overflow: ellipsis, $add-white-space: true) {
+	overflow: hidden;
+	text-overflow: $text-overflow;
+
+	@if $add-white-space == true {
+		white-space: nowrap;
+	}
+}
+
+@mixin ellipsis($width: 100%, $display: inline-block) {
+	@include text-overflow(ellipsis, true);
+
+	display: $display;
+	max-width: $width;
+	word-wrap: normal;
+}

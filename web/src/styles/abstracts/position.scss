@@ -1,0 +1,40 @@
+@charset "UTF-8";
+
+@use "sass:map";
+@use "sass:list";
+@use "sass:math";
+@use "utils" as *;
+
+@mixin position($position: absolute, $offsets: 0) {
+	$offsets: shorthand-property($offsets);
+
+	$positioning-offsets: (
+		top: list.nth($offsets, 1),
+		right: list.nth($offsets, 2),
+		bottom: list.nth($offsets, 3),
+		left: list.nth($offsets, 4),
+	);
+
+	position: $position;
+
+	@each $offset, $value in $positioning-offsets {
+		@if validate-length($value) {
+			#{$offset}: $value;
+		}
+	}
+}
+
+@mixin center($position: absolute, $axis: "both") {
+	position: $position;
+
+	@if $axis == "both" or $axis == "vertical" {
+		top: 50%;
+	}
+
+	@if $axis == "both" or $axis == "horizontal" {
+		left: 50%;
+	}
+
+	transform: if($axis == "horizontal", translateX(-50%), if($axis == "both", translateX(-50%), null))
+		if($axis == "vertical", translateY(-50%), if($axis == "both", translateY(-50%), null));
+}

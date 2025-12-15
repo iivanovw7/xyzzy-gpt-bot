@@ -5,3 +5,4 @@ app_auth = true
 app_url = "https://goodnewseveryone.site"
 app_port = 5005
 api_port = 8080
+app_dist = "./web-dist/browser"

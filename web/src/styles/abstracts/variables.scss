@@ -1,0 +1,35 @@
+@charset "UTF-8";
+
+@use "sass:map";
+@use "sass:list";
+
+$cb-transition: cubic-bezier(0.4, 0, 0.2, 1);
+
+$transition-opacity: opacity 250ms $cb-transition;
+$transition-color: color 250ms $cb-transition;
+$transition-bg-color: background-color 250ms $cb-transition;
+
+// prettier-ignore
+$transition-colors:
+	color 250ms $cb-transition
+	background-color 250ms $cb-transition
+	border-color 250ms $cb-transition
+	fill 250ms $cb-transition
+	stroke 250ms $cb-transition;
+
+$transition-border-color: border-color 250ms $cb-transition;
+$transition-width: width 250ms $cb-transition;
+$transition-height: height 250ms $cb-transition;
+
+$control-size-x-small: 24px;
+$control-size-small: 36px;
+$control-size-medium: 40px;
+$control-size-large: 44px;
+$control-size-x-large: 48px;
+
+$border-radius-x-small: 2px;
+$border-radius-small: 3px;
+$border-radius-medium: 6px;
+$border-radius-large: 8px;
+$border-radius-x-large: 10px;
+$border-radius-xx-large: 20px;

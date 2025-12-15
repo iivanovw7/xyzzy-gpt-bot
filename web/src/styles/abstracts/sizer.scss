@@ -1,0 +1,9 @@
+@charset "UTF-8";
+
+@use "sass:map";
+@use "sass:list";
+
+@mixin sizer($width, $height: $width) {
+	inline-size: $width;
+	block-size: $height;
+}

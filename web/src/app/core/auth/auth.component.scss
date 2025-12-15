@@ -1,0 +1,38 @@
+@use "abstracts" as *;
+
+.auth-page {
+	@include fullscreen-box;
+
+	&__main {
+		@include fullscreen-box-content;
+	}
+
+	&__container {
+		@include justify-align-flex(center, center);
+		@include sizer(100%);
+
+		flex-direction: row;
+		gap: rem(16px);
+	}
+
+	&__code {
+		@include justify-align-flex;
+		@include pr(3);
+
+		flex-direction: column;
+		gap: rem(16px);
+		border-right: rem(2px) solid var(--accent1);
+	}
+
+	&__code-text {
+		@include text-setting(xl);
+	}
+
+	&__message {
+		max-width: rem(300px);
+	}
+
+	&__message-text {
+		@include text-setting(lg);
+	}
+}

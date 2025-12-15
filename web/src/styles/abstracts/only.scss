@@ -1,0 +1,144 @@
+@charset "UTF-8";
+
+@use "sass:map";
+@use "sass:list";
+@use "sass:string";
+@use "sass:meta";
+
+// Example 1: Apply styles to the first item in a list.
+// .list-wrapper {
+//   .list-item {
+//     @include only(first) {
+//       background-color: #5bc0bb;
+//       color: white;
+//     }
+//   }
+// }
+
+// Example 2: Apply styles to the last item in a list.
+// .list-wrapper {
+//   .list-item {
+//     @include only(last) {
+//       background-color: #5bc0bb;
+//       color: white;
+//     }
+//   }
+// }
+
+// Example 3: Apply styles to the second item in a list.
+// .list-wrapper {
+//   .list-item {
+//     @include only(2) {
+//       background-color: #5bc0bb;
+//       color: white;
+//     }
+//   }
+// }
+
+// Example 4: Apply styles to odd-numbered items in a list.
+// .list-wrapper {
+//   .list-item {
+//     @include only(odd) {
+//       background-color: #5bc0bb;
+//       color: white;
+//     }
+//   }
+// }
+
+// Example 5: Apply styles to multiple specific items in a list.
+// .list-wrapper {
+//   .list-item {
+//     @include only(4, 5, 6) {
+//       background-color: #5bc0bb;
+//       color: white;
+//     }
+//   }
+// }
+
+// Example 6: Apply styles to the third item from the end in a list.
+// .list-wrapper {
+//   .list-item {
+//     @include only(-3) {
+//       background-color: #5bc0bb;
+//       color: white;
+//     }
+//   }
+// }
+
+// Example 7: Apply styles to multiple specific items from the end in a list.
+// .list-wrapper {
+//   .list-item {
+//     @include only(-1, -2, -4) {
+//       background-color: #5bc0bb;
+//       color: white;
+//     }
+//   }
+// }
+
+// Example 8: Apply styles to specific items based on both positive and negative positions.
+// .list-wrapper {
+//   .list-item {
+//     @include only(1, -2) {
+//       background-color: #5bc0bb;
+//       color: white;
+//     }
+//   }
+// }
+
+@mixin only($params...) {
+	@if list.length($params) == 0 {
+		@error "Please pass an argument. The argument must be either a negative or positive number or list of numbers. Or pass one of the following predefined string values: 'first', 'last', 'odd', 'even'.";
+	} @else if list.length($params) == 1 {
+		$value: list.nth($params, 1);
+		@if meta.type-of($value) == "number" {
+			@if $value < 0 {
+				&:nth-last-of-type(#{$value * -1}) {
+					@content;
+				}
+			} @else {
+				&:nth-of-type(#{$value}) {
+					@content;
+				}
+			}
+		} @else if meta.type-of($value) == "string" {
+			@if $value == "odd" {
+				&:nth-of-type(odd) {
+					@content;
+				}
+			} @else if $value == "even" {
+				&:nth-of-type(even) {
+					@content;
+				}
+			} @else if $value == "first" {
+				&:first-of-type {
+					@content;
+				}
+			} @else if $value == "last" {
+				&:last-of-type {
+					@content;
+				}
+			} @else {
+				// For class, id or attribute selectors.
+				&#{$value} {
+					@content;
+				}
+			}
+		}
+	} @else if list.length($params) > 1 {
+		$list: ();
+		@for $i from 1 through list.length($params) {
+			$list: list.append(
+				$list,
+				if(
+					list.nth($params, $i) < 0,
+					string.unquote("&:nth-last-of-type(#{nth($params, $i) * -1})"),
+					string.unquote("&:nth-of-type(#{nth($params, $i)})")
+				),
+				comma
+			);
+		}
+		#{$list} {
+			@content;
+		}
+	}
+}

@@ -1,0 +1,83 @@
+/* stylelint-disable max-nesting-depth */
+
+@charset "UTF-8";
+
+@use "sass:map";
+@use "sass:list";
+@use "utils" as *;
+
+$screens: (
+	"xs": 0,
+	"sm": 640px,
+	"md": 768px,
+	"lg": 1024px,
+	"xl": 1280px,
+	"2xl": 1536px,
+);
+
+@mixin media($params...) {
+	@if list.length($params) == 1 {
+		$value: list.nth($params, 1);
+
+		@if map.has-key($screens, $value) {
+			@media (width: map.get($screens $value)) {
+				@content;
+			}
+		} @else {
+			@media (width: $value) {
+				@content;
+			}
+		}
+	} @else if list.length($params) == 2 {
+		@if not list.index("only" "min" "max" "between", list.nth($params, 1)) {
+			$start: list.nth($params, 1);
+			$end: list.nth($params, 2);
+
+			@media (min-width: #{validate-breakpoint($start)}) and (max-width: #{if(map.has-key($screens, $end), validate-breakpoint($end) - 1, $end)}) {
+				@content;
+			}
+		} @else {
+			$mode: list.nth($params, 1);
+			$value: list.nth($params, 2);
+
+			@if $mode == "only" {
+				@if map.has-key($screens, $value) {
+					@media (width: map.get($screens, $value)) {
+						@content;
+					}
+				} @else {
+					@media (width: $value) {
+						@content;
+					}
+				}
+			} @else if $mode == "min" {
+				@if map.has-key($screens, $value) {
+					@media (min-width: map.get($screens, $value)) {
+						@content;
+					}
+				} @else {
+					@media (min-width: $value) {
+						@content;
+					}
+				}
+			} @else if $mode == "max" {
+				@if map.has-key($screens, $value) {
+					@media (max-width: map.get($screens, $value)) {
+						@content;
+					}
+				} @else {
+					@media (max-width: $value) {
+						@content;
+					}
+				}
+			} @else if $mode == "between" {
+				$start: list.nth($value, 1);
+				$end: list.nth($value, 2);
+
+				@media (min-width: #{validate-breakpoint($start)}) and (max-width: #{if(map.has-key($screens, $end), _validate-breakpoint($end) - 1, $end)}) {
+					@content;
+				}
+			}
+		}
+	}
+}

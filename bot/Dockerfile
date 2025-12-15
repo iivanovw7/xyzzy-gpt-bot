@@ -66,7 +66,7 @@ RUN apt-get update -y \
 RUN mkdir -p /db
 
 COPY --from=rust_builder /bot/target/release/bot ./server
-COPY --from=frontend_builder /app/web/dist/web/browser /web/dist/web/browser
+COPY --from=frontend_builder /app/web/dist/web/browser ./web-dist
 
 COPY bot/.env .
 COPY bot/config.toml .

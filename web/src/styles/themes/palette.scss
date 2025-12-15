@@ -1,0 +1,88 @@
+@charset "UTF-8";
+
+@use "sass:map";
+@use "sass:list";
+@use "sass:color";
+
+$colors: (
+	monokai-light: (
+		accent1: "#e14775",
+		accent1-lighten: color.adjust(#e14775, $lightness: 20%),
+		accent2: "#e16032",
+		accent2-lighten: color.adjust(#e16032, $lightness: 20%),
+		accent3: "#cc7a0a",
+		accent3-lighten: color.adjust(#cc7a0a, $lightness: 20%),
+		accent4: "#269d69",
+		accent4-lighten: color.adjust(#269d69, $lightness: 20%),
+		accent5: "#1c8ca8",
+		accent5-lighten: color.adjust(#1c8ca8, $lightness: 20%),
+		accent6: "#7058be",
+		accent6-lighten: color.adjust(#7058be, $lightness: 20%),
+		background: "#eee5e5",
+		dark1: "#ded6d7",
+		dark1-lighten: color.adjust(#ded6d7, $lightness: 5%),
+		dark2: "#c1c0c0",
+		dark2-lighten: color.adjust(#c1c0c0, $lightness: 5%),
+		dimmed1: "#c1c0c0",
+		dimmed2: "#939293",
+		dimmed3: "#ded6d7",
+		dimmed3-lighten: color.adjust(#ded6d7, $lightness: 20%),
+		dimmed4: "#3f3a3a",
+		dimmed5: "#939293",
+		dimmed5-darken: color.adjust(#939293, $lightness: -10%),
+		dimmed6: "#57534e",
+		text: "#0f0f0f",
+		text-darken: color.adjust(#0f0f0f, $lightness: -30%),
+		text-lighten: color.adjust(#0f0f0f, $lightness: 30%),
+		text-inversed: "#fcfcfa",
+	),
+	monokai: (
+		accent1: "#ff6188",
+		accent1-lighten: color.adjust(#ff6188, $lightness: 20%),
+		accent2: "#fc9867",
+		accent2-lighten: color.adjust(#fc9867, $lightness: 20%),
+		accent3: "#ffd866",
+		accent3-lighten: color.adjust(#ffd866, $lightness: 20%),
+		accent4: "#a9dc76",
+		accent4-lighten: color.adjust(#a9dc76, $lightness: 20%),
+		accent5: "#78dce8",
+		accent5-lighten: color.adjust(#78dce8, $lightness: 20%),
+		accent6: "#ab9df2",
+		accent6-lighten: color.adjust(#ab9df2, $lightness: 20%),
+		background: "#2d2a2e",
+		dark1: "#221f22",
+		dark1-lighten: color.adjust(#221f22, $lightness: 5%),
+		dark2: "#19181a",
+		dark2-lighten: color.adjust(#19181a, $lightness: 5%),
+		dimmed1: "#c1c0c0",
+		dimmed2: "#939293",
+		dimmed3: "#727072",
+		dimmed3-lighten: color.adjust(#727072, $lightness: 20%),
+		dimmed4: "#5b595c",
+		dimmed5: "#403e41",
+		dimmed5-darken: color.adjust(#403e41, $lightness: -5%),
+		dimmed6: "#57534e",
+		text: "#fcfcfa",
+		text-darken: color.adjust(#fcfcfc, $lightness: -40%),
+		text-lighten: color.adjust(#fcfcfc, $lightness: 40%),
+		text-inversed: "#0f0f0f",
+	),
+);
+
+@function get($color, $shade) {
+	@if ($color != "" and map.has-key($colors, $color)) {
+		$palette: map.get($colors, $color);
+
+		@if (map.has-key($palette, $shade)) {
+			@return map.get($palette, $shade);
+		} @else {
+			@warn "Shade color `#{$shade}` not found in #{$palette}";
+
+			@return map.get(map.get($colors, monokai), text);
+		}
+	} @else {
+		@warn "Color palette `#{$color}` not found in $colors";
+
+		@return map.get(map.get($colors, monokai), text);
+	}
+}

@@ -78,11 +78,11 @@ pub async fn server() {
         Some(tokio::spawn(async move {
             HttpServer::new(move || {
                 App::new()
-                    .service(Files::new("/", ENV.web_app_path.clone()).index_file("index.html"))
+                    .service(Files::new("/", CONFIG.web.app_dist.clone()).index_file("index.html"))
                     .default_service(web::to(|| async {
                         actix_files::NamedFile::open_async(format!(
                             "{}/index.html",
-                            ENV.web_app_path
+                            CONFIG.web.app_dist
                         ))
                         .await
                     }))

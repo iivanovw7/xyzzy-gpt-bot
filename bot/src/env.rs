@@ -9,7 +9,6 @@ pub struct Env {
     pub user_id: u64,
     pub database_url: String,
     pub jwt_secret: String,
-    pub web_app_path: String,
 }
 
 lazy_static! {
