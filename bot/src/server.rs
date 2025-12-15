@@ -9,6 +9,7 @@ use crate::{
     },
 };
 use actix_cors::Cors;
+use actix_files::Files;
 use actix_web::{web, App, HttpServer};
 use async_openai::{config::OpenAIConfig, Client};
 use dotenv::dotenv;
@@ -45,7 +46,7 @@ pub async fn server() {
 
     let api_server = tokio::spawn(async move {
         HttpServer::new(move || {
-            let mut cors = Cors::default()
+            let cors = Cors::default()
                 .allowed_origin(&CONFIG.web.app_url)
                 .allowed_methods(vec!["GET", "POST", "OPTIONS"])
                 .allowed_headers(vec![
@@ -54,10 +55,6 @@ pub async fn server() {
                     actix_web::http::header::CONTENT_TYPE,
                 ])
                 .supports_credentials();
-
-            if is_dev {
-                cors = cors.allowed_origin(&CONFIG.web.app_url_dev);
-            }
 
             App::new()
                 .wrap(cors)
@@ -72,6 +69,28 @@ pub async fn server() {
         .await
         .unwrap();
     });
+
+    let web_server = if !is_dev {
+        Some(tokio::spawn(async move {
+            HttpServer::new(move || {
+                App::new()
+                    .service(Files::new("/", ENV.web_app_path.clone()).index_file("index.html"))
+            })
+            .bind(("0.0.0.0", CONFIG.web.app_port))
+            .unwrap_or_else(|_| {
+                panic!(
+                    "Failed to bind frontend server to port {}",
+                    CONFIG.web.app_port
+                )
+            })
+            .run()
+            .await
+            .unwrap()
+        }))
+    } else {
+        info!("DEV mode: web server is disabled");
+        None
+    };
 
     let is_authorized = dptree::filter(|msg: Message| {
         msg.from
@@ -155,12 +174,20 @@ pub async fn server() {
 
     let dispatcher = bot_dispatcher.dispatch();
 
-    let (api_result, _) = tokio::join!(api_server, dispatcher);
+    let api_result = api_server.await;
+    let _ = dispatcher.await;
 
     match api_result {
         Err(e) => error!("API server task failed: {:?}", e),
         Ok(_) => {
             info!("API server task completed.");
+        }
+    }
+
+    if let Some(web_server) = web_server {
+        match web_server.await {
+            Err(e) => error!("Web app server task failed: {:?}", e),
+            Ok(_) => info!("Web app server task completed."),
         }
     }
 }

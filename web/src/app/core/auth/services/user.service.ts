@@ -1,6 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, distinctUntilChanged, map, Observable, shareReplay, tap } from 'rxjs';
+import {
+    BehaviorSubject,
+    catchError,
+    distinctUntilChanged,
+    EMPTY,
+    map,
+    Observable,
+    shareReplay,
+    tap,
+} from 'rxjs';
 import { User, UserResponse } from '../user.model';
 import { JwtService } from './jwt.service';
 
@@ -23,6 +32,7 @@ export class UserService {
                 next: ({ data }) => this.setUser(data),
                 error: () => this.purgeUser(),
             }),
+            catchError(() => EMPTY),
             shareReplay(1),
         );
     }

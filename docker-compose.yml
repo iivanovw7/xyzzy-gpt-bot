@@ -9,6 +9,7 @@ services:
             - ./bot/db:/db
         environment:
             - DATABASE_URL=sqlite:///./db/data.db
+            - WEB_APP_PATH=/app/web/dist/web/browser
         build:
             context: .
             dockerfile: ./bot/Dockerfile

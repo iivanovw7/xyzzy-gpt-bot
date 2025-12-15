@@ -36,6 +36,21 @@ COPY bot /bot
 RUN cd /bot && cargo build --release
 
 # ================================
+# STAGE 2B: Frontend Builder
+# ================================
+
+FROM node:24-slim AS frontend_builder
+WORKDIR /app/web
+
+RUN npm install -g pnpm
+COPY web/package.json web/pnpm-lock.yaml ./
+
+RUN pnpm install --frozen-lockfile
+COPY web/ .
+
+RUN pnpm run ng build --configuration production --output-path=dist/web/browser
+
+# ================================
 # STAGE 3: Final Runtime Image
 # ================================
 FROM debian:bookworm-slim AS runtime
@@ -51,11 +66,12 @@ RUN apt-get update -y \
 RUN mkdir -p /db
 
 COPY --from=rust_builder /bot/target/release/bot ./server
+COPY --from=frontend_builder /app/web/dist/web/browser /web/dist/web/browser
 
 COPY bot/.env .
 COPY bot/config.toml .
 
-EXPOSE 80 443 8080
+EXPOSE 80 443 8080 5005
 
 USER root
 

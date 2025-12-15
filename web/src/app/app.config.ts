@@ -4,7 +4,7 @@ import {
     provideAppInitializer,
     provideBrowserGlobalErrorListeners,
 } from '@angular/core';
-import { provideRouter, Router } from '@angular/router';
+import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { JwtService } from './core/auth/services/jwt.service';
@@ -13,10 +13,11 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { apiInterceptor } from './core/interceptors/api.interceptor';
 import { tokenInterceptor } from './core/interceptors/token.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { EMPTY } from 'rxjs';
 
-export function initAuth(jwtService: JwtService, userService: UserService, router: Router) {
+export function initAuth(jwtService: JwtService, userService: UserService) {
     return () => {
-        return jwtService.getToken() ? userService.getCurrentUser() : router.navigate(['login']);
+        return jwtService.getToken() ? userService.getCurrentUser() : EMPTY;
     };
 }
 
@@ -26,7 +27,7 @@ export const appConfig: ApplicationConfig = {
         provideRouter(routes),
         provideHttpClient(withInterceptors([apiInterceptor, tokenInterceptor, errorInterceptor])),
         provideAppInitializer(() => {
-            let intializeerFn = initAuth(inject(JwtService), inject(UserService), inject(Router));
+            let intializeerFn = initAuth(inject(JwtService), inject(UserService));
 
             return intializeerFn();
         }),

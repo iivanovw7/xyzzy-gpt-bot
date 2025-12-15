@@ -13,5 +13,6 @@ export default class AuthComponent implements OnInit {
 
     ngOnInit(): void {
         this.title = 'Login';
+        console.log('Login Component Initialized!');
     }
 }
