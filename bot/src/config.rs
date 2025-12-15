@@ -18,6 +18,7 @@ pub struct OpenAiConfig {
 pub struct WebConfig {
     pub app_auth: bool,
     pub app_url: String,
+    pub app_url_dev: String,
     pub api_port: u16,
 }
 

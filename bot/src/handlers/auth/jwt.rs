@@ -62,7 +62,7 @@ pub fn validate_jwt(token: &str, secret_key: &[u8]) -> Result<String, jsonwebtok
 
     let token_data = decode::<Claims>(token, &DecodingKey::from_secret(secret_key), &validation)?;
 
-    tracing::info!("jwt vlaidated: {}", token_data.claims.sub);
+    tracing::info!("jwt validated: {}", token_data.claims.sub);
 
     Ok(token_data.claims.sub)
 }

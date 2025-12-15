@@ -41,12 +41,12 @@ pub async fn server() {
 
     let dialogue_storage = InMemStorage::<DialogueState>::new();
     let jwt_secret = ENV.jwt_secret.clone();
+    let is_dev = cfg!(debug_assertions);
 
     let api_server = tokio::spawn(async move {
         HttpServer::new(move || {
-            let cors = Cors::default()
+            let mut cors = Cors::default()
                 .allowed_origin(&CONFIG.web.app_url)
-                .allowed_origin("http://localhost:4200")
                 .allowed_methods(vec!["GET", "POST", "OPTIONS"])
                 .allowed_headers(vec![
                     actix_web::http::header::AUTHORIZATION,
@@ -54,6 +54,10 @@ pub async fn server() {
                     actix_web::http::header::CONTENT_TYPE,
                 ])
                 .supports_credentials();
+
+            if is_dev {
+                cors = cors.allowed_origin(&CONFIG.web.app_url_dev);
+            }
 
             App::new()
                 .wrap(cors)

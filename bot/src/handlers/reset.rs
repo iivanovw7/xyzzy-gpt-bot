@@ -25,7 +25,7 @@ pub async fn reset(bot: Bot, msg: Message) -> HandleResult {
 
     bot.send_message(
         msg.chat.id,
-        "✅ GLOBAL BOT CONFIGURATION RESET. \n\nThe default **Menu Button (/)** is now visible. \n Please run /start now to activate your secure Web App button."
+        "✅ Configuration reset. \n\n Please run /start now to re-activate menu.",
     )
     .await?;
 
