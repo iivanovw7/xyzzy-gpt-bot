@@ -46,7 +46,7 @@ pub async fn server() {
 
     let api_server = tokio::spawn(async move {
         HttpServer::new(move || {
-            let cors = Cors::default()
+            let mut cors = Cors::default()
                 .allowed_origin(&CONFIG.web.app_url)
                 .allowed_methods(vec!["GET", "POST", "OPTIONS"])
                 .allowed_headers(vec![
@@ -55,6 +55,10 @@ pub async fn server() {
                     actix_web::http::header::CONTENT_TYPE,
                 ])
                 .supports_credentials();
+
+            if is_dev {
+                cors = cors.allowed_origin(&format!("http://localhost:{}", &CONFIG.web.app_port));
+            }
 
             App::new()
                 .wrap(cors)
@@ -75,6 +79,13 @@ pub async fn server() {
             HttpServer::new(move || {
                 App::new()
                     .service(Files::new("/", ENV.web_app_path.clone()).index_file("index.html"))
+                    .default_service(web::to(|| async {
+                        actix_files::NamedFile::open_async(format!(
+                            "{}/index.html",
+                            ENV.web_app_path
+                        ))
+                        .await
+                    }))
             })
             .bind(("0.0.0.0", CONFIG.web.app_port))
             .unwrap_or_else(|_| {
@@ -174,8 +185,8 @@ pub async fn server() {
 
     let dispatcher = bot_dispatcher.dispatch();
 
-    let api_result = api_server.await;
     let _ = dispatcher.await;
+    let api_result = api_server.await;
 
     match api_result {
         Err(e) => error!("API server task failed: {:?}", e),
