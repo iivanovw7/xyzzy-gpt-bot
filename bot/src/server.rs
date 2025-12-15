@@ -47,7 +47,7 @@ pub async fn server() {
     let api_server = tokio::spawn(async move {
         HttpServer::new(move || {
             let mut cors = Cors::default()
-                .allowed_origin(&CONFIG.web.app_url)
+                .allowed_origin(&CONFIG.web.url)
                 .allowed_methods(vec!["GET", "POST", "OPTIONS"])
                 .allowed_headers(vec![
                     actix_web::http::header::AUTHORIZATION,
@@ -57,7 +57,7 @@ pub async fn server() {
                 .supports_credentials();
 
             if is_dev {
-                cors = cors.allowed_origin(&format!("http://localhost:{}", &CONFIG.web.app_port));
+                cors = cors.allowed_origin(&format!("http://localhost:{}", &CONFIG.web.port));
             }
 
             App::new()
@@ -67,7 +67,7 @@ pub async fn server() {
                 .app_data(web::Data::new(Arc::new(CONFIG.clone())))
                 .route("/api/user", web::get().to(handlers::web::user::get))
         })
-        .bind(("0.0.0.0", CONFIG.web.api_port))
+        .bind(("0.0.0.0", CONFIG.api.port))
         .unwrap()
         .run()
         .await
@@ -78,21 +78,18 @@ pub async fn server() {
         Some(tokio::spawn(async move {
             HttpServer::new(move || {
                 App::new()
-                    .service(Files::new("/", CONFIG.web.app_dist.clone()).index_file("index.html"))
+                    .service(Files::new("/", CONFIG.web.dist.clone()).index_file("index.html"))
                     .default_service(web::to(|| async {
                         actix_files::NamedFile::open_async(format!(
                             "{}/index.html",
-                            CONFIG.web.app_dist
+                            CONFIG.web.dist
                         ))
                         .await
                     }))
             })
-            .bind(("0.0.0.0", CONFIG.web.app_port))
+            .bind(("0.0.0.0", CONFIG.web.port))
             .unwrap_or_else(|_| {
-                panic!(
-                    "Failed to bind frontend server to port {}",
-                    CONFIG.web.app_port
-                )
+                panic!("Failed to bind frontend server to port {}", CONFIG.web.port)
             })
             .run()
             .await

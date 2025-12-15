@@ -86,7 +86,7 @@ pub async fn create_menu_button(bot: Bot, msg: Message) -> HandleResult {
         }
     };
 
-    let base_url = CONFIG.web.app_url.trim_end_matches('/');
+    let base_url = CONFIG.web.url.trim_end_matches('/');
     let web_app_url_with_token = format!("{}/?token={}", base_url, token);
 
     let web_app_info = WebAppInfo {

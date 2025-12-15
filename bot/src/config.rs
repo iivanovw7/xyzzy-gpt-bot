@@ -7,6 +7,7 @@ use std::fs;
 pub struct Config {
     pub open_ai: OpenAiConfig,
     pub web: WebConfig,
+    pub api: ApiConfig,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -15,12 +16,16 @@ pub struct OpenAiConfig {
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct ApiConfig {
+    pub port: u16,
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct WebConfig {
-    pub app_auth: bool,
-    pub app_url: String,
-    pub api_port: u16,
-    pub app_port: u16,
-    pub app_dist: String,
+    pub auth: bool,
+    pub url: String,
+    pub port: u16,
+    pub dist: String,
 }
 
 lazy_static! {

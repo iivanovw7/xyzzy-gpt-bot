@@ -15,7 +15,7 @@ pub async fn get(
     _env: web::Data<Arc<Env>>,
     config: web::Data<Arc<Config>>,
 ) -> Result<HttpResponse, ActixError> {
-    let (user_id, _) = auth::jwt::authorize_request(req, jwt_secret, config.web.app_auth)?;
+    let (user_id, _) = auth::jwt::authorize_request(req, jwt_secret, config.web.auth)?;
 
     let result = user_id.to_string();
 

@@ -1,8 +1,9 @@
 [open_ai]
 model = "gpt-4"
 [web]
-app_auth = true
-app_url = "https://goodnewseveryone.site"
-app_port = 5005
-api_port = 8080
-app_dist = "./web-dist/browser"
+auth = true
+url = "https://goodnewseveryone.site"
+port = 5005
+dist = "./web-dist/browser"
+[api]
+port = 8080

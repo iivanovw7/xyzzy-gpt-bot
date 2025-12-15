@@ -1,6 +1,0 @@
-{
-    "framework": "angular",
-    "buildCommand": "pnpm run build",
-    "installCommand": "pnpm install",
-    "outputDirectory": "dist"
-}
