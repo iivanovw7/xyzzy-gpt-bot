@@ -1,10 +1,10 @@
 /* stylelint-disable max-nesting-depth */
-
 @charset "UTF-8";
 
 @use "sass:map";
 @use "sass:list";
-@use "utils" as *;
+
+@use "./../_internal/utils" as utils;
 
 $screens: (
 	"xs": 0,
@@ -15,10 +15,19 @@ $screens: (
 	"2xl": 1536px,
 );
 
+@function validate-breakpoint($value) {
+	@for $i from 1 through list.length($value) {
+		@if map.has-key($screens, $value) {
+			@return map.get($screens, list.nth($value, $i));
+		} @else {
+			@return list.nth($value, $i);
+		}
+	}
+}
+
 @mixin media($params...) {
 	@if list.length($params) == 1 {
 		$value: list.nth($params, 1);
-
 		@if map.has-key($screens, $value) {
 			@media (width: map.get($screens $value)) {
 				@content;
@@ -32,14 +41,12 @@ $screens: (
 		@if not list.index("only" "min" "max" "between", list.nth($params, 1)) {
 			$start: list.nth($params, 1);
 			$end: list.nth($params, 2);
-
 			@media (min-width: #{validate-breakpoint($start)}) and (max-width: #{if(map.has-key($screens, $end), validate-breakpoint($end) - 1, $end)}) {
 				@content;
 			}
 		} @else {
 			$mode: list.nth($params, 1);
 			$value: list.nth($params, 2);
-
 			@if $mode == "only" {
 				@if map.has-key($screens, $value) {
 					@media (width: map.get($screens, $value)) {
@@ -73,11 +80,40 @@ $screens: (
 			} @else if $mode == "between" {
 				$start: list.nth($value, 1);
 				$end: list.nth($value, 2);
-
-				@media (min-width: #{validate-breakpoint($start)}) and (max-width: #{if(map.has-key($screens, $end), _validate-breakpoint($end) - 1, $end)}) {
+				@media (min-width: #{validate-breakpoint($start)}) and (max-width: #{if(map.has-key($screens, $end), validate-breakpoint($end) - 1, $end)}) {
 					@content;
 				}
 			}
 		}
+	}
+}
+
+@mixin media-mobile-only {
+	@include media(max, sm) {
+		@content;
+	}
+}
+
+@mixin media-mobile-only-landscape {
+	@media (max-height: map.get($screens, sm)) and (orientation: landscape) {
+		@content;
+	}
+}
+
+@mixin media-tablet-only {
+	@include media(sm, md) {
+		@content;
+	}
+}
+
+@mixin media-tablet {
+	@include media(min, sm) {
+		@content;
+	}
+}
+
+@mixin media-desktop {
+	@include media(min, xl) {
+		@content;
 	}
 }

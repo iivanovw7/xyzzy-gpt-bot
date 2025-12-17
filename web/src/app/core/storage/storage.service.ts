@@ -3,7 +3,7 @@ import { StorageKey, StorageValue, DEFAULT_STORAGE } from "./storage.types";
 
 @Injectable({ providedIn: "root" })
 export class StorageService {
-	private readonly store = signal<StorageValue>(this.load() ?? { ...DEFAULT_STORAGE });
+	private readonly store = signal<StorageValue>(this.load() ?? { ...(DEFAULT_STORAGE as StorageValue) });
 
 	constructor() {
 		effect(() => {
@@ -13,6 +13,14 @@ export class StorageService {
 
 	get<K extends StorageKey>(key: K): StorageValue[K] {
 		return this.store()[key];
+	}
+
+	delete<K extends StorageKey>(key: K): void {
+		this.store.update((currentState) => {
+			const { [key]: _, ...rest } = currentState;
+
+			return rest as StorageValue;
+		});
 	}
 
 	set<K extends StorageKey>(key: K, value: StorageValue[K]) {

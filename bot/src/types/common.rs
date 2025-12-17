@@ -167,5 +167,3 @@ impl DateFilter {
         }
     }
 }
-
-pub type UserDataStore = Arc<Mutex<HashMap<String, String>>>;

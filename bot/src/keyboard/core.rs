@@ -1,3 +1,4 @@
+use actix_web::web;
 use async_openai::{config::OpenAIConfig, Client};
 use std::{str::FromStr, sync::Arc};
 use teloxide::types::{MenuButton, WebAppInfo};
@@ -10,6 +11,8 @@ use url::Url;
 
 use crate::config::CONFIG;
 use crate::env::ENV;
+use crate::types::auth::AuthState;
+use crate::types::common::AppError;
 use crate::{
     handlers,
     keyboard::{
@@ -47,6 +50,7 @@ pub fn create_main_menu_keyboard() -> ReplyMarkup {
         vec![
             KeyboardButton::new(MainMenuItems::Roll),
             KeyboardButton::new(MainMenuItems::Help),
+            KeyboardButton::new(MainMenuItems::Start),
         ],
     ];
 
@@ -62,9 +66,7 @@ pub fn create_main_menu_keyboard() -> ReplyMarkup {
     custom_keyboard.into()
 }
 
-pub async fn create_menu_button(bot: Bot, msg: Message) -> HandleResult {
-    let jwt_secret = ENV.jwt_secret.clone();
-
+pub async fn create_menu_button(bot: Bot, msg: Message, auth_state: AuthState) -> HandleResult {
     let user_id = match msg.from {
         Some(user) => user.id,
         None => return Ok(()),
@@ -74,20 +76,29 @@ pub async fn create_menu_button(bot: Bot, msg: Message) -> HandleResult {
         return Ok(());
     }
 
-    let token = match handlers::auth::jwt::create_jwt(user_id, jwt_secret.as_bytes()) {
+    let jwt_secret = web::Data::new(ENV.jwt_secret.clone());
+
+    let tokens = match handlers::auth::jwt::create_tokens(
+        user_id,
+        jwt_secret.clone().as_bytes(),
+        auth_state,
+    )
+    .await
+    {
         Ok(t) => t,
         Err(e) => {
-            tracing::error!("Failed to create JWT for menu button: {:?}", e);
-
-            bot.send_message(msg.chat.id, "Error generating secure link.")
+            bot.send_message(msg.chat.id, format!("Error generating tokens: {}", e))
                 .await?;
 
-            return Ok(());
+            return Err(AppError::InternalError(format!(
+                "Error generating tokens: {}",
+                e
+            )));
         }
     };
 
     let base_url = CONFIG.web.url.trim_end_matches('/');
-    let web_app_url_with_token = format!("{}/?token={}", base_url, token);
+    let web_app_url_with_token = format!("{}/?token={}", base_url, tokens.access_token);
 
     let web_app_info = WebAppInfo {
         url: Url::parse(&web_app_url_with_token).expect("Invalid web app URL"),
@@ -104,8 +115,12 @@ pub async fn create_menu_button(bot: Bot, msg: Message) -> HandleResult {
         .await
         .ok();
 
-    bot.send_message(msg.chat.id, web_app_url_with_token.to_string())
-        .await?;
+    let is_dev = cfg!(debug_assertions);
+
+    if is_dev {
+        bot.send_message(msg.chat.id, web_app_url_with_token.to_string())
+            .await?;
+    }
 
     Ok(())
 }
@@ -114,6 +129,7 @@ pub async fn create_menu_button(bot: Bot, msg: Message) -> HandleResult {
 pub async fn handle_keyboard(
     client: Client<OpenAIConfig>,
     state: ChatHistoryState,
+    auth_state: AuthState,
     bot: Bot,
     _me: Me,
     dialogue: BotDialogue,
@@ -125,6 +141,11 @@ pub async fn handle_keyboard(
 
     if let Ok(item) = <MainMenuItems as FromStr>::from_str(&text) {
         match item {
+            MainMenuItems::Start => {
+                start(bot.clone(), msg.clone(), auth_state.clone()).await?;
+
+                dialogue.update(DialogueState::Start).await?;
+            }
             MainMenuItems::Roll => {
                 handlers::dice::roll(bot.clone(), msg.clone()).await?;
             }
@@ -388,8 +409,8 @@ pub async fn handle_keyboard(
     Ok(())
 }
 
-pub async fn start(bot: Bot, msg: Message) -> HandleResult {
-    create_menu_button(bot.clone(), msg.clone()).await?;
+pub async fn start(bot: Bot, msg: Message, auth_state: AuthState) -> HandleResult {
+    create_menu_button(bot.clone(), msg.clone(), auth_state.clone()).await?;
 
     let keyboard = create_main_menu_keyboard();
 
