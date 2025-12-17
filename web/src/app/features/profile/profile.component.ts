@@ -1,16 +1,14 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject } from "@angular/core";
+
 import { AuthService } from "../../core/auth/services/auth.service";
 
 @Component({
-	selector: "app-profile-page",
-	templateUrl: "./profile.component.html",
 	imports: [],
+	selector: "app-profile-page",
 	styleUrl: "./profile.components.css",
+	templateUrl: "./profile.component.html",
 })
-export default class ProfileComponent implements OnInit {
+export default class ProfileComponent {
 	private readonly authService = inject(AuthService);
-
 	protected readonly user = this.authService.currentUser;
-
-	ngOnInit(): void {}
 }

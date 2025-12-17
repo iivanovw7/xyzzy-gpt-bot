@@ -1,6 +1,6 @@
 export {};
 
 declare global {
-	type Nullable<T> = T | null;
-	type Maybe<T> = T | null | undefined;
+	type Nullable<T> = null | T;
+	type Maybe<T> = null | T | undefined;
 }

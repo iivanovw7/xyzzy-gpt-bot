@@ -1,7 +1,9 @@
 export type User = {
-	user_id: string;
+	id: string;
 };
 
 export type UserResponse = {
-	data: User;
+	data: {
+		user_id: string;
+	};
 };

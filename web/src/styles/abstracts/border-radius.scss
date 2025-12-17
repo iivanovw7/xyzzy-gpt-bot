@@ -70,8 +70,8 @@ $list-of-directions: ("top", "top-right", "right", "bottom-right", "bottom", "bo
 			} @else if $corner == "bottom-right" {
 				border-bottom-right-radius: $value;
 			} @else if $corner == "bottom" {
-				border-bottom-left-radius: $value;
 				border-bottom-right-radius: $value;
+				border-bottom-left-radius: $value;
 			} @else if $corner == "bottom-left" {
 				border-bottom-left-radius: $value;
 			} @else if $corner == "left" {
