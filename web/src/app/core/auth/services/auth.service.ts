@@ -5,7 +5,7 @@ import { HttpClient } from "@angular/common/http";
 import { computed, inject, Injectable, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { BehaviorSubject, EMPTY, interval, of, throwError } from "rxjs";
-import { catchError, filter, switchMap, tap } from "rxjs/operators";
+import { catchError, filter, map, switchMap, take, tap } from "rxjs/operators";
 
 import type { User } from "./auth.model";
 
@@ -136,11 +136,12 @@ export class AuthService {
 		this.currentUserSignal.set(null);
 	}
 
-	public refreshToken(): Observable<unknown> {
+	public refreshToken(): Observable<string> {
 		if (this.isRefreshing) {
-			return this.refreshToken$
-				.asObservable()
-				.pipe(switchMap((token) => (token ? of(token) : throwError(() => "Refresh failed"))));
+			return this.refreshToken$.asObservable().pipe(
+				filter((token): token is string => !!token),
+				take(1),
+			);
 		}
 
 		this.isRefreshing = true;
@@ -156,10 +157,13 @@ export class AuthService {
 			)
 			.pipe(
 				tap((response) => {
-					this.saveAccessToken(response.access_token);
 					this.setUser({ id: response.user_id });
+				}),
+				map((response) => response.access_token),
+				tap((token) => {
+					this.saveAccessToken(token);
 					this.isRefreshing = false;
-					this.refreshToken$.next(response.access_token);
+					this.refreshToken$.next(token);
 				}),
 				catchError((error) => {
 					this.logout();

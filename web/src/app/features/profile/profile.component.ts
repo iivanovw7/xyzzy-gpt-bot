@@ -5,7 +5,7 @@ import { AuthService } from "../../core/auth/services/auth.service";
 @Component({
 	imports: [],
 	selector: "app-profile-page",
-	styleUrl: "./profile.components.css",
+	styleUrl: "./profile.components.scss",
 	templateUrl: "./profile.component.html",
 })
 export default class ProfileComponent {

@@ -41,7 +41,7 @@ export const tokenInterceptor: HttpInterceptorFn = (
 
 			if (!authService.isRefreshing) {
 				return authService.refreshToken().pipe(
-					switchMap((newToken) => {
+					switchMap((newToken: string) => {
 						return newToken ? next(withToken(authRequest, newToken)) : authError(authService);
 					}),
 					catchError((error_) => authError(authService, error_)),
