@@ -14,6 +14,8 @@ pub enum MainMenuItems {
     AiTools,
     #[strum(serialize = "💰 Budgeting", props(Label = "💰 Budgeting"))]
     Budgeting,
+    #[strum(serialize = "🔄 Start", props(Label = "🔄 Start"))]
+    Start,
 }
 
 #[derive(Debug, Clone, Copy, EnumString, EnumProperty, EnumIter)]

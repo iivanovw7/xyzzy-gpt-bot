@@ -1,6 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 import { ThemeStorage } from "../../core/storage/theme.storage";
-import { Theme } from "../types/styles.types";
+import { Theme } from "../../../types/styles.types";
 import { env } from "../env";
 
 @Injectable({ providedIn: "root" })

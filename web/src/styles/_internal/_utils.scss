@@ -1,5 +1,3 @@
-/* stylelint-disable scss/at-if-no-null */
-
 @charset "UTF-8";
 
 @use "sass:map";
@@ -7,22 +5,12 @@
 @use "sass:list";
 @use "sass:math";
 
-@function validate-breakpoint($value) {
-	@for $i from 1 through list.length($value) {
-		@if map.has-key($screens, $value) {
-			@return map.get($screens, list.nth($value, $i));
-		} @else {
-			@return list.nth($value, $i);
-		}
-	}
-}
-
 @function validate-length($value) {
 	$list: ("auto", "inherit", "initial", 0);
 
 	@if list.index($list, $value) {
 		@return $value;
-	} @else if meta.type-of($value) == "number" and not math.is-unitless($value) {
+	} @else if meta.type-of($value) == "number" and not math.unitless($value) {
 		@return $value;
 	} @else {
 		@warn 'Please pass some values with unit like `#{$value}px`, `#{$value}em`, or `#{$value}%` etc. or pass one of the following arguments: `auto`, ìnherit`, ìnitial` or `0`.';
@@ -48,11 +36,27 @@
 @function null($value, $seperation: comma, $skip: false) {
 	$list: ();
 	@for $i from 1 through list.length($value) {
+		/* stylelint-disable-next-line scss/at-if-no-null */
 		@if list.nth($value, $i) == null {
 			$list: list.append($list, if($skip, null, 0), $seperation);
 		} @else {
 			$list: list.append($list, list.nth($value, $i), $seperation);
 		}
 	}
+
 	@return $list;
+}
+
+@function convertToNumber($value) {
+	$string-numerals: "0" "1" "2" "3" "4" "5" "6" "7" "8" "9";
+	$calc: 0;
+
+	@for $i from 1 through string.length($value) {
+		$digit: string.slice($value, $i, $i);
+		$index-of-digit: list.index($string-numerals, $digit);
+		$actual-digit: $index-of-digit - 1;
+		$calc: $calc * 10 + $actual-digit;
+	}
+
+	@return $calc;
 }

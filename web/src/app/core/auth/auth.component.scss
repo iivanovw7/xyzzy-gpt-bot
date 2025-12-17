@@ -35,4 +35,13 @@
 	&__message-text {
 		@include text-setting(lg);
 	}
+
+	&__footnote-text {
+		@include text-setting(sm);
+	}
+
+	&__message-text,
+	&__footnote-text {
+		text-align: start;
+	}
 }

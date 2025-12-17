@@ -1,105 +1,171 @@
-use actix_web::{web, HttpRequest};
-use chrono::{Duration, Utc};
+use actix_web::{http::header, web, Error as ActixError, HttpRequest};
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
-use serde::{Deserialize, Serialize};
 use teloxide::types::UserId;
+use tracing::{error, info};
 
-pub fn extract_token_from_request(req: &HttpRequest) -> Option<String> {
-    let token_from_query = req
-        .query_string()
-        .split('&')
-        .find(|s| s.starts_with("token="))
-        .and_then(|s| s.split('=').nth(1))
-        .map(|s| s.to_string());
+use crate::types::auth::{AuthState, AuthTokens, Claims, RefreshClaims};
 
-    if token_from_query.is_some() {
-        return token_from_query;
+async fn save_refresh_token(state: AuthState, user_id: UserId, token: String) {
+    if let Ok(mut map) = state.lock() {
+        map.insert(user_id, token);
+        info!("Refresh token saved to state for user: {}", user_id);
+    } else {
+        error!("Failed to lock AuthState for saving.");
     }
-
-    req.headers()
-        .get("Authorization")
-        .and_then(|value| value.to_str().ok())
-        .and_then(|s| s.strip_prefix("Bearer "))
-        .map(|s| s.trim().to_string())
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Claims {
-    pub sub: String,
-    pub exp: i64,
-    pub iat: i64,
-}
-
-impl Claims {
-    pub fn new(user_id: UserId) -> Self {
-        let now = Utc::now();
-        let iat = now.timestamp();
-        let exp = (now + Duration::minutes(30)).timestamp();
-
-        Claims {
-            sub: user_id.to_string(),
-            exp,
-            iat,
+fn has_valid_token(state: AuthState, user_id: UserId, token: &str) -> bool {
+    if let Ok(map) = state.lock() {
+        if let Some(valid_token) = map.get(&user_id) {
+            return valid_token == token;
         }
+    } else {
+        error!("Failed to lock AuthState for validation.");
+    }
+    false
+}
+
+fn delete_refresh_token(state: AuthState, user_id: UserId) {
+    if let Ok(mut map) = state.lock() {
+        map.remove(&user_id);
+        info!("Refresh token deleted from state for user: {}", user_id);
+    } else {
+        error!("Failed to lock AuthState for deletion.");
     }
 }
 
-pub fn create_jwt(
+pub async fn create_tokens(
     user_id: UserId,
     secret_key: &[u8],
-) -> Result<String, jsonwebtoken::errors::Error> {
-    let claims = Claims::new(user_id);
-
-    encode(
+    state: AuthState,
+) -> Result<AuthTokens, jsonwebtoken::errors::Error> {
+    let access_claims = Claims::new_access(user_id);
+    let access_token = encode(
         &Header::default(),
-        &claims,
+        &access_claims,
         &EncodingKey::from_secret(secret_key),
-    )
+    )?;
+
+    let refresh_claims = RefreshClaims::new_refresh(user_id);
+    let refresh_token = encode(
+        &Header::default(),
+        &refresh_claims,
+        &EncodingKey::from_secret(secret_key),
+    )?;
+
+    save_refresh_token(state, user_id, refresh_token.clone()).await;
+
+    Ok(AuthTokens {
+        access_token,
+        refresh_token,
+    })
 }
 
-pub fn validate_jwt(token: &str, secret_key: &[u8]) -> Result<String, jsonwebtoken::errors::Error> {
+async fn validate_refresh_token(
+    token: &str,
+    secret_key: &[u8],
+    state: AuthState,
+) -> Result<String, jsonwebtoken::errors::Error> {
     let validation = Validation::new(Algorithm::HS256);
 
-    let token_data = decode::<Claims>(token, &DecodingKey::from_secret(secret_key), &validation)?;
+    let token_data =
+        decode::<RefreshClaims>(token, &DecodingKey::from_secret(secret_key), &validation)?;
 
-    tracing::info!("jwt validated: {}", token_data.claims.sub);
+    if token_data.claims.auth != "refresh" {
+        return Err(jsonwebtoken::errors::Error::from(
+            jsonwebtoken::errors::ErrorKind::InvalidToken,
+        ));
+    }
 
-    Ok(token_data.claims.sub)
+    let user_id_str = token_data.claims.sub.clone();
+    let user_id = UserId(user_id_str.parse::<u64>().unwrap_or_default());
+
+    if !has_valid_token(state, user_id, token) {
+        return Err(jsonwebtoken::errors::Error::from(
+            jsonwebtoken::errors::ErrorKind::ExpiredSignature,
+        ));
+    }
+
+    tracing::info!("Refresh token validated via state: {}", user_id_str);
+
+    Ok(user_id_str)
+}
+
+pub async fn refresh_access_token(
+    user_id: UserId,
+    refresh_token: String,
+    secret_key: &[u8],
+    state: AuthState,
+) -> Result<AuthTokens, jsonwebtoken::errors::Error> {
+    validate_refresh_token(&refresh_token, secret_key, state.clone()).await?;
+
+    delete_refresh_token(state.clone(), user_id);
+
+    let new_tokens = create_tokens(user_id, secret_key, state).await?;
+
+    Ok(new_tokens)
 }
 
 pub fn authorize_request(
     req: HttpRequest,
-    secret_key: web::Data<String>,
+    jwt_secret: web::Data<String>,
     auth_enabled: bool,
-) -> Result<(String, String), actix_web::Error> {
+) -> Result<(String, String), ActixError> {
     if !auth_enabled {
-        let dummy_user_id = "999".to_string();
-
-        tracing::warn!(
-            "JWT authentication bypassed (Auth Mode OFF). Using dummy User ID: {}",
-            dummy_user_id
-        );
-
-        return Ok((dummy_user_id, "999".to_string()));
+        return Ok(("0".to_string(), "NO_TOKEN".to_string()));
     }
 
-    let token = match extract_token_from_request(&req) {
-        Some(t) => t,
-        None => {
-            return Err(actix_web::error::ErrorUnauthorized(
-                "Missing authorization token",
-            ))
-        }
-    };
+    let secret = jwt_secret.as_bytes();
+    let token: String;
 
-    match validate_jwt(&token, secret_key.as_bytes()) {
-        Ok(user_id) => Ok((user_id, token)),
+    if let Some(auth_header) = req.headers().get(header::AUTHORIZATION) {
+        if let Ok(token_str) = auth_header.to_str() {
+            if let Some(stripped) = token_str.strip_prefix("Bearer ") {
+                token = stripped.to_string();
+            } else {
+                return Err(actix_web::error::ErrorUnauthorized(
+                    "Missing Bearer scheme in Authorization header",
+                ));
+            }
+        } else {
+            return Err(actix_web::error::ErrorUnauthorized(
+                "Invalid Authorization header format",
+            ));
+        }
+    } else if let Some(query_str) = req.uri().query() {
+        if let Some(token_val) =
+            web::Query::<std::collections::HashMap<String, String>>::from_query(query_str)
+                .ok()
+                .and_then(|q| q.get("token").cloned())
+        {
+            token = token_val;
+        } else {
+            return Err(actix_web::error::ErrorUnauthorized(
+                "Missing Authorization header or URL token",
+            ));
+        }
+    } else {
+        return Err(actix_web::error::ErrorUnauthorized(
+            "Missing Authorization header or URL token",
+        ));
+    }
+
+    let validation = Validation::new(Algorithm::HS256);
+
+    match decode::<Claims>(&token, &DecodingKey::from_secret(secret), &validation) {
+        Ok(token_data) => {
+            if token_data.claims.auth != "access" {
+                return Err(actix_web::error::ErrorUnauthorized("Invalid token type"));
+            }
+
+            Ok((token_data.claims.sub, token))
+        }
         Err(e) => {
-            tracing::error!("Token validation failed: {:?}", e);
-            Err(actix_web::error::ErrorUnauthorized(format!(
-                "Invalid or expired token: {}",
-                e
-            )))
+            tracing::error!("Token Validation Failed: {:?}", e);
+
+            Err(actix_web::error::ErrorUnauthorized(
+                "Invalid or expired Access Token",
+            ))
         }
     }
 }

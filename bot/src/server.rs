@@ -4,6 +4,7 @@ use crate::{
     env::ENV,
     handlers, keyboard,
     types::{
+        auth::AuthState,
         common::{ChatHistories, Commands, DialogueState},
         databases::Database,
     },
@@ -13,7 +14,10 @@ use actix_files::Files;
 use actix_web::{web, App, HttpServer};
 use async_openai::{config::OpenAIConfig, Client};
 use dotenv::dotenv;
-use std::sync::{Arc, Mutex};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 use teloxide::dispatching::dialogue::InMemStorage;
 use teloxide::prelude::*;
 use tracing::{error, info, warn};
@@ -38,17 +42,19 @@ pub async fn server() {
     let bot = Bot::new(&ENV.token);
     let client: Client<OpenAIConfig> = Client::with_config(open_ai_config);
     let state = Arc::new(Mutex::new(ChatHistories::new()));
+    let auth_state: AuthState = web::Data::new(Arc::new(Mutex::new(HashMap::new())));
     let db = Arc::new(Database::new().await);
 
     let dialogue_storage = InMemStorage::<DialogueState>::new();
     let jwt_secret = ENV.jwt_secret.clone();
     let is_dev = cfg!(debug_assertions);
+    let web_auth_state = auth_state.clone();
 
     let api_server = tokio::spawn(async move {
         HttpServer::new(move || {
             let mut cors = Cors::default()
                 .allowed_origin(&CONFIG.web.url)
-                .allowed_methods(vec!["GET", "POST", "OPTIONS"])
+                .allowed_methods(vec!["GET", "POST", "OPTIONS", "PUT"])
                 .allowed_headers(vec![
                     actix_web::http::header::AUTHORIZATION,
                     actix_web::http::header::ACCEPT,
@@ -62,10 +68,16 @@ pub async fn server() {
 
             App::new()
                 .wrap(cors)
+                .app_data(web_auth_state.clone())
                 .app_data(web::Data::new(jwt_secret.clone()))
                 .app_data(web::Data::new(Arc::new(ENV.clone())))
                 .app_data(web::Data::new(Arc::new(CONFIG.clone())))
                 .route("/api/user", web::get().to(handlers::web::user::get))
+                .route("/api/auth/login", web::get().to(handlers::web::auth::login))
+                .route(
+                    "/api/auth/refresh",
+                    web::post().to(handlers::web::auth::refresh),
+                )
         })
         .bind(("0.0.0.0", CONFIG.api.port))
         .unwrap()
@@ -163,10 +175,13 @@ pub async fn server() {
                 ),
         );
 
+    let bot_auth_state = auth_state.clone();
+
     let mut bot_dispatcher = Dispatcher::builder(bot.clone(), handler)
         .dependencies(dptree::deps![
             client,
             state,
+            bot_auth_state,
             dialogue_storage,
             db.clone(),
             bot.clone().get_me().await.unwrap()

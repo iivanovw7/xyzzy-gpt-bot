@@ -7,8 +7,6 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 	imports: [],
 })
 export default class AuthComponent implements OnInit {
-	code = "401";
-	message = "Unauthorized";
 	destroyRef = inject(DestroyRef);
 
 	constructor() {}

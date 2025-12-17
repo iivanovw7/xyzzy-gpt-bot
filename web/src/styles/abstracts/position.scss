@@ -3,10 +3,11 @@
 @use "sass:map";
 @use "sass:list";
 @use "sass:math";
-@use "utils" as *;
+
+@use "./../_internal/utils" as utils;
 
 @mixin position($position: absolute, $offsets: 0) {
-	$offsets: shorthand-property($offsets);
+	$offsets: utils.shorthand-property($offsets);
 
 	$positioning-offsets: (
 		top: list.nth($offsets, 1),
@@ -18,7 +19,7 @@
 	position: $position;
 
 	@each $offset, $value in $positioning-offsets {
-		@if validate-length($value) {
+		@if utils.validate-length($value) {
 			#{$offset}: $value;
 		}
 	}

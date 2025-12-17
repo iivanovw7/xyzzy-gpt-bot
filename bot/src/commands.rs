@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::{
     handlers, keyboard,
     types::{
+        auth::AuthState,
         common::{BotDialogue, ChatHistoryState, Commands, HandleResult},
         databases::Database,
     },
@@ -10,9 +11,11 @@ use crate::{
 use async_openai::{config::OpenAIConfig, Client};
 use teloxide::prelude::*;
 
+#[allow(clippy::too_many_arguments)]
 pub async fn commands(
     client: Client<OpenAIConfig>,
     state: ChatHistoryState,
+    auth_state: AuthState,
     bot: Bot,
     dialogue: BotDialogue,
     msg: Message,
@@ -21,7 +24,7 @@ pub async fn commands(
 ) -> HandleResult {
     match cmd {
         Commands::Start => {
-            keyboard::core::start(bot, msg).await?;
+            keyboard::core::start(bot, msg, auth_state).await?;
         }
         Commands::Help => {
             handlers::help::commands(bot, msg).await?;

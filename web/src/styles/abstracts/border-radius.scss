@@ -1,7 +1,7 @@
 @charset "UTF-8";
 
 @use "sass:list";
-@use "utils" as *;
+@use "./../_internal/utils" as utils;
 
 $list-of-directions: ("top", "top-right", "right", "bottom-right", "bottom", "bottom-left", "left", "top-left");
 
@@ -92,7 +92,7 @@ $list-of-directions: ("top", "top-right", "right", "bottom-right", "bottom", "bo
 			@error "Corner value must be one of the followings: #{quote($list)}.";
 		}
 	} @else if list.length($args) == 4 {
-		$args: __null($args, space, true);
+		$args: utils.null($args, space, true);
 
 		border-radius: list.nth($args, 1) list.nth($args, 2) list.nth($args, 3) list.nth($args, 4);
 	}

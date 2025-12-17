@@ -1,7 +1,7 @@
 export type User = {
-    user_id: string;
+	user_id: string;
 };
 
 export type UserResponse = {
-    data: User;
+	data: User;
 };
