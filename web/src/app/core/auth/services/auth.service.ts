@@ -9,8 +9,8 @@ import { catchError, filter, map, switchMap, take, tap } from "rxjs/operators";
 
 import type { User } from "./auth.model";
 
-import { LoggerService } from "../../../shared/services/log/log.service";
-import { TokenStorage } from "../../storage/token.storage";
+import { logger } from "../../../shared/logger";
+import { tokenStorage } from "../../../shared/storage";
 
 type TokenResponse = {
 	access_token: string;
@@ -23,20 +23,20 @@ type TokenResponse = {
 export class AuthService {
 	private accessTokenSignal: WritableSignal<null | string> = signal(this.getInitialAccessToken());
 	private currentUserSignal: WritableSignal<Nullable<User>> = signal(null);
-	private http = inject(HttpClient);
 
-	private log = inject(LoggerService);
+	private http = inject(HttpClient);
 	private router = inject(Router);
 
-	private tokenStorage = inject(TokenStorage);
-
 	public currentUser: Signal<Nullable<User>> = this.currentUserSignal.asReadonly();
-
 	public isAuthenticated: Signal<boolean> = computed(() => !!this.accessTokenSignal());
-
 	public isRefreshing = false;
-
 	public refreshToken$: BehaviorSubject<null | string> = new BehaviorSubject<null | string>(null);
+
+	constructor() {
+		let initialToken = tokenStorage.getAccessToken();
+
+		this.accessTokenSignal = signal(initialToken);
+	}
 
 	private cleanTokenFromUrl(): void {
 		let url = new URL(window.location.href);
@@ -53,20 +53,20 @@ export class AuthService {
 		let token = urlParameters.get("token");
 
 		if (token) {
-			this.log.info("JWT token successfully extracted.");
+			logger.info("JWT token successfully extracted.");
 		} else {
-			this.log.warn("No JWT token found in URL. Development/Manual access assumed.");
+			logger.warn("No JWT token found in URL. Development/Manual access assumed.");
 		}
 
 		return token;
 	}
 
 	private getInitialAccessToken(): null | string {
-		return this.tokenStorage.getAccessToken();
+		return tokenStorage.getAccessToken();
 	}
 
 	private saveAccessToken(token: string): void {
-		this.tokenStorage.setAccessToken(token);
+		tokenStorage.setAccessToken(token);
 		this.accessTokenSignal.set(token);
 	}
 
@@ -85,7 +85,7 @@ export class AuthService {
 				switchMap(() => {
 					return this.refreshToken().pipe(
 						catchError((error) => {
-							this.log.error("Token refresh failed, user logged out.", error.message);
+							logger.error("Token refresh failed, user logged out.", error.message);
 
 							return of(null);
 						}),
@@ -131,7 +131,7 @@ export class AuthService {
 	}
 
 	public logout(): void {
-		this.tokenStorage.removeAccessToken();
+		tokenStorage.removeAccessToken();
 		this.accessTokenSignal.set(null);
 		this.currentUserSignal.set(null);
 	}
