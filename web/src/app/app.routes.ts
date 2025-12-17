@@ -1,34 +1,34 @@
+import type { Routes, UrlTree } from "@angular/router";
+
 import { inject } from "@angular/core";
-import { CanActivateFn, Router, Routes, UrlTree } from "@angular/router";
+import { Router } from "@angular/router";
+
 import { AuthService } from "./core/auth/services/auth.service";
 
 type GuardResult = boolean | UrlTree;
+type AuthGuardCallback = (isAuth: boolean, router: Router) => GuardResult;
 
-export const authGuard: CanActivateFn = (): GuardResult => {
-	const authService = inject(AuthService);
-	const router = inject(Router);
-	const isAuth = authService.isAuthenticated();
-	console.log("authGuard", isAuth);
-	return isAuth ? true : router.createUrlTree(["/login"]);
-};
-
-export const notAuthGuard: CanActivateFn = (): GuardResult => {
-	const authService = inject(AuthService);
-	const router = inject(Router);
-	const isAuth = authService.isAuthenticated();
-	console.log("notAuthGuard", isAuth);
-	return isAuth ? router.createUrlTree(["/"]) : true;
+const authGuard = (callback: AuthGuardCallback) => {
+	return () => callback(inject(AuthService).isAuthenticated(), inject(Router));
 };
 
 export const routes: Routes = [
 	{
-		path: "",
+		canActivate: [
+			authGuard((isAuth, router) => {
+				return isAuth ? true : router.createUrlTree(["/login"]);
+			}),
+		],
 		loadComponent: () => import("./features/profile/profile.component"),
-		canActivate: [authGuard],
+		path: "",
 	},
 	{
-		path: "login",
+		canActivate: [
+			authGuard((isAuth, router) => {
+				return isAuth ? router.createUrlTree(["/"]) : true;
+			}),
+		],
 		loadComponent: () => import("./core/auth/auth.component"),
-		canActivate: [notAuthGuard],
+		path: "login",
 	},
 ];

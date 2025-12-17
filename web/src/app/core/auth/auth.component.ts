@@ -1,15 +1,11 @@
-import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject } from "@angular/core";
 
 @Component({
-	selector: "app-auth-page",
-	templateUrl: "./auth.component.html",
-	styleUrl: "./auth.component.scss",
 	imports: [],
+	selector: "app-auth-page",
+	styleUrl: "./auth.component.scss",
+	templateUrl: "./auth.component.html",
 })
-export default class AuthComponent implements OnInit {
+export default class AuthComponent {
 	destroyRef = inject(DestroyRef);
-
-	constructor() {}
-
-	ngOnInit(): void {}
 }

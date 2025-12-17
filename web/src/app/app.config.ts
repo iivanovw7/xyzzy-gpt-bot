@@ -1,23 +1,28 @@
-import { ApplicationConfig, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from "@angular/core";
+import type { ApplicationConfig } from "@angular/core";
+
+import { provideHttpClient, withInterceptors } from "@angular/common/http";
+import { inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from "@angular/core";
 import { provideRouter } from "@angular/router";
 
+import { environment } from "../../environments/environment";
 import { routes } from "./app.routes";
-import { provideHttpClient, withInterceptors } from "@angular/common/http";
-import { apiInterceptor } from "./core/interceptors/api.interceptor";
-import { tokenInterceptor } from "./core/interceptors/token.interceptor";
-import { errorInterceptor } from "./core/interceptors/error.interceptor";
-import { ThemeService } from "./shared/services/theme.service";
 import { AuthService } from "./core/auth/services/auth.service";
+import { apiInterceptor } from "./core/interceptors/api.interceptor";
+import { errorInterceptor } from "./core/interceptors/error.interceptor";
+import { tokenInterceptor } from "./core/interceptors/token.interceptor";
+import { LOGGER_CONFIG } from "./shared/services/log/log.config";
+import { LoggerService } from "./shared/services/log/log.service";
+import { ThemeService } from "./shared/services/theme.service";
 
-export const initAuth = (authService: AuthService) => {
+export const initAuth = (authService: AuthService, log: LoggerService) => {
 	return () => {
 		if (authService.getAccessToken()) {
-			console.log("Existing session found. App initialized.");
+			log.info("Existing session found. App initialized.");
 
 			return authService.refreshToken();
 		}
 
-		console.log("No existing session found.");
+		log.info("No existing session found.");
 
 		return authService.login();
 	};
@@ -28,8 +33,16 @@ export const appConfig: ApplicationConfig = {
 		provideBrowserGlobalErrorListeners(),
 		provideRouter(routes),
 		provideHttpClient(withInterceptors([apiInterceptor, tokenInterceptor, errorInterceptor])),
+		{
+			provide: LOGGER_CONFIG,
+			useValue: {
+				enableColors: !environment.production,
+				level: environment.logLevel,
+				prefix: "[web]",
+			},
+		},
 		provideAppInitializer(() => {
-			let authInitializer = initAuth(inject(AuthService));
+			let authInitializer = initAuth(inject(AuthService), inject(LoggerService));
 			let themeService = inject(ThemeService);
 
 			themeService.initialize();

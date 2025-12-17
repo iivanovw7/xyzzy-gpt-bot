@@ -1,71 +1,68 @@
-import { HttpClient } from "@angular/common/http";
-import { computed, inject, Injectable, Signal, signal, WritableSignal } from "@angular/core";
-import { Router } from "@angular/router";
-import { BehaviorSubject, EMPTY, interval, Observable, of, throwError } from "rxjs";
-import { catchError, filter, switchMap, tap } from "rxjs/operators";
-import { TokenStorage } from "../../storage/token.storage";
-import { User } from "./auth.model";
+import type { Signal, WritableSignal } from "@angular/core";
+import type { Observable } from "rxjs";
 
-interface TokenResponse {
+import { HttpClient } from "@angular/common/http";
+import { computed, inject, Injectable, signal } from "@angular/core";
+import { Router } from "@angular/router";
+import { BehaviorSubject, EMPTY, interval, of, throwError } from "rxjs";
+import { catchError, filter, switchMap, tap } from "rxjs/operators";
+
+import type { User } from "./auth.model";
+
+import { LoggerService } from "../../../shared/services/log/log.service";
+import { TokenStorage } from "../../storage/token.storage";
+
+type TokenResponse = {
 	access_token: string;
 	user_id: string;
-}
+};
 
 @Injectable({
 	providedIn: "root",
 })
 export class AuthService {
-	private tokenStorage = inject(TokenStorage);
+	private accessTokenSignal: WritableSignal<null | string> = signal(this.getInitialAccessToken());
+	private currentUserSignal: WritableSignal<Nullable<User>> = signal(null);
+	private http = inject(HttpClient);
+
+	private log = inject(LoggerService);
 	private router = inject(Router);
 
-	public isRefreshing = false;
-
-	public refreshToken$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
-
-	private accessTokenSignal: WritableSignal<string | null> = signal(this.getInitialAccessToken());
-
-	public isAuthenticated: Signal<boolean> = computed(() => !!this.accessTokenSignal());
-
-	private currentUserSignal: WritableSignal<Nullable<User>> = signal(null);
+	private tokenStorage = inject(TokenStorage);
 
 	public currentUser: Signal<Nullable<User>> = this.currentUserSignal.asReadonly();
 
-	private getInitialAccessToken(): string | null {
-		return this.tokenStorage.getAccessToken();
+	public isAuthenticated: Signal<boolean> = computed(() => !!this.accessTokenSignal());
+
+	public isRefreshing = false;
+
+	public refreshToken$: BehaviorSubject<null | string> = new BehaviorSubject<null | string>(null);
+
+	private cleanTokenFromUrl(): void {
+		let url = new URL(window.location.href);
+
+		if (url.searchParams.has("token")) {
+			url.searchParams.delete("token");
+			window.history.replaceState({}, document.title, url.toString());
+		}
 	}
 
-	private extractTokenFromUrl(): string | null {
-		const urlParams = new URLSearchParams(window.location.search);
+	private extractTokenFromUrl(): null | string {
+		let urlParameters = new URLSearchParams(window.location.search);
 
-		let token = urlParams.get("token");
+		let token = urlParameters.get("token");
 
 		if (token) {
-			console.log("JWT token successfully extracted.");
+			this.log.info("JWT token successfully extracted.");
 		} else {
-			console.warn("No JWT token found in URL. Development/Manual access assumed.");
+			this.log.warn("No JWT token found in URL. Development/Manual access assumed.");
 		}
 
 		return token;
 	}
 
-	private cleanTokenFromUrl(): void {
-		const url = new URL(window.location.href);
-
-		if (url.searchParams.has("token")) {
-			url.searchParams.delete("token");
-			window.history.replaceState({}, document.title, url.toString());
-			console.log("Initial token successfully removed from URL.");
-		}
-	}
-
-	constructor(private http: HttpClient) {}
-
-	public getAccessToken(): string | null {
-		return this.accessTokenSignal();
-	}
-
-	private setUser(user: User): void {
-		this.currentUserSignal.set(user);
+	private getInitialAccessToken(): null | string {
+		return this.tokenStorage.getAccessToken();
 	}
 
 	private saveAccessToken(token: string): void {
@@ -73,10 +70,33 @@ export class AuthService {
 		this.accessTokenSignal.set(token);
 	}
 
-	public logout(): void {
-		this.tokenStorage.removeAccessToken();
-		this.accessTokenSignal.set(null);
-		this.currentUserSignal.set(null);
+	private setUser(user: User): void {
+		this.currentUserSignal.set(user);
+	}
+
+	private startTokenRefreshTimer(): void {
+		let refreshIntervalMs = 60 * 1000;
+
+		if (this.isRefreshing) return;
+
+		interval(refreshIntervalMs)
+			.pipe(
+				filter(() => this.isAuthenticated()),
+				switchMap(() => {
+					return this.refreshToken().pipe(
+						catchError((error) => {
+							this.log.error("Token refresh failed, user logged out.", error.message);
+
+							return of(null);
+						}),
+					);
+				}),
+			)
+			.subscribe();
+	}
+
+	public getAccessToken(): null | string {
+		return this.accessTokenSignal();
 	}
 
 	public login(): Observable<TokenResponse> {
@@ -98,7 +118,7 @@ export class AuthService {
 					this.saveAccessToken(response.access_token);
 					this.startTokenRefreshTimer();
 					this.cleanTokenFromUrl();
-					this.setUser({ user_id: response.user_id });
+					this.setUser({ id: response.user_id });
 				}),
 				catchError(() => {
 					this.logout();
@@ -110,30 +130,13 @@ export class AuthService {
 			);
 	}
 
-	private startTokenRefreshTimer(): void {
-		const refreshIntervalMs = 60 * 1000;
-
-		if (this.isRefreshing) return;
-
-		interval(refreshIntervalMs)
-			.pipe(
-				filter(() => this.isAuthenticated()),
-				switchMap(() => {
-					console.log(`[Token Timer] Proactively attempting token refresh...`);
-
-					return this.refreshToken().pipe(
-						catchError((err) => {
-							console.error("[Token Timer] Refresh failed, user logged out.", err);
-
-							return of(null);
-						}),
-					);
-				}),
-			)
-			.subscribe();
+	public logout(): void {
+		this.tokenStorage.removeAccessToken();
+		this.accessTokenSignal.set(null);
+		this.currentUserSignal.set(null);
 	}
 
-	public refreshToken(): Observable<any> {
+	public refreshToken(): Observable<unknown> {
 		if (this.isRefreshing) {
 			return this.refreshToken$
 				.asObservable()
@@ -154,7 +157,7 @@ export class AuthService {
 			.pipe(
 				tap((response) => {
 					this.saveAccessToken(response.access_token);
-					this.setUser({ user_id: response.user_id });
+					this.setUser({ id: response.user_id });
 					this.isRefreshing = false;
 					this.refreshToken$.next(response.access_token);
 				}),

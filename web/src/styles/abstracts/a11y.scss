@@ -1,3 +1,4 @@
+/* stylelint-disable property-no-deprecated, no-invalid-position-declaration */
 @charset "UTF-8";
 
 @use "sass:map";
@@ -10,18 +11,14 @@
 	padding: 0;
 	margin: -1px;
 	overflow: hidden;
-	clip: rect(0, 0, 0, 0);
 	white-space: nowrap;
 	border-width: 0;
+	clip: rect(0, 0, 0, 0);
 }
 
 @mixin focus-outline($type: "border") {
 	@if ($type == "border") {
 		outline: 1px solid var(--focus);
-
-		@media screen and (prefers-contrast) {
-			outline-style: dotted;
-		}
 	}
 
 	@if ($type == "blurred") {
@@ -52,3 +49,4 @@
 		outline-offset: -2px;
 	}
 }
+/* stylelint-enable property-no-deprecated, no-invalid-position-declaration */

@@ -1,52 +1,62 @@
 {
-    "name": "web",
-    "version": "0.0.1",
-    "scripts": {
-        "ng": "ng",
-        "dev": "ng serve",
-        "build": "ng build --configuration production",
-        "watch": "ng build --watch --configuration development",
-        "test": "ng test --watch false"
-    },
-    "prettier": {
-        "arrowParens": "always",
-        "bracketSameLine": true,
-        "bracketSpacing": true,
-        "endOfLine": "auto",
-        "printWidth": 120,
-        "semi": true,
-        "singleQuote": false,
-        "tabWidth": 4,
-        "trailingComma": "all",
-        "useTabs": true,
-        "overrides": [
-            {
-                "files": "*.html",
-                "options": {
-                    "parser": "angular"
-                }
-            }
-        ]
-    },
-    "private": true,
-    "packageManager": "pnpm@10.24.0",
-    "dependencies": {
-        "@angular/common": "^21.0.0",
-        "@angular/compiler": "^21.0.0",
-        "@angular/core": "^21.0.0",
-        "@angular/forms": "^21.0.0",
-        "@angular/platform-browser": "^21.0.0",
-        "@angular/router": "^21.0.0",
-        "ngx-logger": "5.0.12",
-        "rxjs": "~7.8.0",
-        "tslib": "^2.3.0"
-    },
-    "devDependencies": {
-        "@angular/build": "^21.0.2",
-        "@angular/cli": "^21.0.2",
-        "@angular/compiler-cli": "^21.0.0",
-        "jsdom": "^27.1.0",
-        "typescript": "~5.9.2",
-        "vitest": "^4.0.8"
-    }
+	"name": "web",
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"ng": "ng",
+		"dev": "ng serve",
+		"build": "ng build --configuration production",
+		"watch": "ng build --watch --configuration development",
+		"test:eslint": "eslint 'src/**/*.ts' --cache --cache-location node_modules/.cache/.eslintcache --cache-strategy content",
+		"test:stylelint": "stylelint \"src/**/*.{css,scss}\"",
+		"test:format": "prettier --write --ignore-unknown .",
+		"test:ng": "ng test --watch false",
+		"test": "pnpm run /^test:/"
+	},
+	"private": true,
+	"packageManager": "pnpm@10.24.0",
+	"dependencies": {
+		"@angular/common": "21.0.0",
+		"@angular/compiler": "21.0.0",
+		"@angular/core": "21.0.0",
+		"@angular/forms": "21.0.0",
+		"@angular/platform-browser": "21.0.0",
+		"@angular/router": "21.0.0",
+		"loglevel": "1.9.2",
+		"rxjs": "7.8.0",
+		"tslib": "2.3.0"
+	},
+	"devDependencies": {
+		"@angular-eslint/eslint-plugin": "21.1.0",
+		"@angular-eslint/eslint-plugin-template": "21.1.0",
+		"@angular-eslint/template-parser": "21.1.0",
+		"@angular/build": "21.0.2",
+		"@angular/cli": "21.0.2",
+		"@angular/compiler-cli": "21.0.0",
+		"@typescript-eslint/eslint-plugin": "8.50.0",
+		"@typescript-eslint/parser": "8.50.0",
+		"eslint": "9.13.0",
+		"eslint-define-config": "2.1.0",
+		"eslint-import-resolver-typescript": "3.6.3",
+		"eslint-plugin-import": "2.31.0",
+		"eslint-plugin-jsdoc": "50.4.3",
+		"eslint-plugin-n": "17.11.1",
+		"eslint-plugin-node-import": "1.0.4",
+		"eslint-plugin-perfectionist": "3.9.1",
+		"eslint-plugin-prefer-arrow": "1.2.3",
+		"eslint-plugin-prefer-let": "4.0.0",
+		"eslint-plugin-promise": "7.1.0",
+		"eslint-plugin-sonarjs": "2.0.4",
+		"eslint-plugin-types": "1.0.2",
+		"eslint-plugin-unicorn": "56.0.0",
+		"globals": "15.11.0",
+		"jsdom": "27.1.0",
+		"stylelint": "16.26.1",
+		"stylelint-config-recess-order": "7.4.0",
+		"stylelint-config-recommended-scss": "16.0.2",
+		"stylelint-config-sass-guidelines": "12.1.0",
+		"stylelint-scss": "6.13.0",
+		"typescript": "5.9.2",
+		"vitest": "4.0.8"
+	}
 }

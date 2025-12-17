@@ -1,70 +1,58 @@
+import type { HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from "@angular/common/http";
+import type { Observable } from "rxjs";
+
 import { inject } from "@angular/core";
-import { HttpRequest, HttpEvent, HttpErrorResponse, HttpInterceptorFn, HttpHandlerFn } from "@angular/common/http";
-import { Observable, throwError } from "rxjs";
-import { catchError, switchMap, filter, take } from "rxjs/operators";
+import { throwError } from "rxjs";
+import { catchError, filter, switchMap, take } from "rxjs/operators";
+
 import { AuthService } from "../auth/services/auth.service";
 
-const addToken = (request: HttpRequest<unknown>, token: string): HttpRequest<unknown> => {
-	return request.clone({
-		setHeaders: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-};
-
-const handle401Error = (
-	request: HttpRequest<unknown>,
-	next: HttpHandlerFn,
-	authService: AuthService,
-): Observable<HttpEvent<unknown>> => {
-	if (!authService.isRefreshing) {
-		return authService.refreshToken().pipe(
-			switchMap((newAccessToken: string | null) => {
-				if (newAccessToken) {
-					return next(addToken(request, newAccessToken));
-				}
-
-				authService.logout();
-
-				return throwError(() => new Error("Token refresh failed."));
-			}),
-			catchError((err) => {
-				authService.logout();
-
-				return throwError(() => err);
-			}),
-		);
+const withToken = (request: HttpRequest<unknown>, token?: null | string) => {
+	if (token) {
+		return request.clone({
+			setHeaders: { Authorization: `Bearer ${token}` },
+		});
 	}
 
-	return authService.refreshToken$.pipe(
-		filter((token) => token !== null),
-		take(1),
-		switchMap((token) => {
-			return next(addToken(request, token!));
-		}),
-	);
+	return request;
+};
+
+const authError = (auth: AuthService, error?: unknown) => {
+	auth.logout();
+
+	return throwError(() => error ?? new Error("Token refresh failed"));
 };
 
 export const tokenInterceptor: HttpInterceptorFn = (
-	req: HttpRequest<unknown>,
+	request: HttpRequest<unknown>,
 	next: HttpHandlerFn,
 ): Observable<HttpEvent<unknown>> => {
-	const authService = inject(AuthService);
+	let authService = inject(AuthService);
 
-	const accessToken = authService.getAccessToken();
-	let authReq = req;
+	let token = authService.getAccessToken();
 
-	if (accessToken) {
-		authReq = addToken(req, accessToken);
-	}
+	let authRequest = withToken(request, token);
 
-	return next(authReq).pipe(
+	return next(authRequest).pipe(
 		catchError((error: HttpErrorResponse) => {
-			if (error.status === 401 && !authReq.url.includes("/refresh") && accessToken) {
-				return handle401Error(authReq, next, authService);
+			if (error.status !== 401 || authRequest.url.includes("/refresh") || !token) {
+				return throwError(() => error);
 			}
 
-			return throwError(() => error);
+			if (!authService.isRefreshing) {
+				return authService.refreshToken().pipe(
+					switchMap((newToken) => {
+						return newToken ? next(withToken(authRequest, newToken)) : authError(authService);
+					}),
+					catchError((error_) => authError(authService, error_)),
+				);
+			}
+
+			return authService.refreshToken$.pipe(
+				filter(Boolean),
+				take(1),
+				switchMap((newToken) => next(withToken(authRequest, newToken))),
+			);
 		}),
 	);
 };
