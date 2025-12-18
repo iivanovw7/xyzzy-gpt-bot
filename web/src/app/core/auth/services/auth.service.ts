@@ -4,24 +4,20 @@ import type { Observable } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 import { computed, inject, Injectable, signal } from "@angular/core";
 import { Router } from "@angular/router";
-import { BehaviorSubject, EMPTY, interval, of, throwError } from "rxjs";
+import { BehaviorSubject, interval, of } from "rxjs";
 import { catchError, filter, map, switchMap, take, tap } from "rxjs/operators";
 
-import type { User } from "./auth.model";
+import type { TokenResponse, TokenResult, User } from "./auth.model";
 
+import { config } from "../../../shared/config";
 import { logger } from "../../../shared/logger";
 import { tokenStorage } from "../../../shared/storage";
-
-type TokenResponse = {
-	access_token: string;
-	user_id: string;
-};
 
 @Injectable({
 	providedIn: "root",
 })
 export class AuthService {
-	private accessTokenSignal: WritableSignal<null | string> = signal(this.getInitialAccessToken());
+	private accessTokenSignal: WritableSignal<null | string> = signal(tokenStorage.getAccessToken());
 	private currentUserSignal: WritableSignal<Nullable<User>> = signal(null);
 
 	private http = inject(HttpClient);
@@ -31,12 +27,6 @@ export class AuthService {
 	public isAuthenticated: Signal<boolean> = computed(() => !!this.accessTokenSignal());
 	public isRefreshing = false;
 	public refreshToken$: BehaviorSubject<null | string> = new BehaviorSubject<null | string>(null);
-
-	constructor() {
-		let initialToken = tokenStorage.getAccessToken();
-
-		this.accessTokenSignal = signal(initialToken);
-	}
 
 	private cleanTokenFromUrl(): void {
 		let url = new URL(window.location.href);
@@ -50,19 +40,7 @@ export class AuthService {
 	private extractTokenFromUrl(): null | string {
 		let urlParameters = new URLSearchParams(window.location.search);
 
-		let token = urlParameters.get("token");
-
-		if (token) {
-			logger.info("JWT token successfully extracted.");
-		} else {
-			logger.warn("No JWT token found in URL. Development/Manual access assumed.");
-		}
-
-		return token;
-	}
-
-	private getInitialAccessToken(): null | string {
-		return tokenStorage.getAccessToken();
+		return urlParameters.get("token");
 	}
 
 	private saveAccessToken(token: string): void {
@@ -75,11 +53,9 @@ export class AuthService {
 	}
 
 	private startTokenRefreshTimer(): void {
-		let refreshIntervalMs = 60 * 1000;
-
 		if (this.isRefreshing) return;
 
-		interval(refreshIntervalMs)
+		interval(config.net.tokenRefreshPeriod)
 			.pipe(
 				filter(() => this.isAuthenticated()),
 				switchMap(() => {
@@ -99,14 +75,8 @@ export class AuthService {
 		return this.accessTokenSignal();
 	}
 
-	public login(): Observable<TokenResponse> {
+	public login(): Observable<Nullable<TokenResult>> {
 		let initialUrlToken = this.extractTokenFromUrl();
-
-		if (!initialUrlToken) {
-			this.router.navigate(["login"]);
-
-			return EMPTY;
-		}
 
 		return this.http
 			.get<TokenResponse>("/auth/login", {
@@ -120,12 +90,18 @@ export class AuthService {
 					this.cleanTokenFromUrl();
 					this.setUser({ id: response.user_id });
 				}),
-				catchError(() => {
+				map((response) => ({
+					accessToken: response.access_token,
+					userId: response.user_id,
+				})),
+				catchError((errorData) => {
 					this.logout();
 					this.cleanTokenFromUrl();
 					this.router.navigate(["login"]);
 
-					return EMPTY;
+					logger.error("Login error", errorData.message);
+
+					return of(null);
 				}),
 			);
 	}
@@ -136,11 +112,17 @@ export class AuthService {
 		this.currentUserSignal.set(null);
 	}
 
-	public refreshToken(): Observable<string> {
+	public refreshToken(): Observable<Nullable<TokenResult>> {
 		if (this.isRefreshing) {
 			return this.refreshToken$.asObservable().pipe(
 				filter((token): token is string => !!token),
 				take(1),
+				map(
+					(token): TokenResult => ({
+						accessToken: token,
+						userId: this.currentUser()?.id ?? "",
+					}),
+				),
 			);
 		}
 
@@ -158,19 +140,23 @@ export class AuthService {
 			.pipe(
 				tap((response) => {
 					this.setUser({ id: response.user_id });
-				}),
-				map((response) => response.access_token),
-				tap((token) => {
-					this.saveAccessToken(token);
+					this.saveAccessToken(response.access_token);
 					this.isRefreshing = false;
-					this.refreshToken$.next(token);
+					this.refreshToken$.next(response.access_token);
 				}),
-				catchError((error) => {
+				map((response) => ({
+					accessToken: response.access_token,
+					userId: response.user_id,
+				})),
+				catchError((errorData) => {
 					this.logout();
 					this.isRefreshing = false;
 					this.refreshToken$.next(null);
+					this.router.navigate(["login"]);
 
-					return throwError(() => error);
+					logger.error("Refresh token error", errorData.message);
+
+					return of(null);
 				}),
 			);
 	}

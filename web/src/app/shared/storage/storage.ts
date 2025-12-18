@@ -5,7 +5,7 @@ import type { StorageKey, StorageValue } from "./storage.types";
 import { logger } from "../logger";
 import { DEFAULT_STORAGE } from "./storage.types";
 
-class StorageUtility {
+class Storage {
 	private readonly STORAGE_KEY = "app-storage";
 	private readonly store = signal<StorageValue>(this.loadInitial());
 	public readonly state = this.store.asReadonly();
@@ -73,4 +73,4 @@ class StorageUtility {
 	}
 }
 
-export const storage = new StorageUtility();
+export const storage = new Storage();

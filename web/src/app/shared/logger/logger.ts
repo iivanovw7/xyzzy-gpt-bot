@@ -1,13 +1,14 @@
-import type { LogLevelDesc } from "loglevel";
-
 import log from "loglevel";
 
 import type { LoggerConfig } from "./logger.types";
 
-import { DEFAULT_LOGGER_CONFIG } from "./logger.config";
+import { LogLevel } from "./logger.types";
 
 class Logger {
-	private config: LoggerConfig = DEFAULT_LOGGER_CONFIG;
+	private config: LoggerConfig = {
+		level: LogLevel.DEBUG,
+		prefix: "",
+	};
 
 	private getColor(method: string): string {
 		let colors: Record<string, string> = {
@@ -41,23 +42,24 @@ class Logger {
 		log.setLevel(log.getLevel());
 	}
 
-	public configure(customConfig: Partial<LoggerConfig>) {
-		this.config = { ...DEFAULT_LOGGER_CONFIG, ...customConfig };
-		log.setLevel(this.config.level.toLocaleLowerCase() as LogLevelDesc);
+	public configure(config: LoggerConfig) {
+		this.config = { ...config };
+		log.setLevel(config.level);
 		this.patchColors();
+		this.info("Loglevel: ", this.config.level);
 	}
 
 	debug(message: unknown, ...arguments_: unknown[]) {
-		log.debug(message, ...arguments_);
+		log.debug(`${this.config.prefix}: ${message}`, ...arguments_);
 	}
 	error(message: unknown, ...arguments_: unknown[]) {
-		log.error(message, ...arguments_);
+		log.error(`${this.config.prefix}: ${message}`, ...arguments_);
 	}
 	info(message: unknown, ...arguments_: unknown[]) {
-		log.info(message, ...arguments_);
+		log.info(`${this.config.prefix}: ${message}`, ...arguments_);
 	}
 	warn(message: unknown, ...arguments_: unknown[]) {
-		log.warn(message, ...arguments_);
+		log.warn(`${this.config.prefix}: ${message}`, ...arguments_);
 	}
 }
 

@@ -4,7 +4,7 @@ import { StorageKey } from "./storage.types";
 export type TokenStorage = typeof tokenStorage;
 
 export const tokenStorage = {
-	getAccessToken: (): null | string => {
+	getAccessToken: (): Nullable<string> => {
 		return storage.get(StorageKey.AccessToken);
 	},
 
@@ -12,7 +12,7 @@ export const tokenStorage = {
 		storage.delete(StorageKey.AccessToken);
 	},
 
-	setAccessToken: (token: null | string) => {
+	setAccessToken: (token: Nullable<string>) => {
 		storage.set(StorageKey.AccessToken, token);
 	},
 };

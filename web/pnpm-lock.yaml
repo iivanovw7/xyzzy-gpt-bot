@@ -28,6 +28,12 @@ importers:
             loglevel:
                 specifier: 1.9.2
                 version: 1.9.2
+            ramda:
+                specifier: 0.32.0
+                version: 0.32.0
+            ramda-adjunct:
+                specifier: 6.0.0
+                version: 6.0.0(ramda@0.32.0)
             rxjs:
                 specifier: 7.8.0
                 version: 7.8.0
@@ -53,6 +59,9 @@ importers:
             "@angular/compiler-cli":
                 specifier: 21.0.0
                 version: 21.0.0(@angular/compiler@21.0.0)(typescript@5.9.2)
+            "@types/ramda":
+                specifier: 0.31.1
+                version: 0.31.1
             "@typescript-eslint/eslint-plugin":
                 specifier: 8.50.0
                 version: 8.50.0(@typescript-eslint/parser@8.50.0(eslint@9.13.0)(typescript@5.9.2))(eslint@9.13.0)(typescript@5.9.2)
@@ -3401,6 +3410,12 @@ packages:
         resolution:
             {
                 integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==,
+            }
+
+    "@types/ramda@0.31.1":
+        resolution:
+            {
+                integrity: sha512-Vt6sFXnuRpzaEj+yeutA0q3bcAsK7wdPuASIzR9LXqL4gJPyFw8im9qchlbp4ltuf3kDEIRmPJTD/Fkg60dn7g==,
             }
 
     "@typescript-eslint/eslint-plugin@7.16.1":
@@ -6949,6 +6964,21 @@ packages:
                 integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==,
             }
 
+    ramda-adjunct@6.0.0:
+        resolution:
+            {
+                integrity: sha512-mdGCk0Gj3nQQ7lJ2XfuOFsc3GtfAn5jJWcQ/FuEPvP8E+gaXQ+z+3y/HtKGoYkrOWgE645VCdK54GNvKkXYQlw==,
+            }
+        engines: { node: ">=0.10.3" }
+        peerDependencies:
+            ramda: ">= 0.32.0"
+
+    ramda@0.32.0:
+        resolution:
+            {
+                integrity: sha512-GQWAHhxhxWBWA8oIBr1XahFVjQ9Fic6MK9ikijfd4TZHfE2+urfk+irVlR5VOn48uwMgM+loRRBJd6Yjsbc0zQ==,
+            }
+
     range-parser@1.2.1:
         resolution:
             {
@@ -7851,6 +7881,12 @@ packages:
         peerDependencies:
             typescript: ">=4.8.4"
 
+    ts-toolbelt@9.6.0:
+        resolution:
+            {
+                integrity: sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==,
+            }
+
     tsconfig-paths@3.15.0:
         resolution:
             {
@@ -7931,6 +7967,12 @@ packages:
                 integrity: sha512-3KS2b+kL7fsuk/eJZ7EQdnEmQoaho/r6KUef7hxvltNA5DR8NAUM+8wJMbJyZ4G9/7i3v5zPBIMN5aybAh2/Jg==,
             }
         engines: { node: ">= 0.4" }
+
+    types-ramda@0.31.0:
+        resolution:
+            {
+                integrity: sha512-vaoC35CRC3xvL8Z6HkshDbi6KWM1ezK0LHN0YyxXWUn9HKzBNg/T3xSGlJZjCYspnOD3jE7bcizsp0bUXZDxnQ==,
+            }
 
     typescript@5.6.2:
         resolution:
@@ -10509,6 +10551,10 @@ snapshots:
 
     "@types/normalize-package-data@2.4.4": {}
 
+    "@types/ramda@0.31.1":
+        dependencies:
+            types-ramda: 0.31.0
+
     "@typescript-eslint/eslint-plugin@7.16.1(@typescript-eslint/parser@8.50.0(eslint@9.13.0)(typescript@5.9.2))(eslint@9.13.0)(typescript@5.6.2)":
         dependencies:
             "@eslint-community/regexpp": 4.11.1
@@ -12996,6 +13042,12 @@ snapshots:
 
     queue-microtask@1.2.3: {}
 
+    ramda-adjunct@6.0.0(ramda@0.32.0):
+        dependencies:
+            ramda: 0.32.0
+
+    ramda@0.32.0: {}
+
     range-parser@1.2.1: {}
 
     raw-body@3.0.2:
@@ -13664,6 +13716,8 @@ snapshots:
         dependencies:
             typescript: 5.9.2
 
+    ts-toolbelt@9.6.0: {}
+
     tsconfig-paths@3.15.0:
         dependencies:
             "@types/json5": 0.0.29
@@ -13729,6 +13783,10 @@ snapshots:
             is-typed-array: 1.1.15
             possible-typed-array-names: 1.1.0
             reflect.getprototypeof: 1.0.10
+
+    types-ramda@0.31.0:
+        dependencies:
+            ts-toolbelt: 9.6.0
 
     typescript@5.6.2: {}
 
