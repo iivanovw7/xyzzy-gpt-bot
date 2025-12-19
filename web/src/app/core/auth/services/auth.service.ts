@@ -1,4 +1,5 @@
 import type { Signal, WritableSignal } from "@angular/core";
+import type { LoginResponse } from "@shared";
 import type { Observable } from "rxjs";
 
 import { HttpClient } from "@angular/common/http";
@@ -7,7 +8,7 @@ import { Router } from "@angular/router";
 import { BehaviorSubject, interval, of } from "rxjs";
 import { catchError, filter, map, switchMap, take, tap } from "rxjs/operators";
 
-import type { TokenResponse, TokenResult, User } from "./auth.model";
+import type { LoginResult, User } from "./auth.model";
 
 import { config } from "../../../shared/config";
 import { logger } from "../../../shared/logger";
@@ -17,7 +18,7 @@ import { tokenStorage } from "../../../shared/storage";
 	providedIn: "root",
 })
 export class AuthService {
-	private accessTokenSignal: WritableSignal<null | string> = signal(tokenStorage.getAccessToken());
+	private accessTokenSignal: WritableSignal<Nullable<string>> = signal(tokenStorage.getAccessToken());
 	private currentUserSignal: WritableSignal<Nullable<User>> = signal(null);
 
 	private http = inject(HttpClient);
@@ -75,11 +76,11 @@ export class AuthService {
 		return this.accessTokenSignal();
 	}
 
-	public login(): Observable<Nullable<TokenResult>> {
+	public login(): Observable<Nullable<LoginResult>> {
 		let initialUrlToken = this.extractTokenFromUrl();
 
 		return this.http
-			.get<TokenResponse>("/auth/login", {
+			.get<LoginResponse>("/auth/login", {
 				headers: { Authorization: `Bearer ${initialUrlToken}` },
 				withCredentials: true,
 			})
@@ -112,13 +113,13 @@ export class AuthService {
 		this.currentUserSignal.set(null);
 	}
 
-	public refreshToken(): Observable<Nullable<TokenResult>> {
+	public refreshToken(): Observable<Nullable<LoginResult>> {
 		if (this.isRefreshing) {
 			return this.refreshToken$.asObservable().pipe(
 				filter((token): token is string => !!token),
 				take(1),
 				map(
-					(token): TokenResult => ({
+					(token): LoginResult => ({
 						accessToken: token,
 						userId: this.currentUser()?.id ?? "",
 					}),
@@ -130,7 +131,7 @@ export class AuthService {
 		this.refreshToken$.next(null);
 
 		return this.http
-			.post<TokenResponse>(
+			.post<LoginResponse>(
 				"/auth/refresh",
 				{},
 				{

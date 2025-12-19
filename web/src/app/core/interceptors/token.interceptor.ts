@@ -1,6 +1,7 @@
 import type { HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from "@angular/common/http";
 import type { Observable } from "rxjs";
 
+import { HttpStatusCode } from "@angular/common/http";
 import { inject } from "@angular/core";
 import { throwError } from "rxjs";
 import { catchError, filter, switchMap, take } from "rxjs/operators";
@@ -35,7 +36,7 @@ export const tokenInterceptor: HttpInterceptorFn = (
 
 	return next(authRequest).pipe(
 		catchError((error: HttpErrorResponse) => {
-			if (error.status !== 401 || authRequest.url.includes("/refresh") || !token) {
+			if (error.status !== HttpStatusCode.Unauthorized || authRequest.url.includes("/refresh") || !token) {
 				return throwError(() => error);
 			}
 

@@ -60,9 +60,3 @@ pub struct AuthTokens {
     pub access_token: String,
     pub refresh_token: String,
 }
-
-#[derive(Serialize)]
-pub struct AuthResponse {
-    pub access_token: String,
-    pub user_id: String,
-}

@@ -20,29 +20,40 @@ RUN cargo install cargo-chef --locked
 # ================================
 FROM rust_base AS chef
 WORKDIR /app
-COPY bot .
+
+COPY Cargo.toml Cargo.lock ./
+COPY shared ./shared
+COPY bot ./bot
+
 RUN cargo chef prepare --recipe-path recipe.json
 
 # ================================
 # STAGE 2A: Rust Builder
 # ================================
 FROM rust_base AS rust_builder
-WORKDIR /
+WORKDIR /app
 
-COPY --from=chef /app/recipe.json /bot/recipe.json
-RUN cargo chef cook --release --recipe-path /bot/recipe.json
+COPY --from=chef /app/recipe.json recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json
 
-COPY bot /bot
-RUN cd /bot && cargo build --release
+COPY . .
+RUN cargo build --release -p shared
+
+# Build the main bot
+RUN cargo build --release -p bot
 
 # ================================
 # STAGE 2B: Frontend Builder
 # ================================
 
 FROM node:24-slim AS frontend_builder
-WORKDIR /app/web
+WORKDIR /app
 
 RUN npm install -g pnpm
+
+COPY shared/ ./shared/
+
+WORKDIR /app/web
 COPY web/package.json web/pnpm-lock.yaml ./
 
 RUN pnpm install --frozen-lockfile
@@ -65,7 +76,7 @@ RUN apt-get update -y \
 
 RUN mkdir -p /db
 
-COPY --from=rust_builder /bot/target/release/bot ./server
+COPY --from=rust_builder /app/target/release/bot ./server
 COPY --from=frontend_builder /app/web/dist/web/browser ./web-dist
 
 COPY bot/.env .

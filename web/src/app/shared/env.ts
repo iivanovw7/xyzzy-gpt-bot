@@ -1,5 +1,3 @@
-const isDarkTheme = (): boolean => window.matchMedia("(prefers-color-scheme: dark)").matches;
-
 export const env = {
 	getCssVariable: (variable: string) => {
 		// prettier-ignore
@@ -18,7 +16,7 @@ export const env = {
 	/**
 	 * Refers true if dark theme is enabled,
 	 */
-	isDarkTheme: isDarkTheme(),
+	isDarkTheme: window.matchMedia("(prefers-color-scheme: dark)").matches,
 	/**
 	 * Equals `true` is running in development mode.
 	 */

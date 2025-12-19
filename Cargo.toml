@@ -1,2 +1,3 @@
 [workspace]
-members = ["bot"]
+members = ["bot", "shared"]
+resolver = "2"

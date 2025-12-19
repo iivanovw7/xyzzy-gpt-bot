@@ -1,13 +1,8 @@
 use crate::handlers::auth;
 use crate::{config::Config, env::Env};
 use actix_web::{web, Error as ActixError, HttpRequest, HttpResponse};
-use serde::{Deserialize, Serialize};
+use shared::UserResponse;
 use std::sync::Arc;
-
-#[derive(Deserialize, Serialize)]
-pub struct UserResponse {
-    user_id: String,
-}
 
 pub async fn get(
     req: HttpRequest,

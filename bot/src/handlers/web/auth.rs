@@ -1,10 +1,11 @@
 use crate::handlers::auth;
-use crate::types::auth::{AuthResponse, AuthState, RefreshClaims};
+use crate::types::auth::{AuthState, RefreshClaims};
 use crate::{config::Config, env::Env};
 use actix_web::cookie::time::Duration;
 use actix_web::cookie::Cookie;
 use actix_web::{web, Error as ActixError, HttpRequest, HttpResponse};
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
+use shared::LoginResponse;
 use std::sync::Arc;
 use teloxide::types::UserId;
 
@@ -36,7 +37,7 @@ pub async fn login(
             actix_web::error::ErrorInternalServerError("Could not issue new token pair")
         })?;
 
-    let response = AuthResponse {
+    let response = LoginResponse {
         access_token: tokens.access_token,
         user_id: user_id_str,
     };
@@ -107,7 +108,7 @@ pub async fn refresh(
 
     let refresh_cookie = create_refresh_cookie(new_tokens.refresh_token);
 
-    let response = AuthResponse {
+    let response = LoginResponse {
         access_token: new_tokens.access_token,
         user_id: user_id_str,
     };
