@@ -1,14 +1,10 @@
 {
-    "extends": "./tsconfig.json",
-    "compilerOptions": {
-        "outDir": "./out-tsc/spec",
-        "types": ["vitest/globals"],
-        "composite": true,
-        "declaration": true
-    },
-    "include": [
-        "src/**/*.d.ts",
-        "src/**/*.spec.ts",
-        "../shared/generated/bindings.ts"
-    ]
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"outDir": "./out-tsc/spec",
+		"types": ["vitest/globals"],
+		"composite": true,
+		"declaration": true
+	},
+	"include": ["src/**/*.d.ts", "src/**/*.spec.ts", "../shared/generated/bindings.ts"]
 }

@@ -1,18 +1,18 @@
 import type { Signal, WritableSignal } from "@angular/core";
-import type { LoginResponse } from "@shared";
+import type { LoginResponse } from "@bindings";
 import type { Observable } from "rxjs";
 
+import { config } from "@/app/shared/config";
+import { logger } from "@/app/shared/logger";
+import { routePath } from "@/app/shared/routes";
+import { tokenStorage } from "@/app/shared/storage";
 import { HttpClient } from "@angular/common/http";
 import { computed, inject, Injectable, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { BehaviorSubject, interval, of } from "rxjs";
 import { catchError, filter, map, switchMap, take, tap } from "rxjs/operators";
 
-import type { LoginResult, User } from "./auth.model";
-
-import { config } from "../../../shared/config";
-import { logger } from "../../../shared/logger";
-import { tokenStorage } from "../../../shared/storage";
+import type { LoginResult, User } from "../model";
 
 @Injectable({
 	providedIn: "root",
@@ -98,7 +98,7 @@ export class AuthService {
 				catchError((errorData) => {
 					this.logout();
 					this.cleanTokenFromUrl();
-					this.router.navigate(["login"]);
+					this.router.navigate([routePath.login]);
 
 					logger.error("Login error", errorData.message);
 
@@ -153,7 +153,7 @@ export class AuthService {
 					this.logout();
 					this.isRefreshing = false;
 					this.refreshToken$.next(null);
-					this.router.navigate(["login"]);
+					this.router.navigate([routePath.login]);
 
 					logger.error("Refresh token error", errorData.message);
 

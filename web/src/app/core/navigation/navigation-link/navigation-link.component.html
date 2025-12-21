@@ -1,0 +1,19 @@
+@if (disabled()) {
+	<div class="navigation-link" data-disabled>
+		@if (icon()) {
+			<app-icon class="navigation-link__icon" [name]="icon()!" [size]="size()"></app-icon>
+		}
+		<span class="navigation-link__text">
+			{{ text() }}
+		</span>
+	</div>
+} @else {
+	<a class="navigation-link" [href]="href()" [attr.data-active]="dataActive()" [attr.tabindex]="tabIndex()">
+		@if (icon()) {
+			<app-icon class="navigation-link__icon" [name]="icon()!" [size]="size()"></app-icon>
+		}
+		<span class="navigation-link__text">
+			{{ text() }}
+		</span>
+	</a>
+}

@@ -28,6 +28,9 @@ importers:
             loglevel:
                 specifier: 1.9.2
                 version: 1.9.2
+            lucide-angular:
+                specifier: 0.562.0
+                version: 0.562.0(@angular/common@21.0.0(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.0))(rxjs@7.8.0))(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.0))
             ramda:
                 specifier: 0.32.0
                 version: 0.32.0
@@ -6158,6 +6161,15 @@ packages:
             {
                 integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==,
             }
+
+    lucide-angular@0.562.0:
+        resolution:
+            {
+                integrity: sha512-nMt4Mq7lkB6ZF5+C3EszsaYZeB6jkxiIlzo0xnS4t6dnxa3cFumcJNYE/Vx950o7owxBhg/LybdfRxGHDsMA3w==,
+            }
+        peerDependencies:
+            "@angular/common": 13.x - 21.x
+            "@angular/core": 13.x - 21.x
 
     magic-string@0.30.19:
         resolution:
@@ -12550,6 +12562,12 @@ snapshots:
     lru-cache@5.1.1:
         dependencies:
             yallist: 3.1.1
+
+    lucide-angular@0.562.0(@angular/common@21.0.0(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.0))(rxjs@7.8.0))(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.0)):
+        dependencies:
+            "@angular/common": 21.0.0(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.0))(rxjs@7.8.0)
+            "@angular/core": 21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.0)
+            tslib: 2.3.0
 
     magic-string@0.30.19:
         dependencies:

@@ -53,7 +53,7 @@ $list-of-directions: ("top", "top-right", "right", "bottom-right", "bottom", "bo
 	@if list.length($args) == 1 {
 		$value: list.nth($args, 1);
 
-		border-radius: null($value, space);
+		border-radius: utils.null($value, space);
 	} @else if list.length($args) == 2 {
 		$corner: list.nth($args, 1);
 		$value: list.nth($args, 2);

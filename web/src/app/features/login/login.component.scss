@@ -1,13 +1,15 @@
 @use "abstracts" as *;
+@use "mixins" as *;
 
-.auth-page {
+:host(.login-page) {
+	@include page;
 	@include fullscreen-box;
 
-	&__main {
+	.login-page__main {
 		@include fullscreen-box-content;
 	}
 
-	&__container {
+	.login-page__container {
 		@include justify-align-flex(center, center);
 		@include sizer(100%);
 
@@ -15,7 +17,7 @@
 		gap: rem(16px);
 	}
 
-	&__code {
+	.login-page__code {
 		@include justify-align-flex;
 		@include pr(3);
 
@@ -24,24 +26,25 @@
 		border-right: rem(2px) solid var(--accent1);
 	}
 
-	&__code-text {
+	.login-page__code-text {
 		@include text-setting(xl);
 	}
 
-	&__message {
+	.login-page__message {
 		max-width: rem(300px);
 	}
 
-	&__message-text {
+	.login-page__message-text {
 		@include text-setting(lg);
 	}
 
-	&__footnote-text {
+	.login-page__footnote-text {
 		@include text-setting(sm);
+		@include mb(2);
 	}
 
-	&__message-text,
-	&__footnote-text {
+	.login-page__message-text,
+	.login-page__footnote-text {
 		text-align: start;
 	}
 }

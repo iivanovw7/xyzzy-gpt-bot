@@ -1,15 +1,11 @@
 {
-    "extends": "./tsconfig.json",
-    "compilerOptions": {
-        "outDir": "./out-tsc/app",
-        "types": [],
-        "composite": true,
-        "declaration": true
-    },
-    "include": [
-        "src/**/*.ts",
-        "environments/**/*.ts",
-        "../shared/generated/bindings.ts"
-    ],
-    "exclude": ["src/**/*.spec.ts"]
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"outDir": "./out-tsc/app",
+		"types": [],
+		"composite": true,
+		"declaration": true
+	},
+	"include": ["src/**/*.ts", "environments/**/*.ts", "../shared/generated/bindings.ts"],
+	"exclude": ["src/**/*.spec.ts"]
 }

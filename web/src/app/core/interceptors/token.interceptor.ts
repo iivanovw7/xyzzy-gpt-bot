@@ -6,7 +6,7 @@ import { inject } from "@angular/core";
 import { throwError } from "rxjs";
 import { catchError, filter, switchMap, take } from "rxjs/operators";
 
-import { AuthService } from "../auth/services/auth.service";
+import { AuthService } from "../auth/service";
 
 const withToken = (request: HttpRequest<unknown>, token?: null | string) => {
 	if (token) {

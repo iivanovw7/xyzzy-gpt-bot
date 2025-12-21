@@ -1,0 +1,20 @@
+@use "abstracts" as *;
+
+:host(.navigation) {
+	@include justify-align-flex(center, center);
+	@include position(fixed, auto auto 0 auto);
+	@include m(0);
+	@include p(3);
+	@include sizer(100%, rem(74px));
+
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: rem(8px);
+	background-color: var(--background-primary);
+	border-top: 1px solid var(--divider);
+
+	.navigation__item {
+		display: inline-flex;
+		justify-content: center;
+	}
+}

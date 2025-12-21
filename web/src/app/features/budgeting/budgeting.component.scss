@@ -1,0 +1,13 @@
+@use "abstracts" as *;
+@use "mixins" as *;
+
+:host(.budgeting-page) {
+	@include page;
+
+	.budgeting-page__content {
+		@include p(2);
+
+		display: flex;
+		flex-direction: column;
+	}
+}

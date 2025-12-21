@@ -6,10 +6,8 @@ import { provideRouter } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { routes } from "./app.routes";
-import { AuthService } from "./core/auth/services/auth.service";
-import { apiInterceptor } from "./core/interceptors/api.interceptor";
-import { errorInterceptor } from "./core/interceptors/error.interceptor";
-import { tokenInterceptor } from "./core/interceptors/token.interceptor";
+import { AuthService } from "./core/auth";
+import { apiInterceptor, errorInterceptor, tokenInterceptor } from "./core/interceptors";
 import { config } from "./shared/config";
 import { logger } from "./shared/logger";
 import { ThemeService } from "./shared/services/theme.service";

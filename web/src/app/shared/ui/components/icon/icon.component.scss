@@ -1,0 +1,45 @@
+@use "abstracts" as *;
+
+:host.icon {
+	position: relative;
+	display: inline-flex;
+	text-decoration: none;
+	outline: none;
+	transition: $transition-colors;
+
+	&--size-x-small {
+		@include sizer(rem(20px));
+	}
+
+	&--size-small {
+		@include sizer(rem(36px));
+	}
+
+	&--size-medium {
+		@include sizer(rem(40px));
+	}
+
+	&--size-large {
+		@include sizer(rem(48px));
+	}
+
+	> svg {
+		@include center(absolute, both);
+
+		.icon--size-x-small {
+			@include sizer(rem(16px));
+		}
+
+		.icon--size-small {
+			@include sizer(rem(20px));
+		}
+
+		.icon--size-medium {
+			@include sizer(rem(24px));
+		}
+
+		.icon--size-large {
+			@include sizer(rem(32px));
+		}
+	}
+}

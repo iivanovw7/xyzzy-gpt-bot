@@ -1,0 +1,9 @@
+@for (item of menuItems; track item.to) {
+	<div class="navigation__item">
+		<app-navigation-link
+			[href]="item.to"
+			[text]="item.text"
+			[icon]="item.icon"
+			[disabled]="item.disabled || false"></app-navigation-link>
+	</div>
+}

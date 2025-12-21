@@ -1,4 +1,3 @@
-/* eslint-disable import/no-default-export */
 /* eslint-disable perfectionist/sort-enums */
 "use strict";
 

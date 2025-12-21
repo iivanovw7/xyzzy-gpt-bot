@@ -26,12 +26,12 @@ import { unicornRules } from "./tool/eslint/rules/unicorn.js";
 
 // eslint-disable-next-line import/no-default-export
 export default defineFlatConfig([
-	perfectionist.configs["recommended-alphabetical"],
-	jsdoc.configs["flat/recommended"],
 	{
-		ignores: ["**/node_modules/**", "**/dist/**", ".git/**", "**/build/**"],
+		ignores: ["**/node_modules/**", "**/dist/**", "**/build/**", ".git/**"],
 	},
+	perfectionist.configs["recommended-alphabetical"],
 	{
+		files: ["**/*.js", "**/*.ts", "**/*.d.ts"],
 		languageOptions: {
 			ecmaVersion: 2023,
 			globals: {
@@ -77,7 +77,6 @@ export default defineFlatConfig([
 							ramda: ["ramda", "ramda-adjunct"],
 						},
 					},
-					environment: "node",
 					groups: [
 						"angular",
 						"luxon",
@@ -93,28 +92,13 @@ export default defineFlatConfig([
 						"unknown",
 						"style",
 					],
-					ignoreCase: true,
-					internalPattern: ["~/**"],
-					matcher: "minimatch",
-					maxLineLength: undefined,
 					newlinesBetween: "always",
 					order: "asc",
-					specialCharacters: "keep",
 					type: "alphabetical",
 				},
 			],
-			"unicorn/filename-case": [
-				"error",
-				{
-					cases: { kebabCase: true },
-				},
-			],
-			"unicorn/prevent-abbreviations": [
-				"error",
-				{
-					ignore: ["env", "Env"],
-				},
-			],
+			"unicorn/filename-case": ["error", { cases: { kebabCase: true } }],
+			"unicorn/prevent-abbreviations": ["error", { ignore: ["env", "Env"] }],
 		},
 	},
 	{
@@ -129,6 +113,7 @@ export default defineFlatConfig([
 		plugins: {
 			"@angular-eslint": angular,
 			"@typescript-eslint": eslintTypescript,
+			jsdoc,
 		},
 		rules: {
 			...typescriptRules,

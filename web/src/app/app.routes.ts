@@ -3,7 +3,8 @@ import type { Routes, UrlTree } from "@angular/router";
 import { inject } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { AuthService } from "./core/auth/services/auth.service";
+import { AuthService } from "./core/auth/service";
+import { basePath, routePath } from "./shared/routes";
 
 type GuardResult = boolean | UrlTree;
 type AuthGuardCallback = (isAuth: boolean, router: Router) => GuardResult;
@@ -16,19 +17,28 @@ export const routes: Routes = [
 	{
 		canActivate: [
 			authGuard((isAuth, router) => {
-				return isAuth ? true : router.createUrlTree(["/login"]);
+				return isAuth ? true : router.createUrlTree([routePath.login]);
 			}),
 		],
-		loadComponent: () => import("./features/profile/profile.component"),
-		path: "",
+		loadComponent: () => import("./features/home/home.component"),
+		path: basePath.home,
 	},
 	{
 		canActivate: [
 			authGuard((isAuth, router) => {
-				return isAuth ? router.createUrlTree(["/"]) : true;
+				return isAuth ? router.createUrlTree([routePath.home]) : true;
 			}),
 		],
-		loadComponent: () => import("./core/auth/auth.component"),
-		path: "login",
+		loadComponent: () => import("./features/login/login.component"),
+		path: basePath.login,
+	},
+	{
+		canActivate: [
+			authGuard((isAuth, router) => {
+				return isAuth ? true : router.createUrlTree([routePath.login]);
+			}),
+		],
+		loadComponent: () => import("./features/budgeting/budgeting.component"),
+		path: basePath.budgeting,
 	},
 ];

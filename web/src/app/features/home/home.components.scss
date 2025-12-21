@@ -1,0 +1,13 @@
+@use "abstracts" as *;
+@use "mixins" as *;
+
+:host(.home-page) {
+	@include page;
+
+	.home-page__content {
+		@include p(2);
+
+		display: flex;
+		flex-direction: column;
+	}
+}
