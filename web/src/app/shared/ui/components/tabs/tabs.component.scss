@@ -1,0 +1,26 @@
+@use "abstracts" as *;
+@use "mixins" as *;
+
+:host(.tabs) {
+	@include p(2);
+	@include text-setting(base);
+
+	display: flex;
+	gap: rem(8px);
+	font-weight: $font-weight-bold;
+	border-bottom: rem(1px) solid var(--divider);
+
+	.tabs__button {
+		@include p(1, 2);
+
+		color: var(--text-primary);
+		cursor: pointer;
+		background-color: var(--tab-button-background);
+		border: none;
+
+		&._active {
+			color: var(--text-inversed);
+			background-color: var(--tab-button-active-background);
+		}
+	}
+}

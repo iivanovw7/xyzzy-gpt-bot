@@ -7,6 +7,7 @@
 	color: var(--nav-link);
 	text-decoration: none;
 	outline: none;
+	background-color: transparent;
 	transition: $transition-color;
 
 	&:not([data-disabled]):focus-visible {
@@ -21,6 +22,10 @@
 		color: var(--nav-link-disabled);
 		pointer-events: none;
 		cursor: default;
+
+		.navigation-link__icon {
+			background-color: transparent;
+		}
 	}
 
 	&[data-active]:not([data-disabled]) {
@@ -44,9 +49,9 @@
 	}
 
 	.navigation-link__icon {
-		@include border-radius($border-radius-x-small);
-		@include p(1);
+		@include border-radius($border-radius-small);
+		@include p(2);
 
-		background-color: transparent;
+		background-color: var(--nav-link-background);
 	}
 }

@@ -19,6 +19,7 @@ $theme-variants: (
 		dimmed3: palette.get(monokai-light, dimmed3),
 		dimmed4: palette.get(monokai-light, dimmed4),
 		dimmed5: palette.get(monokai-light, dimmed5),
+		dimmed6: palette.get(monokai-light, dimmed6),
 		// Common
 		primary: palette.get(monokai-light, accent3),
 		primary-hover: palette.get(monokai-light, accent3-lighten),
@@ -39,9 +40,13 @@ $theme-variants: (
 		// Navlink
 		nav-link: palette.get(monokai-light, text),
 		nav-link-hover: palette.get(monokai-light, accent3),
+		nav-link-background: palette.get(monokai-light, dimmed6),
 		nav-link-disabled: palette.get(monokai-light, dimmed5),
 		nav-link-active: palette.get(monokai-light, background),
 		nav-link-active-background: palette.get(monokai-light, accent3),
+		// Tabs
+		tab-button-background: palette.get(monokai-light, dimmed6),
+		tab-button-active-background: palette.get(monokai-light, accent3),
 		// Text
 		text-primary: palette.get(monokai-light, text),
 		text-primary-darken: palette.get(monokai-light, text-darken),
@@ -78,6 +83,7 @@ $theme-variants: (
 		dimmed3: palette.get(monokai, dimmed3),
 		dimmed4: palette.get(monokai, dimmed4),
 		dimmed5: palette.get(monokai, dimmed5),
+		dimmed6: palette.get(monokai, dimmed6),
 		// Common
 		primary: palette.get(monokai, accent3),
 		primary-hover: palette.get(monokai, accent3-lighten),
@@ -99,8 +105,12 @@ $theme-variants: (
 		nav-link: palette.get(monokai, text),
 		nav-link-hover: palette.get(monokai, accent3),
 		nav-link-disabled: palette.get(monokai, dimmed5),
+		nav-link-background: palette.get(monokai, dimmed6),
 		nav-link-active: palette.get(monokai, background),
 		nav-link-active-background: palette.get(monokai, accent3),
+		// Tabs
+		tab-button-background: palette.get(monokai, dimmed6),
+		tab-button-active-background: palette.get(monokai, accent3),
 		// Text
 		text-primary: palette.get(monokai, text),
 		text-primary-darken: palette.get(monokai, text-darken),

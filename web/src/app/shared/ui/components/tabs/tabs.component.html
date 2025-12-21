@@ -1,0 +1,10 @@
+@for (item of items(); track item; let i = $index) {
+	<button
+		tuiTab
+		type="button"
+		class="tabs__button"
+		[class._active]="activeItemIndex() === i"
+		(click)="activeItemIndex.set(i)">
+		{{ item }}
+	</button>
+}
