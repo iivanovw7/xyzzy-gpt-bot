@@ -30,7 +30,7 @@ export const appConfig: ApplicationConfig = {
 		provideBrowserGlobalErrorListeners(),
 		provideRouter(routes),
 		provideHttpClient(withInterceptors([apiInterceptor, tokenInterceptor, errorInterceptor])),
-		provideAppInitializer(() => {
+		provideAppInitializer(async () => {
 			logger.configure({
 				enableColors: config.logger.logColors,
 				level: config.logger.logLevel,
@@ -41,7 +41,8 @@ export const appConfig: ApplicationConfig = {
 			let themeService = inject(ThemeService);
 
 			themeService.initialize();
-			tokenStorage.syncFromCloud();
+
+			await tokenStorage.init();
 
 			return authInitializer();
 		}),

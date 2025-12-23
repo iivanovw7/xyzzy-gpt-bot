@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-definitions */
 /* eslint-disable @typescript-eslint/method-signature-style */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export {};
@@ -45,19 +46,27 @@ declare global {
 		data: T;
 	};
 
-	// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 	interface Window {
-		Telegram?: {
-			WebApp?: {
-				close(): void;
-				CloudStorage: {
-					getItem(key: string, callback?: (error: any, value: string) => void): void;
-					removeItem(key: string, callback?: (error: any, success: boolean) => void): void;
-					setItem(key: string, value: any, callback?: (error: any, success: boolean) => void): void;
-				};
-				initData: string;
-				ready(): void;
-			};
-		};
+		Telegram?: Telegram;
 	}
+}
+
+interface Telegram {
+	WebApp?: TelegramWebApp;
+}
+
+interface TelegramWebApp {
+	close(): void;
+	CloudStorage?: TelegramCloudStorage;
+
+	initData: string;
+	ready(): void;
+
+	version: string;
+}
+
+interface TelegramCloudStorage {
+	getItem(key: string, callback: (error: unknown, value?: string) => void): void;
+	removeItem(key: string, callback?: (error: unknown, success: boolean) => void): void;
+	setItem(key: string, value: string, callback?: (error: unknown, success: boolean) => void): void;
 }
