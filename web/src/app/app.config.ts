@@ -11,6 +11,7 @@ import { apiInterceptor, errorInterceptor, tokenInterceptor } from "./core/inter
 import { config } from "./shared/config";
 import { logger } from "./shared/logger";
 import { ThemeService } from "./shared/services/theme.service";
+import { tokenStorage } from "./shared/storage";
 
 export const initAuth = (authService: AuthService) => {
 	return async () => {
@@ -40,6 +41,7 @@ export const appConfig: ApplicationConfig = {
 			let themeService = inject(ThemeService);
 
 			themeService.initialize();
+			tokenStorage.syncFromCloud();
 
 			return authInitializer();
 		}),

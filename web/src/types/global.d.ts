@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/method-signature-style */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export {};
 
@@ -43,4 +44,20 @@ declare global {
 	type QueryResponse<T> = {
 		data: T;
 	};
+
+	// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+	interface Window {
+		Telegram?: {
+			WebApp?: {
+				close(): void;
+				CloudStorage: {
+					getItem(key: string, callback?: (error: any, value: string) => void): void;
+					removeItem(key: string, callback?: (error: any, success: boolean) => void): void;
+					setItem(key: string, value: any, callback?: (error: any, success: boolean) => void): void;
+				};
+				initData: string;
+				ready(): void;
+			};
+		};
+	}
 }

@@ -26,19 +26,19 @@ export const routes: Routes = [
 	{
 		canActivate: [
 			authGuard((isAuth, router) => {
-				return isAuth ? router.createUrlTree([routePath.home]) : true;
-			}),
-		],
-		loadComponent: () => import("./features/login/login.component"),
-		path: basePath.login,
-	},
-	{
-		canActivate: [
-			authGuard((isAuth, router) => {
 				return isAuth ? true : router.createUrlTree([routePath.login]);
 			}),
 		],
 		loadComponent: () => import("./features/budgeting/budgeting.component"),
 		path: basePath.budgeting,
+	},
+	{
+		canActivate: [
+			authGuard((isAuth, router) => {
+				return isAuth ? router.createUrlTree([routePath.home]) : true;
+			}),
+		],
+		loadComponent: () => import("./features/login/login.component"),
+		path: basePath.login,
 	},
 ];
