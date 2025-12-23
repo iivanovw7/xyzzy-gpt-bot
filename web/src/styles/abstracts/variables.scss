@@ -8,6 +8,7 @@ $cb-transition: cubic-bezier(0.4, 0, 0.2, 1);
 $transition-opacity: opacity 250ms $cb-transition;
 $transition-color: color 250ms $cb-transition;
 $transition-bg-color: background-color 250ms $cb-transition;
+$transition-all: all 250ms $cb-transition;
 
 // prettier-ignore
 $transition-colors:

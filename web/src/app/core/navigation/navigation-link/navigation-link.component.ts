@@ -3,9 +3,9 @@ import { Component, computed, inject, input } from "@angular/core";
 import { Router } from "@angular/router";
 
 import type { Size } from "../../../../types/styles.types";
-import type { IconKey } from "../../../shared/ui";
+import type { IconKey } from "../../../shared/ui/components/icon";
 
-import { IconComponent } from "../../../shared/ui";
+import IconComponent from "../../../shared/ui/components/icon/icon.component";
 
 @Component({
 	imports: [IconComponent, CommonModule],

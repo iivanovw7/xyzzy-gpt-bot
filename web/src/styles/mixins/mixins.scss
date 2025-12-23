@@ -11,3 +11,11 @@
 	min-height: 100%;
 	background-color: var(--background-content);
 }
+
+@mixin card() {
+	@include justify-align-flex;
+	@include border-radius($border-radius-x-small);
+
+	flex-direction: column;
+	background-color: var(--background-primary);
+}

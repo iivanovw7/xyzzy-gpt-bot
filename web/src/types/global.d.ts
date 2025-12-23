@@ -40,4 +40,7 @@ declare global {
 	};
 	type ValueOf<T> = T[keyof T];
 	type ExtractType<T, U extends T> = T extends U ? T : never;
+	type QueryResponse<T> = {
+		data: T;
+	};
 }

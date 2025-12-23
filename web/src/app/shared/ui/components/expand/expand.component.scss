@@ -1,0 +1,28 @@
+@use "abstracts" as *;
+@use "mixins" as *;
+
+:host(.expand) {
+	position: relative;
+	display: grid;
+	visibility: hidden;
+	grid-template-rows: 0fr;
+	overflow: hidden;
+	opacity: 50%;
+	transition:
+		grid-template-rows 0.3s ease-in-out,
+		opacity 0.3s ease;
+
+	.expand-content {
+		min-height: 0;
+	}
+
+	&.expand--expanded {
+		visibility: visible;
+		grid-template-rows: 1fr;
+		opacity: 100%;
+
+		&.expand--open {
+			overflow: visible;
+		}
+	}
+}

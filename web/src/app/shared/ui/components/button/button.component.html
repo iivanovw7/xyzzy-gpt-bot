@@ -1,0 +1,16 @@
+@if (isLoading()) {
+	<span class="button__loader" [class]="loaderClass()"></span>
+} @else {
+	@if (icon() && iconPosition() === "start") {
+		<app-icon [class]="iconFullClass()" [name]="icon()!" [size]="iconSize()"></app-icon>
+	}
+	@if (text()) {
+		<div [class]="textFullClass()">
+			{{ text() }}
+		</div>
+	}
+	<ng-content></ng-content>
+	@if (icon() && iconPosition() !== "start") {
+		<app-icon [class]="iconFullClass()" [name]="icon()!" [size]="iconSize()"></app-icon>
+	}
+}

@@ -45,3 +45,9 @@
 		transform: "rotate(360deg)";
 	}
 }
+
+@keyframes shimmer {
+	100% {
+		background-position-x: -200%;
+	}
+}

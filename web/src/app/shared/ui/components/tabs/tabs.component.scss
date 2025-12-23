@@ -2,11 +2,11 @@
 @use "mixins" as *;
 
 :host(.tabs) {
-	@include p(2);
+	@include p(3, 2);
 	@include text-setting(base);
 
 	display: flex;
-	gap: rem(8px);
+	gap: rem(16px);
 	font-weight: $font-weight-bold;
 	border-bottom: rem(1px) solid var(--divider);
 

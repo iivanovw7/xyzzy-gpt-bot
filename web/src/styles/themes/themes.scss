@@ -53,6 +53,8 @@ $theme-variants: (
 		text-secondary: palette.get(monokai-light, text-lighten),
 		text-white: palette.get(monokai-light, text),
 		text-inversed: palette.get(monokai-light, text-inversed),
+		text-success: palette.get(monokai-light, text-success),
+		text-error: palette.get(monokai-light, text-error),
 		// Scrollbar
 		scrollbar: palette.get(monokai-light, dimmed6),
 		scrollbar-track: palette.get(monokai-light, dimmed6),
@@ -69,6 +71,8 @@ $theme-variants: (
 		control-disabled-border-primary: palette.get(monokai-light, dimmed5),
 		control-disabled-backgound-primary: palette.get(monokai-light, dimmed3),
 		control-hover-border-primary: palette.get(monokai-light, dimmed4),
+		// Skeleton
+		skeleton-shimmer-1: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%),
 	),
 	dark: (
 		// Theme
@@ -117,11 +121,13 @@ $theme-variants: (
 		text-secondary: palette.get(monokai, text-darken),
 		text-white: palette.get(monokai, text),
 		text-inversed: palette.get(monokai, text-inversed),
+		text-success: palette.get(monokai, text-success),
+		text-error: palette.get(monokai, text-error),
 		// Scrollbar
-		scrollbar: palette.get(monokai-light, dimmed6),
-		scrollbar-track: palette.get(monokai-light, dimmed6),
-		scrollbar-thumb: palette.get(monokai-light, dimmed6),
-		scrollbar-thumb-border: palette.get(monokai-light, dimmed6),
+		scrollbar: palette.get(monokai, dimmed6),
+		scrollbar-track: palette.get(monokai, dimmed6),
+		scrollbar-thumb: palette.get(monokai, dimmed6),
+		scrollbar-thumb-border: palette.get(monokai, dimmed6),
 		// Chart
 		chart-label-color: palette.get(monokai, text-darken),
 		chart-grid-color: palette.get(monokai, dimmed5-darken),
@@ -133,6 +139,8 @@ $theme-variants: (
 		control-disabled-border-primary: palette.get(monokai, dimmed5),
 		control-disabled-backgound-primary: palette.get(monokai, dark2-lighten),
 		control-hover-border-primary: palette.get(monokai, dimmed4),
+		// Skeleton
+		skeleton-shimmer-1: linear-gradient(110deg, #2d2a2e 8%, #221f22 18%, #2d2a2e 33%),
 	),
 );
 

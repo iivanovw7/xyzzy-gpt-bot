@@ -49,6 +49,7 @@ pub async fn server() {
     let jwt_secret = ENV.jwt_secret.clone();
     let is_dev = cfg!(debug_assertions);
     let web_auth_state = auth_state.clone();
+    let web_db = db.clone();
 
     let api_server = tokio::spawn(async move {
         HttpServer::new(move || {
@@ -72,11 +73,16 @@ pub async fn server() {
                 .app_data(web::Data::new(jwt_secret.clone()))
                 .app_data(web::Data::new(Arc::new(ENV.clone())))
                 .app_data(web::Data::new(Arc::new(CONFIG.clone())))
+                .app_data(web::Data::new(web_db.clone()))
                 .route("/api/user", web::get().to(handlers::web::user::get))
                 .route("/api/auth/login", web::get().to(handlers::web::auth::login))
                 .route(
                     "/api/auth/refresh",
                     web::post().to(handlers::web::auth::refresh),
+                )
+                .route(
+                    "/api/budgeting/overview",
+                    web::get().to(handlers::web::budgeting::overview::get),
                 )
         })
         .bind(("0.0.0.0", CONFIG.api.port))

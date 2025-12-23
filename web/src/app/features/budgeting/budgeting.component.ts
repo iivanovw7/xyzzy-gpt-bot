@@ -4,8 +4,8 @@ import { AuthService } from "../../core/auth";
 import HeaderComponent from "../../core/layout/header/header.component";
 import NavigationComponent from "../../core/navigation/navigation.component";
 import TabsComponent from "../../shared/ui/components/tabs/tabs.component";
-import BudgetingOverveiwComponent from "./overview/overview.component";
-import BudgetingStatisticsComponent from "./statistics/statistics.component";
+import BudgetingOverveiwComponent from "./ui/overview/overview.component";
+import BudgetingStatisticsComponent from "./ui/statistics/statistics.component";
 
 @Component({
 	host: {

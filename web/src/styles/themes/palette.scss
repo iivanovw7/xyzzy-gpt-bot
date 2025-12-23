@@ -35,6 +35,8 @@ $colors: (
 		text-darken: color.adjust(#0f0f0f, $lightness: -30%),
 		text-lighten: color.adjust(#0f0f0f, $lightness: 30%),
 		text-inversed: "#fcfcfa",
+		text-error: "#e14775",
+		text-success: "#269d69",
 	),
 	monokai: (
 		accent1: "#ff6188",
@@ -66,6 +68,8 @@ $colors: (
 		text-darken: color.adjust(#fcfcfc, $lightness: -40%),
 		text-lighten: color.adjust(#fcfcfc, $lightness: 40%),
 		text-inversed: "#0f0f0f",
+		text-error: "#ff6188",
+		text-success: "#a9dc76",
 	),
 );
 

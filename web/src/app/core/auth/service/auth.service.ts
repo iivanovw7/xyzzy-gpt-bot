@@ -12,7 +12,7 @@ import { Router } from "@angular/router";
 import { BehaviorSubject, interval, of } from "rxjs";
 import { catchError, filter, map, switchMap, take, tap } from "rxjs/operators";
 
-import type { LoginResult, User } from "../model";
+import type { User } from "../model";
 
 @Injectable({
 	providedIn: "root",
@@ -76,7 +76,7 @@ export class AuthService {
 		return this.accessTokenSignal();
 	}
 
-	public login(): Observable<Nullable<LoginResult>> {
+	public login(): Observable<Nullable<LoginResponse>> {
 		let initialUrlToken = this.extractTokenFromUrl();
 
 		return this.http
@@ -86,15 +86,11 @@ export class AuthService {
 			})
 			.pipe(
 				tap((response) => {
-					this.saveAccessToken(response.access_token);
+					this.saveAccessToken(response.accessToken);
 					this.startTokenRefreshTimer();
 					this.cleanTokenFromUrl();
-					this.setUser({ id: response.user_id });
+					this.setUser({ id: response.userId });
 				}),
-				map((response) => ({
-					accessToken: response.access_token,
-					userId: response.user_id,
-				})),
 				catchError((errorData) => {
 					this.logout();
 					this.cleanTokenFromUrl();
@@ -113,13 +109,13 @@ export class AuthService {
 		this.currentUserSignal.set(null);
 	}
 
-	public refreshToken(): Observable<Nullable<LoginResult>> {
+	public refreshToken(): Observable<Nullable<LoginResponse>> {
 		if (this.isRefreshing) {
 			return this.refreshToken$.asObservable().pipe(
 				filter((token): token is string => !!token),
 				take(1),
 				map(
-					(token): LoginResult => ({
+					(token): LoginResponse => ({
 						accessToken: token,
 						userId: this.currentUser()?.id ?? "",
 					}),
@@ -140,15 +136,11 @@ export class AuthService {
 			)
 			.pipe(
 				tap((response) => {
-					this.setUser({ id: response.user_id });
-					this.saveAccessToken(response.access_token);
+					this.setUser({ id: response.userId });
+					this.saveAccessToken(response.accessToken);
 					this.isRefreshing = false;
-					this.refreshToken$.next(response.access_token);
+					this.refreshToken$.next(response.accessToken);
 				}),
-				map((response) => ({
-					accessToken: response.access_token,
-					userId: response.user_id,
-				})),
 				catchError((errorData) => {
 					this.logout();
 					this.isRefreshing = false;

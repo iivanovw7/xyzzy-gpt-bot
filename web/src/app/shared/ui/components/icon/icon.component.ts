@@ -13,7 +13,7 @@ import { Icon } from "./icon.registry";
 		"[class.icon--medium]": 'size() === "medium"',
 		"[class.icon--x-xmall]": 'size() === "x-small"',
 		"[class.icon--xmall]": 'size() === "small"',
-		class: "icon",
+		class: "icon class()",
 	},
 	imports: [LucideAngularModule],
 	selector: "app-icon",
@@ -21,9 +21,10 @@ import { Icon } from "./icon.registry";
 	styleUrl: "./icon.component.scss",
 	templateUrl: "./icon.component.html",
 })
-export class IconComponent {
+export default class IconComponent {
 	protected icon = computed(() => Icon[this.name()]);
 
+	class = input<string>("");
 	name = input.required<IconKey>();
 	size = input<Size>("medium");
 

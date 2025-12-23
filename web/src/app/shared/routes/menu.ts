@@ -1,6 +1,6 @@
 import { pipe, prop, sortBy, values } from "ramda";
 
-import type { IconKey } from "../ui";
+import type { IconKey } from "../ui/components/icon";
 
 import { routePath } from "./routes";
 

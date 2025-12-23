@@ -1,0 +1,6 @@
+<div class="expand-content">
+	@if (expanded() || open()) {
+		<ng-container [ngTemplateOutlet]="content() || null" />
+	}
+	<ng-content></ng-content>
+</div>

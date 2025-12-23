@@ -1,0 +1,67 @@
+@switch (status()) {
+	@case ("loading") {
+		<div app-skeleton class="budgeting__overview-skeleton-title"></div>
+		<div app-skeleton class="budgeting__overview-skeleton-header"></div>
+		<div app-skeleton class="budgeting__overview-skeleton-content-transactions"></div>
+	}
+
+	@case ("error") {
+		<div class="budgeting__overview-error">
+			<p>Failed to load budgeting data.</p>
+			<button app-button (click)="service.query()">Try again</button>
+		</div>
+	}
+
+	@case ("success") {
+		@let data = service.overview()!;
+
+		<div class="budgeting__overview-content-header">
+			<h2
+				class="budgeting__overview-content-header-title"
+				[style.color]="data.monthBalance >= 0 ? 'var(--text-success)' : 'var(--text-error)'">
+				{{ data.monthBalance | currency: data.currency : "symbol" : "1.2-2" }}
+			</h2>
+			<div class="budgeting__overview-content-header-info">
+				<span>Income:</span>
+				<b [style.color]="'var(--text-success)'">+{{ data.monthIncome | currency: data.currency }}</b>
+				<span>Spending:</span>
+				<b [style.color]="'var(--text-error)'">-{{ data.monthSpending | currency: data.currency }}</b>
+			</div>
+			<span class="budgeting__overview-content-header-month">for {{ transformMonth(data.month) }}</span>
+		</div>
+		<div class="budgeting__overview-content">
+			@for (tx of recentTransactions(); track tx.id) {
+				<ng-container *ngTemplateOutlet="row; context: { $implicit: tx, currency: data.currency }" />
+			}
+			<div app-expand class="budgeting__overview-content-expand" [expanded]="transactionsExpanded">
+				@for (tx of restTransactions(); track tx.id) {
+					<ng-container *ngTemplateOutlet="row; context: { $implicit: tx, currency: data.currency }" />
+				}
+			</div>
+			@if (!!restTransactions()?.length) {
+				<button
+					app-button
+					class="budgeting__overview-content-expand-button"
+					[fill]="'none'"
+					(click)="transactionsExpanded = !transactionsExpanded">
+					{{ transactionsExpanded ? "Show less" : "Show more" }}
+				</button>
+			}
+		</div>
+	}
+}
+
+<ng-template #row let-tx let-curr="currency">
+	<div class="budgeting__overview-content-row">
+		<div class="budgeting__overview-content-col">
+			<span class="budgeting__overview-content-col-description">
+				<span>[{{ tx.category }}]</span>
+				<span>{{ tx.description }}</span>
+			</span>
+			<span class="date-label">{{ tx.date | date: "MMMM d, y, EEEE" }}</span>
+		</div>
+		<span class="budgeting__overview-content-col-amount" [class.income]="tx.isIncome">
+			{{ tx.isIncome ? "+" : "-" }} {{ tx.amount | currency: curr : "symbol" : "1.2-2" }}
+		</span>
+	</div>
+</ng-template>
