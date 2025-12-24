@@ -38,29 +38,40 @@ pub async fn get(
     let mut month_spending = 0.0;
     let mut month_income = 0.0;
     let mut month_transactions: Vec<OverviewTransaction> = vec![];
-    let mut monthly_map: std::collections::BTreeMap<u32, (f64, f64)> =
+
+    let mut monthly_summaries_map: std::collections::BTreeMap<u32, (f64, f64)> =
+        std::collections::BTreeMap::new();
+
+    let mut monthly_spending_summaries_map: std::collections::BTreeMap<String, Vec<f64>> =
         std::collections::BTreeMap::new();
 
     for m in 1..=12 {
-        monthly_map.insert(m, (0.0, 0.0));
+        monthly_summaries_map.insert(m, (0.0, 0.0));
     }
 
     for tx in &year_transactions {
         let tx_amount_float = amount_to_float(tx.amount);
+        let tx_amount_float_abs = tx_amount_float.abs();
         let tx_month = tx.date.month();
-        let entry = monthly_map.entry(tx_month).or_insert((0.0, 0.0));
+        let entry = monthly_summaries_map.entry(tx_month).or_insert((0.0, 0.0));
 
         if tx.amount > 0 {
             entry.0 += tx_amount_float;
         } else {
-            entry.1 += tx_amount_float.abs();
+            entry.1 += tx_amount_float_abs;
+
+            let cat_amounts = monthly_spending_summaries_map
+                .entry(tx.category_name.clone())
+                .or_insert(vec![0.0; 12]);
+
+            cat_amounts[(tx_month - 1) as usize] += tx_amount_float_abs;
         }
 
         if tx_month == current_month {
             if tx.amount > 0 {
                 month_income += tx_amount_float;
             } else {
-                month_spending += tx_amount_float.abs();
+                month_spending += tx_amount_float_abs;
             }
 
             month_transactions.push(OverviewTransaction {
@@ -74,7 +85,7 @@ pub async fn get(
         }
     }
 
-    let summaries: Vec<shared::MonthlySummary> = monthly_map
+    let monthly_summaries: Vec<shared::MonthlySummary> = monthly_summaries_map
         .into_iter()
         .map(|(month, (income, spending))| shared::MonthlySummary {
             month,
@@ -82,6 +93,12 @@ pub async fn get(
             spending,
         })
         .collect();
+
+    let monthly_spending_summaries: Vec<shared::MonthlySpendingSummary> =
+        monthly_spending_summaries_map
+            .into_iter()
+            .map(|(name, amounts)| shared::MonthlySpendingSummary { name, amounts })
+            .collect();
 
     let month_summary = shared::MonthlySummary {
         month: current_month,
@@ -91,7 +108,8 @@ pub async fn get(
 
     let year_summary = shared::YearlySummary {
         year: current_year,
-        summaries,
+        monthly_summaries,
+        monthly_spending_summaries,
     };
 
     month_transactions.sort_by(|a, b| b.date.cmp(&a.date));

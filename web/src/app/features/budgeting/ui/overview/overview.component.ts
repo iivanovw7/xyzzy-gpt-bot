@@ -10,7 +10,8 @@ import SkeletonComponent from "@/app/shared/ui/components/skeleton/skeleton.comp
 import { CommonModule, CurrencyPipe } from "@angular/common";
 import { Component, computed, inject } from "@angular/core";
 
-import { getYearlyBarChartConfig, getYearlyBarChartOptions } from "../../lib/overview.chart";
+import { getYearlyBarChartConfig, getYearlyBarChartOptions } from "../../lib/yearly-overview.util";
+import { getCategoryStackedChartConfig, getCategoryStackedOptions } from "../../lib/yearly-trends.util";
 import { OverviewService } from "../../service";
 
 @Component({
@@ -25,16 +26,6 @@ import { OverviewService } from "../../service";
 })
 export default class BudgetingOverveiwComponent implements OnInit {
 	protected readonly service = inject(OverviewService);
-	private currencyPipe = inject(CurrencyPipe);
-
-	protected barOptions = computed(() => {
-		let currencyFormatter = (value: number): string => {
-			return this.currencyPipe.transform(value, this.service.overview()?.currency, "symbol", "1.2-2") ?? "";
-		};
-
-		return getYearlyBarChartOptions(currencyFormatter);
-	});
-
 	private allTransactions = computed(() => {
 		return this.service.overview()?.monthTransactions ?? [];
 	});
@@ -70,10 +61,47 @@ export default class BudgetingOverveiwComponent implements OnInit {
 
 	protected transactionsExpanded = false;
 
-	protected yearlyData = computed(() => {
+	protected yearlyOverviewData = computed(() => {
 		let summary = this.service.overview()?.yearSummary;
 
 		return summary ? getYearlyBarChartConfig(summary) : null;
+	});
+
+	protected yearlyOverviewDataYear = computed(() => {
+		return this.service.overview()?.yearSummary.year;
+	});
+
+	private currencyPipe = inject(CurrencyPipe);
+
+	protected yearlyOverviewOptions = computed(() => {
+		let currencyFormatter = (value: number): string => {
+			return this.currencyPipe.transform(value, this.service.overview()?.currency, "symbol", "1.2-2") ?? "";
+		};
+
+		return getYearlyBarChartOptions(currencyFormatter);
+	});
+
+	protected yearlyTrendsData = computed(() => {
+		let overview = this.service.overview();
+		if (!overview?.yearSummary.monthly_spending_summaries) return null;
+
+		return getCategoryStackedChartConfig(
+			overview.yearSummary.monthly_spending_summaries.map((c) => ({
+				data: c.amounts,
+				name: c.name,
+			})),
+		);
+	});
+
+	protected yearlyTrendsOptions = computed(() => {
+		let currencyFormatter = (value: number): string => {
+			let formatted =
+				this.currencyPipe.transform(value, this.service.overview()?.currency, "symbol", "1.2-2") ?? "";
+
+			return `- ${formatted}`;
+		};
+
+		return getCategoryStackedOptions(currencyFormatter);
 	});
 
 	ngOnInit() {

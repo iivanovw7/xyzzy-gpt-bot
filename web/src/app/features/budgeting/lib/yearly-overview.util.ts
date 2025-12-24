@@ -1,13 +1,16 @@
 import { pluck } from "ramda";
 
-import type { ChartData, ChartOptions } from "chart.js";
+import type { ChartData, ChartOptions, TooltipItem } from "chart.js";
 
 import type { OverviewResponse } from "@bindings";
 
 import { env } from "@/app/shared/env";
 
+import type { CurrencyFormatter } from "../model/overview.model";
+
+import { MONTH_LABELS } from "../model/overview.model";
+
 export const getYearlyBarChartConfig = (summary: OverviewResponse["yearSummary"]): ChartData<"bar"> => {
-	let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 	let incomeColor = env.getCssVariable("--text-success");
 	let spendingColor = env.getCssVariable("--text-error");
 
@@ -17,29 +20,35 @@ export const getYearlyBarChartConfig = (summary: OverviewResponse["yearSummary"]
 				backgroundColor: incomeColor,
 				borderRadius: 0,
 				borderSkipped: false,
-				data: pluck("income", summary.summaries),
+				data: pluck("income", summary.monthly_summaries),
 				label: "Income",
 			},
 			{
 				backgroundColor: spendingColor,
 				borderRadius: 0,
 				borderSkipped: false,
-				data: pluck("spending", summary.summaries),
+				data: pluck("spending", summary.monthly_summaries),
 				label: "Spending",
 			},
 		],
-		labels: months,
+		labels: MONTH_LABELS,
 	};
 };
 
-export const getYearlyBarChartOptions = (
-	currencyFormatter: (value: number) => Nullable<string>,
-): ChartOptions<"bar"> => {
+export const getYearlyBarChartOptions = (currencyFormatter: CurrencyFormatter): ChartOptions<"bar"> => {
 	let labelColor = env.getCssVariable("--text-primary");
 	let gridColor = env.getCssVariable("--divider-dark");
 
-	let formatter = (value: number) => {
-		return value > 0 ? currencyFormatter(value) || "" : "";
+	let dateLabelFormatter = (value: number) => (value > 0 ? currencyFormatter(value) : "");
+
+	let tooltipLabelFormatter = (context: TooltipItem<"bar">) => {
+		let label = context.dataset.label || "";
+
+		if (context.parsed.y !== null) {
+			label += `: ${currencyFormatter(context.parsed.y)}`;
+		}
+
+		return label;
 	};
 
 	return {
@@ -56,24 +65,27 @@ export const getYearlyBarChartOptions = (
 				color: labelColor,
 				font: {
 					family: "monospace",
-					size: 10,
+					size: 11,
 				},
-				formatter,
+				formatter: dateLabelFormatter,
 				offset: 5,
 				rotation: -90,
 				textAlign: "center",
 			},
 			legend: {
-				align: "end",
+				align: "center",
 				display: true,
 				labels: {
 					color: labelColor,
 					pointStyle: "rect",
 					usePointStyle: true,
 				},
-				position: "chartArea",
+				position: "bottom",
 			},
 			tooltip: {
+				callbacks: {
+					label: tooltipLabelFormatter,
+				},
 				intersect: false,
 				mode: "index",
 				padding: 12,
@@ -82,7 +94,7 @@ export const getYearlyBarChartOptions = (
 		responsive: true,
 		scales: {
 			x: {
-				grid: { display: false },
+				grid: { color: gridColor },
 				stacked: false,
 				ticks: { color: labelColor },
 			},

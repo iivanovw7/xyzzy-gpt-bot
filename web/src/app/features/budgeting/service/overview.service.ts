@@ -12,9 +12,7 @@ export class OverviewService {
 	private http = inject(HttpClient);
 
 	error = signal<boolean>(false);
-
 	isLoading = signal<boolean>(false);
-
 	overview = signal<Nullable<OverviewResponse>>(null);
 
 	query() {
