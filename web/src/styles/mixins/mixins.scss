@@ -19,3 +19,25 @@
 	flex-direction: column;
 	background-color: var(--background-primary);
 }
+
+@mixin scrollbars($size: 6px, $thumb-color: var(--scrollbar-thumb), $track-color: var(--scrollbar)) {
+	scrollbar-color: $thumb-color $track-color;
+	scrollbar-width: thin;
+
+	&::-webkit-scrollbar {
+		width: $size;
+		height: $size;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background-color: $thumb-color;
+		background-clip: content-box;
+		border: 2px solid transparent;
+		border-radius: 10px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: $track-color;
+		border-radius: 10px;
+	}
+}

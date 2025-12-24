@@ -153,4 +153,10 @@ export class AuthService {
 				}),
 			);
 	}
+
+	get hasTokenInUrl(): boolean {
+		let urlParameters = new URLSearchParams(window.location.search);
+
+		return urlParameters.has("token");
+	}
 }

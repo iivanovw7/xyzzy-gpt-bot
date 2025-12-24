@@ -3,15 +3,11 @@
 @use "./abstracts/typography" as *;
 @use "./abstracts/layout" as *;
 @use "./abstracts/media" as *;
+@use "./abstracts/convert" as *;
+@use "./mixins/mixins" as *;
 
 * {
-	@include scrollbars(
-		8px,
-		var(--scrollbar),
-		var(--scrollbar-track),
-		var(--scrollbar-thumb),
-		var(--scrollbar-thumb-border)
-	);
+	@include scrollbars(rem(6px), var(--scrollbar-thumb), var(--scrollbar));
 }
 
 html,

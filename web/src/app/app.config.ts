@@ -15,7 +15,8 @@ import { tokenStorage } from "./shared/storage";
 
 export const initAuth = (authService: AuthService) => {
 	return async () => {
-		let authResult$ = authService.getAccessToken() ? authService.refreshToken() : authService.login();
+		let accessToken = authService.getAccessToken();
+		let authResult$ = authService.hasTokenInUrl || !accessToken ? authService.login() : authService.refreshToken();
 
 		try {
 			await firstValueFrom(authResult$, { defaultValue: null });
@@ -42,7 +43,7 @@ export const appConfig: ApplicationConfig = {
 
 			themeService.initialize();
 
-			await tokenStorage.init();
+			await tokenStorage.initialize();
 
 			return authInitializer();
 		}),

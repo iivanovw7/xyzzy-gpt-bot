@@ -56,10 +56,8 @@ $theme-variants: (
 		text-success: palette.get(monokai-light, text-success),
 		text-error: palette.get(monokai-light, text-error),
 		// Scrollbar
-		scrollbar: palette.get(monokai-light, dimmed6),
-		scrollbar-track: palette.get(monokai-light, dimmed6),
+		scrollbar: palette.get(monokai-light, dark1),
 		scrollbar-thumb: palette.get(monokai-light, dimmed6),
-		scrollbar-thumb-border: palette.get(monokai-light, dimmed6),
 		// Chart
 		chart-label-color: palette.get(monokai-light, text-darken),
 		chart-grid-color: palette.get(monokai-light, dimmed5-darken),
@@ -124,10 +122,8 @@ $theme-variants: (
 		text-success: palette.get(monokai, text-success),
 		text-error: palette.get(monokai, text-error),
 		// Scrollbar
-		scrollbar: palette.get(monokai, dimmed6),
-		scrollbar-track: palette.get(monokai, dimmed6),
+		scrollbar: palette.get(monokai, dark1),
 		scrollbar-thumb: palette.get(monokai, dimmed6),
-		scrollbar-thumb-border: palette.get(monokai, dimmed6),
 		// Chart
 		chart-label-color: palette.get(monokai, text-darken),
 		chart-grid-color: palette.get(monokai, dimmed5-darken),

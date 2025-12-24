@@ -17,38 +17,6 @@
 	justify-content: $justify;
 }
 
-@mixin scrollbars(
-	$size: 8px,
-	$foreground-color: var(--scrollbar),
-	$background-color: color.mix($foreground-color, white, 50%),
-	$thumb-color: var(--scrollbar-thumb),
-	$thumb-border-color: color.mix($thumb-color, white, 50%)
-) {
-	& {
-		scrollbar-face-color: $foreground-color;
-		scrollbar-track-color: $background-color;
-		scrollbar-color: $background-color;
-		scrollbar-width: thin;
-	}
-
-	&::-webkit-scrollbar {
-		@include sizer($size);
-	}
-
-	&::-webkit-scrollbar-thumb {
-		@include border-radius($border-radius-xx-large);
-
-		background: $foreground-color;
-		background-color: $thumb-color;
-		border: 3px solid $thumb-border-color;
-	}
-
-	&::-webkit-scrollbar-track {
-		background: $background-color;
-		box-shadow: none;
-	}
-}
-
 @mixin fullscreen-box {
 	@include position(fixed, 0 0 0 0);
 	@include justify-align-flex;

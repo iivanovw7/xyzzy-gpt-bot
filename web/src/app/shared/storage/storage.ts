@@ -5,6 +5,57 @@ import type { StorageKey, StorageValue } from "./storage.types";
 import { logger } from "../logger";
 import { DEFAULT_STORAGE } from "./storage.types";
 
+export const isCloudStorageSupported = () => {
+	let tg = window.Telegram?.WebApp;
+	let version = typeof tg?.version === "string" ? parseFloat(tg.version) : 0;
+
+	return Boolean(version >= 6.1 && !!tg?.CloudStorage);
+};
+
+type CloudStorageValue = null | string;
+
+export const getFromTelegram = (key: string): Promise<CloudStorageValue> => {
+	return new Promise((resolve) => {
+		let tg = window.Telegram?.WebApp;
+
+		if (!isCloudStorageSupported() || !tg) {
+			return resolve(null);
+		}
+
+		return tg.CloudStorage?.getItem(key, (error: unknown, value?: string) => {
+			if (error || typeof value !== "string") {
+				resolve(null);
+			} else {
+				resolve(value);
+			}
+		});
+	});
+};
+
+export const setToTelegram = (key: string, value: CloudStorageValue): Promise<void> => {
+	return new Promise((resolve) => {
+		let tg = window.Telegram?.WebApp;
+
+		if (!isCloudStorageSupported() || !tg || value === null) {
+			return resolve();
+		}
+
+		return tg.CloudStorage?.setItem(key, value, () => resolve());
+	});
+};
+
+export const removeFromTelegram = (key: string): Promise<void> => {
+	return new Promise((resolve) => {
+		let tg = window.Telegram?.WebApp;
+
+		if (!isCloudStorageSupported() || !tg) {
+			return resolve();
+		}
+
+		return tg.CloudStorage?.removeItem(key, () => resolve());
+	});
+};
+
 class Storage {
 	private readonly STORAGE_KEY = "app-storage";
 	private readonly store = signal<StorageValue>(this.loadInitial());

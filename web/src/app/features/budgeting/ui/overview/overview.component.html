@@ -4,14 +4,12 @@
 		<div app-skeleton class="budgeting__overview-skeleton-header"></div>
 		<div app-skeleton class="budgeting__overview-skeleton-content-transactions"></div>
 	}
-
 	@case ("error") {
 		<div class="budgeting__overview-error">
 			<p>Failed to load budgeting data.</p>
 			<button app-button (click)="service.query()">Try again</button>
 		</div>
 	}
-
 	@case ("success") {
 		@let data = service.overview()!;
 

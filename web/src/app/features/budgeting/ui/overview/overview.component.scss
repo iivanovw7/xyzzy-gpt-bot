@@ -14,8 +14,8 @@
 
 	.budgeting__overview-content-row {
 		@include justify-align-flex(space-between, flex-start);
-		@include p(2);
-		@include m(1, 0, 0, 0);
+		@include p(2, 2, 0);
+		@include m(1, 0, 0);
 
 		width: 100%;
 	}
@@ -28,7 +28,6 @@
 		@include justify-align-flex;
 
 		flex-direction: column;
-		gap: rem(6px);
 	}
 
 	.budgeting__overview-content-col > span {
@@ -92,17 +91,17 @@
 	}
 
 	.budgeting__overview-skeleton-title {
-		@include sizer(rem(120px), rem(48px));
+		@include sizer(rem(120px), rem(44px));
 		@include m(2, auto);
 	}
 
 	.budgeting__overview-skeleton-header {
-		@include sizer(rem(280px), rem(40px));
+		@include sizer(rem(300px), rem(40px));
 		@include m(2, auto);
 	}
 
 	.budgeting__overview-skeleton-content-transactions {
-		@include sizer(100%, rem(300px));
+		@include sizer(100%, rem(400px));
 		@include mb(2);
 	}
 
