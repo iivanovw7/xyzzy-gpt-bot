@@ -65,7 +65,7 @@ export const getYearlyBarChartOptions = (currencyFormatter: CurrencyFormatter): 
 				color: labelColor,
 				font: {
 					family: "monospace",
-					size: 11,
+					size: 10,
 				},
 				formatter: dateLabelFormatter,
 				offset: 5,

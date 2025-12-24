@@ -12,7 +12,8 @@
 		justify-content: center;
 	}
 
-	.budgeting__overview-chart {
+	.budgeting__overview-chart,
+	.budgeting__overview-chart-trends {
 		@include card;
 		@include m(0);
 		@include p(2);
@@ -20,6 +21,10 @@
 
 		justify-content: center;
 		width: 100%;
+	}
+
+	.budgeting__overview-chart-trends {
+		@include sizer(100%, rem(570px));
 	}
 
 	.budgeting__overview-content-row {
@@ -131,10 +136,15 @@
 		@include px(2);
 	}
 
-	.budgeting__overview-skeleton-content-chart {
+	.budgeting__overview-skeleton-content-chart,
+	.budgeting__overview-skeleton-content-chart-trends {
 		@include sizer(100%, rem(438px));
 		@include mb(2);
 		@include px(2);
+	}
+
+	.budgeting__overview-skeleton-content-chart-trends {
+		@include sizer(100%, rem(638px));
 	}
 
 	.budgeting__overview-error {

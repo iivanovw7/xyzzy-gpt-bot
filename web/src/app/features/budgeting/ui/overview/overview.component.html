@@ -71,12 +71,12 @@
 		<span class="budgeting__overview-content-card-subtitle">{{ yearlyOverviewDataYear() }}</span>
 		<div
 			app-chart
-			class="budgeting__overview-chart"
+			class="budgeting__overview-chart-trends"
 			type="bar"
 			[config]="yearlyTrendsData()!"
 			[options]="yearlyTrendsOptions()!"></div>
 	} @else if (status() === "loading") {
-		<div app-skeleton class="budgeting__overview-skeleton-content-chart"></div>
+		<div app-skeleton class="budgeting__overview-skeleton-content-chart-trends"></div>
 	}
 </div>
 
