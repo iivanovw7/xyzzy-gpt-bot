@@ -2,6 +2,12 @@
 
 export type LoginResponse = { accessToken: string; userId: string };
 
+export type MonthlySummary = {
+  month: number;
+  income: number;
+  spending: number;
+};
+
 export type OverviewResponse = {
   currency: string;
   month: number;
@@ -10,6 +16,8 @@ export type OverviewResponse = {
   monthSpending: number;
   monthTransactions: Array<OverviewTransaction>;
   monthTransactionsCount: number;
+  monthSummary: MonthlySummary;
+  yearSummary: YearlySummary;
 };
 
 export type OverviewTransaction = {
@@ -22,3 +30,5 @@ export type OverviewTransaction = {
 };
 
 export type UserResponse = { userId: string };
+
+export type YearlySummary = { year: number; summaries: Array<MonthlySummary> };

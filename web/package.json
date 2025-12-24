@@ -25,6 +25,8 @@
 		"@taiga-ui/cdk": "4.66.0",
 		"@taiga-ui/core": "4.66.0",
 		"@taiga-ui/kit": "4.66.0",
+		"chart.js": "4.5.1",
+		"chartjs-plugin-datalabels": "2.2.0",
 		"loglevel": "1.9.2",
 		"lucide-angular": "0.562.0",
 		"ramda": "0.32.0",

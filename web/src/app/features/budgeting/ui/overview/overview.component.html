@@ -28,6 +28,7 @@
 			<span class="budgeting__overview-content-header-month">for {{ transformMonth(data.month) }}</span>
 		</div>
 		<div class="budgeting__overview-content">
+			<h2 class="budgeting__overview-content-card-title">Transactions</h2>
 			@for (tx of recentTransactions(); track tx.id) {
 				<ng-container *ngTemplateOutlet="row; context: { $implicit: tx, currency: data.currency }" />
 			}
@@ -48,6 +49,20 @@
 		</div>
 	}
 }
+
+<div class="budgeting__overview-content">
+	@if (status() === "success" && yearlyData() && barOptions()) {
+		<h2 class="budgeting__overview-content-card-title">Yearly Overview</h2>
+		<div
+			app-chart
+			class="budgeting__overview-chart"
+			type="bar"
+			[config]="yearlyData()!"
+			[options]="barOptions()!"></div>
+	} @else if (status() === "loading") {
+		<div app-skeleton class="budgeting__overview-skeleton-content-chart"></div>
+	}
+</div>
 
 <ng-template #row let-tx let-curr="currency">
 	<div class="budgeting__overview-content-row">

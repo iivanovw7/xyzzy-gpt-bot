@@ -12,6 +12,16 @@
 		justify-content: center;
 	}
 
+	.budgeting__overview-chart {
+		@include card;
+		@include m(0);
+		@include p(2);
+		@include sizer(100%, rem(370px));
+
+		justify-content: center;
+		width: 100%;
+	}
+
 	.budgeting__overview-content-row {
 		@include justify-align-flex(space-between, flex-start);
 		@include p(2, 2, 0);
@@ -77,6 +87,13 @@
 		@include text-setting(xl);
 	}
 
+	.budgeting__overview-content-card-title {
+		@include text-setting(lg);
+
+		width: 100%;
+		text-align: center;
+	}
+
 	.budgeting__overview-content-header-info {
 		@include justify-align-flex(center, center);
 		@include text-setting(sm);
@@ -101,8 +118,15 @@
 	}
 
 	.budgeting__overview-skeleton-content-transactions {
-		@include sizer(100%, rem(400px));
+		@include sizer(100%, rem(370px));
 		@include mb(2);
+		@include px(2);
+	}
+
+	.budgeting__overview-skeleton-content-chart {
+		@include sizer(100%, rem(404px));
+		@include mb(2);
+		@include px(2);
 	}
 
 	.budgeting__overview-error {

@@ -34,6 +34,12 @@ importers:
             "@taiga-ui/kit":
                 specifier: 4.66.0
                 version: 4.66.0(f60c39515957f86a26ce496fd781c10d)
+            chart.js:
+                specifier: 4.5.1
+                version: 4.5.1
+            chartjs-plugin-datalabels:
+                specifier: 2.2.0
+                version: 2.2.0(chart.js@4.5.1)
             loglevel:
                 specifier: 1.9.2
                 version: 1.9.2
@@ -2475,6 +2481,12 @@ packages:
                 integrity: sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA==,
             }
 
+    "@kurkle/color@0.3.4":
+        resolution:
+            {
+                integrity: sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==,
+            }
+
     "@listr2/prompt-adapter-inquirer@3.0.5":
         resolution:
             {
@@ -4306,6 +4318,21 @@ packages:
             {
                 integrity: sha512-PsezH1rqdV9VvyNhxxOW32/d75r01NY7TQCmOqomRo15ZSOKbpTFVsfjghxo6JloQUCGnH4k1LGu0R4yCLlWQQ==,
             }
+
+    chart.js@4.5.1:
+        resolution:
+            {
+                integrity: sha512-GIjfiT9dbmHRiYi6Nl2yFCq7kkwdkp1W/lp2J99rX0yo9tgJGn3lKQATztIjb5tVtevcBtIdICNWqlq5+E8/Pw==,
+            }
+        engines: { pnpm: ">=8" }
+
+    chartjs-plugin-datalabels@2.2.0:
+        resolution:
+            {
+                integrity: sha512-14ZU30lH7n89oq+A4bWaJPnAG8a7ZTk7dKf48YAzMvJjQtjrgg5Dpk9f+LbjCF6bpx3RAGTeL13IXpKQYyRvlw==,
+            }
+        peerDependencies:
+            chart.js: ">=3.0.0"
 
     chokidar@4.0.3:
         resolution:
@@ -10375,6 +10402,8 @@ snapshots:
 
     "@keyv/serialize@1.1.1": {}
 
+    "@kurkle/color@0.3.4": {}
+
     "@listr2/prompt-adapter-inquirer@3.0.5(@inquirer/prompts@7.9.0)(listr2@9.0.5)":
         dependencies:
             "@inquirer/prompts": 7.9.0
@@ -11524,6 +11553,14 @@ snapshots:
     chalk@5.6.2: {}
 
     chardet@2.1.1: {}
+
+    chart.js@4.5.1:
+        dependencies:
+            "@kurkle/color": 0.3.4
+
+    chartjs-plugin-datalabels@2.2.0(chart.js@4.5.1):
+        dependencies:
+            chart.js: 4.5.1
 
     chokidar@4.0.3:
         dependencies:
