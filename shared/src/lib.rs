@@ -55,7 +55,7 @@ pub struct MonthlySummary {
 }
 
 #[derive(Serialize, Deserialize, TS)]
-#[ts(export)]
+#[ts(export, export_to = "../generated/bindings.ts")]
 pub struct MonthlySpendingSummary {
     pub name: String,
     pub amounts: Vec<f64>,
