@@ -1,0 +1,44 @@
+@switch (service.status()) {
+	@case ("loading") {
+		<div app-skeleton class="transactions__skeleton"></div>
+	}
+	@case ("success") {
+		@let data = service.overview()!;
+
+		<div class="transactions__container">
+			<h2 class="transactions__title">Transactions</h2>
+			@for (tx of recentTransactions(); track tx.id) {
+				<ng-container *ngTemplateOutlet="row; context: { $implicit: tx, currency: data.currency }" />
+			}
+			<div app-expand class="transactions__expand" [expanded]="transactionsExpanded">
+				@for (tx of restTransactions(); track tx.id) {
+					<ng-container *ngTemplateOutlet="row; context: { $implicit: tx, currency: data.currency }" />
+				}
+			</div>
+			@if (!!restTransactions()?.length) {
+				<button
+					app-button
+					class="transactions__expand-button"
+					[fill]="'none'"
+					(click)="transactionsExpanded = !transactionsExpanded">
+					{{ transactionsExpanded ? "Show less" : "Show more (" + restTransactions()?.length + ")" }}
+				</button>
+			}
+		</div>
+	}
+}
+
+<ng-template #row let-tx let-curr="currency">
+	<div class="transactions__content-row">
+		<div class="transactions__content-col">
+			<span class="transactions__content-col-description">
+				<span>[{{ tx.category }}]</span>
+				<span>{{ tx.description }}</span>
+			</span>
+			<span class="date-label">{{ tx.date * 1000 | date: "MMMM d, y, EEEE" }}</span>
+		</div>
+		<span class="transactions__content-col-amount" [class.income]="tx.isIncome">
+			{{ tx.isIncome ? "+" : "-" }} {{ tx.amount | currency: curr : "symbol" : "1.2-2" }}
+		</span>
+	</div>
+</ng-template>

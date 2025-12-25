@@ -1,0 +1,61 @@
+@switch (service.status()) {
+	@case ("loading") {
+		<div app-skeleton class="categories-ranking__skeleton"></div>
+	}
+	@case ("success") {
+		<div class="categories-ranking__container">
+			<h2 class="categories-ranking__title">Spending categories breakdown</h2>
+			<span class="categories-ranking__subtitle">{{ title() }}</span>
+			<div class="categories-ranking__list">
+				@let maxVal = monthlyCategoriesRanking()[0]?.value ?? 1;
+
+				@for (item of initialCategoriesRanking(); track item.name) {
+					<ng-container
+						*ngTemplateOutlet="category; context: { $implicit: item, max: maxVal, index: $index }" />
+				}
+				<div app-expand class="categories-ranking__expand" [expanded]="categoriesRankingExpanded">
+					@for (item of restCategoriesRanking(); track item.name) {
+						<ng-container
+							*ngTemplateOutlet="
+								category;
+								context: { $implicit: item, max: maxVal, index: $index + 5 }
+							" />
+					}
+				</div>
+				@if (!!restCategoriesRanking()?.length) {
+					<button
+						app-button
+						class="categories-ranking__expand-button"
+						[fill]="'none'"
+						(click)="categoriesRankingExpanded = !categoriesRankingExpanded">
+						{{
+							categoriesRankingExpanded
+								? "Show less"
+								: "Show more (" + restCategoriesRanking()?.length + ")"
+						}}
+					</button>
+				}
+			</div>
+		</div>
+	}
+}
+
+<ng-template #category let-item let-max="max" let-index="index">
+	<div class="categories-ranking__list-row">
+		<div class="categories-ranking__list-info">
+			<div class="categories-ranking__list-info-main">
+				<span>[{{ item.name }}]</span>
+				<span>{{ item.percentage | number: "1.1-1" }}%</span>
+			</div>
+			<span class="categories-ranking__info-category-value">
+				{{ item.value | currency: service.overview()?.currency : "symbol" : "1.2-2" }}
+			</span>
+		</div>
+		<div class="categiries-ranking__category-bar-container">
+			<div
+				class="categiries-ranking__category-bar"
+				[style.width.%]="item.percentage"
+				[style.background-color]="'var(--chart' + ((index % 20) + 1) + ')'"></div>
+		</div>
+	</div>
+</ng-template>

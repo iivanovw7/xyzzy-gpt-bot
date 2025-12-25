@@ -1,0 +1,59 @@
+@use "abstracts" as *;
+@use "mixins" as *;
+
+:host(.transactions) {
+	.transactions__container {
+		@include card;
+		@include m(3, 2, 2);
+
+		justify-content: center;
+	}
+
+	.transactions__skeleton {
+		@include sizer(100%, rem(354px));
+		@include mb(2);
+		@include px(2);
+	}
+
+	.transactions__title {
+		@include text-setting(md);
+		@include m(2, 2, 0);
+
+		text-align: start;
+	}
+
+	.transactions__expand {
+		width: 100%;
+	}
+
+	.transactions__expand-button {
+		margin: rem(8px) auto;
+	}
+
+	.transactions__content-row {
+		@include justify-align-flex(space-between, flex-start);
+		@include p(2, 2, 0);
+		@include m(1, 0, 0);
+
+		width: 100%;
+	}
+
+	.transactions__content-col {
+		@include justify-align-flex;
+
+		flex-direction: column;
+	}
+
+	.transactions__content-col-description span {
+		@include mr(1);
+		@include text-setting(base);
+
+		@include only(last) {
+			color: var(--text-secondary);
+		}
+	}
+
+	.transactions__content-col-amount {
+		@include text-setting(base);
+	}
+}

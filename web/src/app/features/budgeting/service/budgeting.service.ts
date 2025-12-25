@@ -2,7 +2,7 @@ import type { OverviewResponse } from "@bindings";
 
 import { logger } from "@/app/shared/logger";
 import { HttpClient } from "@angular/common/http";
-import { inject, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable, signal } from "@angular/core";
 import { catchError, finalize, of } from "rxjs";
 
 @Injectable({
@@ -14,6 +14,23 @@ export class BudgetingService {
 	error = signal<boolean>(false);
 	isLoading = signal<boolean>(false);
 	overview = signal<Nullable<OverviewResponse>>(null);
+
+	status = computed(() => {
+		switch (true) {
+			case this.isLoading(): {
+				return "loading";
+			}
+			case this.error(): {
+				return "error";
+			}
+			case !!this.overview(): {
+				return "success";
+			}
+			default: {
+				return "idle";
+			}
+		}
+	});
 
 	query() {
 		this.isLoading.set(true);
