@@ -31,6 +31,13 @@ const isAbovePercent = curry((index: number, threshold: number, data: number[]) 
 	return (value / total) * 100 > threshold;
 });
 
+const getPercentageLabel = (value: number, data: number[]): string => {
+	let total = sum(data);
+	let percentage = total > 0 ? (value / total) * 100 : 0;
+
+	return `${percentage.toFixed(1)}%`;
+};
+
 export const getMonthlyDonutOptions = (currencyFormatter: CurrencyFormatter): ChartOptions<"doughnut"> => {
 	let labelColor = env.getCssVariable("--text-primary");
 
@@ -52,8 +59,11 @@ export const getMonthlyDonutOptions = (currencyFormatter: CurrencyFormatter): Ch
 					size: 12,
 					weight: "bold",
 				},
-				formatter: (_, context) => {
-					return context.chart.data.labels?.[context.dataIndex];
+				formatter: (value, context) => {
+					let label = context.chart.data.labels?.[context.dataIndex];
+					let data = context.dataset.data as number[];
+
+					return `${label}\n${getPercentageLabel(value, data)}`;
 				},
 				offset: 15,
 			},
@@ -63,9 +73,11 @@ export const getMonthlyDonutOptions = (currencyFormatter: CurrencyFormatter): Ch
 			tooltip: {
 				callbacks: {
 					label: (context) => {
-						let value = context.parsed;
+						let { parsed } = context;
+						let { data } = context.dataset;
+						let pct = getPercentageLabel(parsed, data);
 
-						return ` ${context.label}: ${currencyFormatter(value)}`;
+						return ` ${context.label}: ${currencyFormatter(parsed)} (${pct})`;
 					},
 				},
 			},

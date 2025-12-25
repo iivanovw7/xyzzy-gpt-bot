@@ -12,6 +12,67 @@
 		justify-content: center;
 	}
 
+	.budgeting__category-list-row {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		width: 100%;
+	}
+
+	.budgeting__category-list-info {
+		@include justify-align-flex(space-between, center);
+	}
+
+	.budgeting__category-info-category-value {
+		font-family: monospace;
+		font-weight: 500;
+	}
+
+	.budgeting__category-list-info-main {
+		display: flex;
+		gap: 0.75rem;
+		align-items: center;
+	}
+
+	.budgeting__category-list-info-main > span {
+		@include only(first) {
+			font-weight: 600;
+			color: var(--text-primary);
+		}
+
+		@include only(last) {
+			@include border-radius($border-radius-small);
+			@include text-setting(xs);
+			@include p(0, 2);
+
+			color: var(--text-primary);
+			background: var(--dimmed6);
+			border: rem(1px) solid var(--divider);
+		}
+	}
+
+	.budgeting__category-list {
+		@include justify-align-flex;
+		@include p(2, 2, 3);
+
+		flex-direction: column;
+		gap: 1.25rem;
+		width: 100%;
+	}
+
+	.budgeting__category-bar-container {
+		width: 100%;
+		height: 8px;
+		background: var(--background-content-lighten);
+		border-radius: 4px;
+	}
+
+	.budgeting__category-bar {
+		height: 100%;
+		border-radius: 4px;
+		transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
 	.budgeting__overview-chart,
 	.budgeting__overview-chart-trends {
 		@include card;
@@ -130,7 +191,9 @@
 		@include m(2, auto);
 	}
 
-	.budgeting__overview-skeleton-content-transactions {
+	.budgeting__overview-skeleton-content-transactions,
+	.budgeting__overview-skeleton-content-chart,
+	.budgeting__overview-skeleton-content-chart-trends {
 		@include sizer(100%, rem(374px));
 		@include mb(2);
 		@include px(2);
@@ -139,8 +202,10 @@
 	.budgeting__overview-skeleton-content-chart,
 	.budgeting__overview-skeleton-content-chart-trends {
 		@include sizer(100%, rem(438px));
-		@include mb(2);
-		@include px(2);
+	}
+
+	.budgeting__overview-skeleton-content-categories {
+		@include sizer(100%, rem(488px));
 	}
 
 	.budgeting__overview-skeleton-content-chart-trends {

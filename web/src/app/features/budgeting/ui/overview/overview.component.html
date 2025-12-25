@@ -3,6 +3,7 @@
 		<div app-skeleton class="budgeting__overview-skeleton-title"></div>
 		<div app-skeleton class="budgeting__overview-skeleton-header"></div>
 		<div app-skeleton class="budgeting__overview-skeleton-content-transactions"></div>
+		<div app-skeleton class="budgeting__overview-skeleton-content-categories"></div>
 	}
 	@case ("error") {
 		<div class="budgeting__overview-error">
@@ -43,9 +44,44 @@
 					class="budgeting__overview-content-expand-button"
 					[fill]="'none'"
 					(click)="transactionsExpanded = !transactionsExpanded">
-					{{ transactionsExpanded ? "Show less" : "Show more" }}
+					{{ transactionsExpanded ? "Show less" : "Show more (" + restTransactions()?.length + ")" }}
 				</button>
 			}
+		</div>
+		<div class="budgeting__overview-content">
+			<h2 class="budgeting__overview-content-card-title">Categories breakdown</h2>
+			<span class="budgeting__overview-content-card-subtitle">{{ transformMonth(currentMonthIndex()) }}</span>
+
+			<div class="budgeting__category-list">
+				@let maxVal = monthlyCategoriesRanking()[0]?.value ?? 1;
+
+				@for (item of initialCategoriesRanking(); track item.name) {
+					<ng-container
+						*ngTemplateOutlet="category; context: { $implicit: item, max: maxVal, index: $index }" />
+				}
+				<div app-expand class="budgeting__overview-content-expand" [expanded]="categoriesRankingExpanded">
+					@for (item of restCategoriesRanking(); track item.name) {
+						<ng-container
+							*ngTemplateOutlet="
+								category;
+								context: { $implicit: item, max: maxVal, index: $index + 5 }
+							" />
+					}
+				</div>
+				@if (!!restCategoriesRanking()?.length) {
+					<button
+						app-button
+						class="budgeting__overview-content-expand-button"
+						[fill]="'none'"
+						(click)="categoriesRankingExpanded = !categoriesRankingExpanded">
+						{{
+							categoriesRankingExpanded
+								? "Show less"
+								: "Show more (" + restCategoriesRanking()?.length + ")"
+						}}
+					</button>
+				}
+			</div>
 		</div>
 	}
 }
@@ -107,5 +143,25 @@
 		<span class="budgeting__overview-content-col-amount" [class.income]="tx.isIncome">
 			{{ tx.isIncome ? "+" : "-" }} {{ tx.amount | currency: curr : "symbol" : "1.2-2" }}
 		</span>
+	</div>
+</ng-template>
+
+<ng-template #category let-item let-max="max" let-index="index">
+	<div class="budgeting__category-list-row">
+		<div class="budgeting__category-list-info">
+			<div class="budgeting__category-list-info-main">
+				<span>[{{ item.name }}]</span>
+				<span>{{ item.percentage | number: "1.1-1" }}%</span>
+			</div>
+			<span class="budgeting__category-info-category-value">
+				{{ item.value | currency: service.overview()?.currency : "symbol" : "1.2-2" }}
+			</span>
+		</div>
+		<div class="budgeting__category-bar-container">
+			<div
+				class="budgeting__category-bar"
+				[style.width.%]="item.percentage"
+				[style.background-color]="'var(--chart' + ((index % 20) + 1) + ')'"></div>
+		</div>
 	</div>
 </ng-template>
