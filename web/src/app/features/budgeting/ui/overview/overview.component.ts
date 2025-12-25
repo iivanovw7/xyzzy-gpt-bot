@@ -6,10 +6,10 @@ import SkeletonComponent from "@/app/shared/ui/components/skeleton/skeleton.comp
 import { CommonModule, CurrencyPipe } from "@angular/common";
 import { Component, computed, inject } from "@angular/core";
 
-import { getMonthlyDonutChartConfig, getMonthlyDonutOptions } from "../../lib/monthly-breakdown.util";
-import { getYearlyBarChartConfig, getYearlyBarChartOptions } from "../../lib/yearly-overview.util";
-import { getCategoryStackedChartConfig, getCategoryStackedOptions } from "../../lib/yearly-trends.util";
 import { BudgetingService } from "../../service";
+import { getMonthlyDonutChartConfig, getMonthlyDonutOptions } from "./lib/monthly-breakdown.util";
+import { getYearlyBarChartConfig, getYearlyBarChartOptions } from "./lib/yearly-overview.util";
+import { getCategoryStackedChartConfig, getCategoryStackedOptions } from "./lib/yearly-trends.util";
 import CategoriesRankingComponent from "./ui/categories-ranking.component";
 import TransactionsComponent from "./ui/transactions.component";
 

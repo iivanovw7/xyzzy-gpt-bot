@@ -20,6 +20,7 @@
 		@include m(2, 2, 0);
 
 		text-align: start;
+		border-bottom: rem(2px) solid var(--tertiary);
 	}
 
 	.transactions__expand {
@@ -55,5 +56,11 @@
 
 	.transactions__content-col-amount {
 		@include text-setting(base);
+	}
+
+	.transactions__date-label {
+		@include text-setting(sm);
+
+		color: var(--text-secondary);
 	}
 }

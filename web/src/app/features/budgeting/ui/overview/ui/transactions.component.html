@@ -35,7 +35,7 @@
 				<span>[{{ tx.category }}]</span>
 				<span>{{ tx.description }}</span>
 			</span>
-			<span class="date-label">{{ tx.date * 1000 | date: "MMMM d, y, EEEE" }}</span>
+			<span class="transactions__date-label">{{ tx.date * 1000 | date: "MMMM d, y, EEEE" }}</span>
 		</div>
 		<span class="transactions__content-col-amount" [class.income]="tx.isIncome">
 			{{ tx.isIncome ? "+" : "-" }} {{ tx.amount | currency: curr : "symbol" : "1.2-2" }}
