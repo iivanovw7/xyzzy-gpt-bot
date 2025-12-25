@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n            SELECT \n                t.id,\n                t.amount,\n                t.description,\n                DATE(t.date, 'unixepoch') AS date,\n                c.name AS \"category_name!: String\",\n                c.id AS \"category_id!: i64\"\n            FROM transactions t\n            JOIN categories c ON c.id = t.category_id\n            WHERE t.user_id = ?\n            ORDER BY t.date DESC, t.id DESC\n            LIMIT 1\n            ",
+  "query": "\n            SELECT\n                t.id,\n                t.amount,\n                t.description,\n                t.date AS \"date_unix!: i64\",\n                c.name AS \"category_name!: String\",\n                c.id AS \"category_id!: i64\"\n            FROM transactions t\n            JOIN categories c ON c.id = t.category_id\n            WHERE t.user_id = ?\n            ORDER BY t.date DESC, t.id DESC\n            LIMIT 1\n            ",
   "describe": {
     "columns": [
       {
@@ -19,9 +19,9 @@
         "type_info": "Text"
       },
       {
-        "name": "date",
+        "name": "date_unix!: i64",
         "ordinal": 3,
-        "type_info": "Text"
+        "type_info": "Integer"
       },
       {
         "name": "category_name!: String",
@@ -41,10 +41,10 @@
       false,
       false,
       true,
-      true,
+      false,
       false,
       false
     ]
   },
-  "hash": "24dca03c834f9b667856750258b92f2e47635600c0d8fd42c84ccc26acb02310"
+  "hash": "20d611d775d084152ff5864153e64a752d92c8e717430847925127a2011edd7e"
 }

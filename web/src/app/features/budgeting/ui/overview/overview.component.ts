@@ -10,9 +10,10 @@ import SkeletonComponent from "@/app/shared/ui/components/skeleton/skeleton.comp
 import { CommonModule, CurrencyPipe } from "@angular/common";
 import { Component, computed, inject } from "@angular/core";
 
+import { getMonthlyDonutChartConfig, getMonthlyDonutOptions } from "../../lib/monthly-breakdown.util";
 import { getYearlyBarChartConfig, getYearlyBarChartOptions } from "../../lib/yearly-overview.util";
 import { getCategoryStackedChartConfig, getCategoryStackedOptions } from "../../lib/yearly-trends.util";
-import { OverviewService } from "../../service";
+import { BudgetingService } from "../../service";
 
 @Component({
 	host: {
@@ -25,7 +26,37 @@ import { OverviewService } from "../../service";
 	templateUrl: "./overview.component.html",
 })
 export default class BudgetingOverveiwComponent implements OnInit {
-	protected readonly service = inject(OverviewService);
+	protected readonly service = inject(BudgetingService);
+
+	protected currentMonthIndex = computed(() => {
+		let overview = this.service.overview();
+
+		return overview ? overview.month : 1;
+	});
+
+	protected monthlyBreakdownData = computed(() => {
+		let overview = this.service.overview();
+
+		if (!overview?.yearSummary.monthly_spending_summaries) return null;
+
+		let categoryData = overview.yearSummary.monthly_spending_summaries.map((category) => ({
+			name: category.name,
+			value: category.amounts[this.currentMonthIndex() - 1],
+		}));
+
+		return getMonthlyDonutChartConfig(categoryData);
+	});
+
+	private currencyPipe = inject(CurrencyPipe);
+
+	protected monthlyBreakdownOptions = computed(() => {
+		let currencyFormatter = (value: number): string => {
+			return this.currencyPipe.transform(value, this.service.overview()?.currency, "symbol", "1.2-2") ?? "";
+		};
+
+		return getMonthlyDonutOptions(currencyFormatter);
+	});
+
 	private allTransactions = computed(() => {
 		return this.service.overview()?.monthTransactions ?? [];
 	});
@@ -71,8 +102,6 @@ export default class BudgetingOverveiwComponent implements OnInit {
 		return this.service.overview()?.yearSummary.year;
 	});
 
-	private currencyPipe = inject(CurrencyPipe);
-
 	protected yearlyOverviewOptions = computed(() => {
 		let currencyFormatter = (value: number): string => {
 			return this.currencyPipe.transform(value, this.service.overview()?.currency, "symbol", "1.2-2") ?? "";
@@ -83,6 +112,7 @@ export default class BudgetingOverveiwComponent implements OnInit {
 
 	protected yearlyTrendsData = computed(() => {
 		let overview = this.service.overview();
+
 		if (!overview?.yearSummary.monthly_spending_summaries) return null;
 
 		return getCategoryStackedChartConfig(

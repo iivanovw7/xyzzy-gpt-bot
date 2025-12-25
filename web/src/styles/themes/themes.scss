@@ -5,139 +5,159 @@
 @use "sass:color";
 @use "palette" as palette;
 
+@function get-chart-palette($variant) {
+	$chart-map: ();
+	@for $i from 1 through 20 {
+		$key: "chart#{$i}";
+		$chart-map: map.merge(
+			$chart-map,
+			(
+				$key: palette.get($variant, #{$key}),
+			)
+		);
+	}
+	@return $chart-map;
+}
+
 $theme-variants: (
-	light: (
-		// Theme
-		accent1: palette.get(monokai-light, accent1),
-		accent2: palette.get(monokai-light, accent2),
-		accent3: palette.get(monokai-light, accent3),
-		accent4: palette.get(monokai-light, accent4),
-		accent5: palette.get(monokai-light, accent5),
-		accent6: palette.get(monokai-light, accent6),
-		dimmed1: palette.get(monokai-light, dimmed1),
-		dimmed2: palette.get(monokai-light, dimmed2),
-		dimmed3: palette.get(monokai-light, dimmed3),
-		dimmed4: palette.get(monokai-light, dimmed4),
-		dimmed5: palette.get(monokai-light, dimmed5),
-		dimmed6: palette.get(monokai-light, dimmed6),
-		// Common
-		primary: palette.get(monokai-light, accent3),
-		primary-hover: palette.get(monokai-light, accent3-lighten),
-		primary-disabled: palette.get(monokai-light, dimmed5),
-		primary-background-disabled: palette.get(monokai-light, dark2-lighten),
-		secondary: palette.get(monokai-light, dimmed3),
-		secondary-hover: palette.get(monokai-light, dimmed3-lighten),
-		tertiary: palette.get(monokai-light, accent2),
-		tertiary-hover: palette.get(monokai-light, accent3-lighten),
-		background-primary: palette.get(monokai-light, background),
-		background-overlay: palette.get(monokai-light, dark2),
-		background-content: palette.get(monokai-light, dark1),
-		background-content-lighten: palette.get(monokai-light, dark1-lighten),
-		focus: palette.get(monokai-light, accent3),
-		divider: palette.get(monokai-light, dimmed1),
-		divider-light: palette.get(monokai-light, dimmed2),
-		divider-dark: palette.get(monokai-light, dimmed5),
-		// Navlink
-		nav-link: palette.get(monokai-light, text),
-		nav-link-hover: palette.get(monokai-light, accent3),
-		nav-link-background: palette.get(monokai-light, dimmed6),
-		nav-link-disabled: palette.get(monokai-light, dimmed5),
-		nav-link-active: palette.get(monokai-light, background),
-		nav-link-active-background: palette.get(monokai-light, accent3),
-		// Tabs
-		tab-button-background: palette.get(monokai-light, dimmed6),
-		tab-button-active-background: palette.get(monokai-light, accent3),
-		// Text
-		text-primary: palette.get(monokai-light, text),
-		text-primary-darken: palette.get(monokai-light, text-darken),
-		text-secondary: palette.get(monokai-light, text-lighten),
-		text-white: palette.get(monokai-light, text),
-		text-inversed: palette.get(monokai-light, text-inversed),
-		text-success: palette.get(monokai-light, text-success),
-		text-error: palette.get(monokai-light, text-error),
-		// Scrollbar
-		scrollbar: palette.get(monokai-light, dark1),
-		scrollbar-thumb: palette.get(monokai-light, dimmed6),
-		// Chart
-		chart-label-color: palette.get(monokai-light, text-darken),
-		chart-grid-color: palette.get(monokai-light, dimmed5-darken),
-		// Control
-		control-primary: palette.get(monokai-light, text),
-		control-border-primary: palette.get(monokai-light, dimmed2),
-		control-background-primary: palette.get(monokai-light, background),
-		control-disabled-primary: palette.get(monokai-light, dimmed5),
-		control-disabled-border-primary: palette.get(monokai-light, dimmed5),
-		control-disabled-backgound-primary: palette.get(monokai-light, dimmed3),
-		control-hover-border-primary: palette.get(monokai-light, dimmed4),
-		// Skeleton
-		skeleton-shimmer-1: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%),
-	),
-	dark: (
-		// Theme
-		accent1: palette.get(monokai, accent1),
-		accent2: palette.get(monokai, accent2),
-		accent3: palette.get(monokai, accent3),
-		accent4: palette.get(monokai, accent4),
-		accent5: palette.get(monokai, accent5),
-		accent6: palette.get(monokai, accent6),
-		dimmed1: palette.get(monokai, dimmed1),
-		dimmed2: palette.get(monokai, dimmed2),
-		dimmed3: palette.get(monokai, dimmed3),
-		dimmed4: palette.get(monokai, dimmed4),
-		dimmed5: palette.get(monokai, dimmed5),
-		dimmed6: palette.get(monokai, dimmed6),
-		// Common
-		primary: palette.get(monokai, accent3),
-		primary-hover: palette.get(monokai, accent3-lighten),
-		primary-disabled: palette.get(monokai, dimmed5),
-		primary-background-disabled: palette.get(monokai, dark2-lighten),
-		secondary: palette.get(monokai, dimmed3),
-		secondary-hover: palette.get(monokai, dimmed3-lighten),
-		tertiary: palette.get(monokai, accent2),
-		tertiary-hover: palette.get(monokai, accent3-lighten),
-		background-primary: palette.get(monokai, background),
-		background-overlay: palette.get(monokai, dark2),
-		background-content: palette.get(monokai, dark1),
-		background-content-lighten: palette.get(monokai, dark1-lighten),
-		focus: palette.get(monokai, accent3),
-		divider: palette.get(monokai, dimmed4),
-		divider-light: palette.get(monokai, dimmed2),
-		divider-dark: palette.get(monokai, dimmed5),
-		// Navlink
-		nav-link: palette.get(monokai, text),
-		nav-link-hover: palette.get(monokai, accent3),
-		nav-link-disabled: palette.get(monokai, dimmed5),
-		nav-link-background: palette.get(monokai, dimmed6),
-		nav-link-active: palette.get(monokai, background),
-		nav-link-active-background: palette.get(monokai, accent3),
-		// Tabs
-		tab-button-background: palette.get(monokai, dimmed6),
-		tab-button-active-background: palette.get(monokai, accent3),
-		// Text
-		text-primary: palette.get(monokai, text),
-		text-primary-darken: palette.get(monokai, text-darken),
-		text-secondary: palette.get(monokai, text-darken),
-		text-white: palette.get(monokai, text),
-		text-inversed: palette.get(monokai, text-inversed),
-		text-success: palette.get(monokai, text-success),
-		text-error: palette.get(monokai, text-error),
-		// Scrollbar
-		scrollbar: palette.get(monokai, dark1),
-		scrollbar-thumb: palette.get(monokai, dimmed6),
-		// Chart
-		chart-label-color: palette.get(monokai, text-darken),
-		chart-grid-color: palette.get(monokai, dimmed5-darken),
-		// Control
-		control-primary: palette.get(monokai, text),
-		control-border-primary: palette.get(monokai, dimmed4),
-		control-background-primary: palette.get(monokai, background),
-		control-disabled-primary: palette.get(monokai, dimmed4),
-		control-disabled-border-primary: palette.get(monokai, dimmed5),
-		control-disabled-backgound-primary: palette.get(monokai, dark2-lighten),
-		control-hover-border-primary: palette.get(monokai, dimmed4),
-		// Skeleton
-		skeleton-shimmer-1: linear-gradient(110deg, #2d2a2e 8%, #221f22 18%, #2d2a2e 33%),
-	),
+	light: map.merge(
+			(
+				// Theme
+				accent1: palette.get(monokai-light, accent1),
+				accent2: palette.get(monokai-light, accent2),
+				accent3: palette.get(monokai-light, accent3),
+				accent4: palette.get(monokai-light, accent4),
+				accent5: palette.get(monokai-light, accent5),
+				accent6: palette.get(monokai-light, accent6),
+				dimmed1: palette.get(monokai-light, dimmed1),
+				dimmed2: palette.get(monokai-light, dimmed2),
+				dimmed3: palette.get(monokai-light, dimmed3),
+				dimmed4: palette.get(monokai-light, dimmed4),
+				dimmed5: palette.get(monokai-light, dimmed5),
+				dimmed6: palette.get(monokai-light, dimmed6),
+				// Common
+				primary: palette.get(monokai-light, accent3),
+				primary-hover: palette.get(monokai-light, accent3-lighten),
+				primary-disabled: palette.get(monokai-light, dimmed5),
+				primary-background-disabled: palette.get(monokai-light, dark2-lighten),
+				secondary: palette.get(monokai-light, dimmed3),
+				secondary-hover: palette.get(monokai-light, dimmed3-lighten),
+				tertiary: palette.get(monokai-light, accent2),
+				tertiary-hover: palette.get(monokai-light, accent3-lighten),
+				background-primary: palette.get(monokai-light, background),
+				background-overlay: palette.get(monokai-light, dark2),
+				background-content: palette.get(monokai-light, dark1),
+				background-content-lighten: palette.get(monokai-light, dark1-lighten),
+				focus: palette.get(monokai-light, accent3),
+				divider: palette.get(monokai-light, dimmed1),
+				divider-light: palette.get(monokai-light, dimmed2),
+				divider-dark: palette.get(monokai-light, dimmed5),
+				// Navlink
+				nav-link: palette.get(monokai-light, text),
+				nav-link-hover: palette.get(monokai-light, accent3),
+				nav-link-background: palette.get(monokai-light, dimmed6),
+				nav-link-disabled: palette.get(monokai-light, dimmed5),
+				nav-link-active: palette.get(monokai-light, background),
+				nav-link-active-background: palette.get(monokai-light, accent3),
+				// Tabs
+				tab-button-background: palette.get(monokai-light, dimmed6),
+				tab-button-active-background: palette.get(monokai-light, accent3),
+				// Text
+				text-primary: palette.get(monokai-light, text),
+				text-primary-darken: palette.get(monokai-light, text-darken),
+				text-secondary: palette.get(monokai-light, text-lighten),
+				text-white: palette.get(monokai-light, text),
+				text-inversed: palette.get(monokai-light, text-inversed),
+				text-success: palette.get(monokai-light, text-success),
+				text-error: palette.get(monokai-light, text-error),
+				// Scrollbar
+				scrollbar: palette.get(monokai-light, dark1),
+				scrollbar-thumb: palette.get(monokai-light, dimmed6),
+				// Chart
+				chart-label-color: palette.get(monokai-light, text-darken),
+				chart-grid-color: palette.get(monokai-light, dimmed5-darken),
+				// Control
+				control-primary: palette.get(monokai-light, text),
+				control-border-primary: palette.get(monokai-light, dimmed2),
+				control-background-primary: palette.get(monokai-light, background),
+				control-disabled-primary: palette.get(monokai-light, dimmed5),
+				control-disabled-border-primary: palette.get(monokai-light, dimmed5),
+				control-disabled-backgound-primary: palette.get(monokai-light, dimmed3),
+				control-hover-border-primary: palette.get(monokai-light, dimmed4),
+				// Skeleton
+				skeleton-shimmer-1: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%)
+			),
+			get-chart-palette(monokai-light)
+		),
+	dark: map.merge(
+			(
+				// Theme
+				accent1: palette.get(monokai, accent1),
+				accent2: palette.get(monokai, accent2),
+				accent3: palette.get(monokai, accent3),
+				accent4: palette.get(monokai, accent4),
+				accent5: palette.get(monokai, accent5),
+				accent6: palette.get(monokai, accent6),
+				dimmed1: palette.get(monokai, dimmed1),
+				dimmed2: palette.get(monokai, dimmed2),
+				dimmed3: palette.get(monokai, dimmed3),
+				dimmed4: palette.get(monokai, dimmed4),
+				dimmed5: palette.get(monokai, dimmed5),
+				dimmed6: palette.get(monokai, dimmed6),
+				// Common
+				primary: palette.get(monokai, accent3),
+				primary-hover: palette.get(monokai, accent3-lighten),
+				primary-disabled: palette.get(monokai, dimmed5),
+				primary-background-disabled: palette.get(monokai, dark2-lighten),
+				secondary: palette.get(monokai, dimmed3),
+				secondary-hover: palette.get(monokai, dimmed3-lighten),
+				tertiary: palette.get(monokai, accent2),
+				tertiary-hover: palette.get(monokai, accent3-lighten),
+				background-primary: palette.get(monokai, background),
+				background-overlay: palette.get(monokai, dark2),
+				background-content: palette.get(monokai, dark1),
+				background-content-lighten: palette.get(monokai, dark1-lighten),
+				focus: palette.get(monokai, accent3),
+				divider: palette.get(monokai, dimmed4),
+				divider-light: palette.get(monokai, dimmed2),
+				divider-dark: palette.get(monokai, dimmed5),
+				// Navlink
+				nav-link: palette.get(monokai, text),
+				nav-link-hover: palette.get(monokai, accent3),
+				nav-link-disabled: palette.get(monokai, dimmed5),
+				nav-link-background: palette.get(monokai, dimmed6),
+				nav-link-active: palette.get(monokai, background),
+				nav-link-active-background: palette.get(monokai, accent3),
+				// Tabs
+				tab-button-background: palette.get(monokai, dimmed6),
+				tab-button-active-background: palette.get(monokai, accent3),
+				// Text
+				text-primary: palette.get(monokai, text),
+				text-primary-darken: palette.get(monokai, text-darken),
+				text-secondary: palette.get(monokai, text-darken),
+				text-white: palette.get(monokai, text),
+				text-inversed: palette.get(monokai, text-inversed),
+				text-success: palette.get(monokai, text-success),
+				text-error: palette.get(monokai, text-error),
+				// Scrollbar
+				scrollbar: palette.get(monokai, dark1),
+				scrollbar-thumb: palette.get(monokai, dimmed6),
+				// Chart
+				chart-label-color: palette.get(monokai, text-darken),
+				chart-grid-color: palette.get(monokai, dimmed5-darken),
+				// Control
+				control-primary: palette.get(monokai, text),
+				control-border-primary: palette.get(monokai, dimmed4),
+				control-background-primary: palette.get(monokai, background),
+				control-disabled-primary: palette.get(monokai, dimmed4),
+				control-disabled-border-primary: palette.get(monokai, dimmed5),
+				control-disabled-backgound-primary: palette.get(monokai, dark2-lighten),
+				control-hover-border-primary: palette.get(monokai, dimmed4),
+				// Skeleton
+				skeleton-shimmer-1: linear-gradient(110deg, #2d2a2e 8%, #221f22 18%, #2d2a2e 33%)
+			),
+			get-chart-palette(monokai)
+		),
 );
 
 @mixin if-dark {

@@ -12,13 +12,16 @@ impl TransactionsDb {
         user_id: i64,
         category_id: i64,
     ) {
+        let now = chrono::Utc::now().timestamp();
+
         sqlx::query!(
-            "INSERT INTO transactions (amount, description, user_id, category_id)
-             VALUES (?, ?, ?, ?)",
+            "INSERT INTO transactions (amount, description, user_id, category_id, date)
+             VALUES (?, ?, ?, ?, ?)",
             amount,
             description,
             user_id,
-            category_id
+            category_id,
+            now
         )
         .execute(&self.pool)
         .await
@@ -31,13 +34,13 @@ impl TransactionsDb {
         start_date: Option<NaiveDate>,
         end_date: Option<NaiveDate>,
     ) -> Vec<TransactionRow> {
-        let mut query = r#"SELECT 
+        let mut query = r#"SELECT
                         t.id,
                         t.amount,
                         t.description,
-                        DATE(t.date, 'unixepoch') AS date,
-                        c.id as category_id,
-                        c.name as category_name
+                        t.date AS date_unix,
+                        c.id AS category_id,
+                        c.name AS category_name
                      FROM transactions t
                      JOIN categories c ON c.id = t.category_id
                      WHERE t.user_id = ?"#
@@ -51,26 +54,28 @@ impl TransactionsDb {
             query.push_str(" AND DATE(t.date, 'unixepoch') <= ?");
         }
 
-        let mut q = sqlx::query(&query).bind(user_id);
+        let mut user_query = sqlx::query(&query).bind(user_id);
 
         if let Some(start) = start_date {
-            q = q.bind(start.format("%Y-%m-%d").to_string());
+            user_query = user_query.bind(start.format("%Y-%m-%d").to_string());
         }
         if let Some(end) = end_date {
-            q = q.bind(end.format("%Y-%m-%d").to_string());
+            user_query = user_query.bind(end.format("%Y-%m-%d").to_string());
         }
 
-        let rows = q.fetch_all(&self.pool).await.unwrap();
+        let rows = user_query.fetch_all(&self.pool).await.unwrap();
 
         rows.into_iter()
             .map(|r| {
                 let id: i64 = r.try_get("id").unwrap();
                 let amount: i64 = r.try_get("amount").unwrap();
-                let date_str: String = r.try_get("date").unwrap();
                 let category_name: String = r.try_get("category_name").unwrap();
                 let category_id: i64 = r.try_get("category_id").unwrap();
                 let description: String = r.try_get("description").unwrap();
-                let date = NaiveDate::parse_from_str(&date_str, "%Y-%m-%d").unwrap();
+                let date_unix: i64 = r.try_get("date_unix").unwrap();
+                let date = chrono::DateTime::from_timestamp(date_unix, 0)
+                    .map(|dt| dt.naive_utc())
+                    .unwrap_or_default();
 
                 TransactionRow {
                     id,
@@ -101,14 +106,14 @@ impl TransactionsDb {
     pub async fn delete_last(&self, user_id: i64) -> sqlx::Result<bool> {
         let result = sqlx::query!(
             r#"
-        DELETE FROM transactions
-        WHERE id = (
-            SELECT id FROM transactions
-            WHERE user_id = ?
-            ORDER BY date DESC, id DESC
-            LIMIT 1
-        )
-        "#,
+            DELETE FROM transactions
+                WHERE id = (
+                    SELECT id FROM transactions
+                    WHERE user_id = ?
+                    ORDER BY date DESC, id DESC
+                    LIMIT 1
+                )
+            "#,
             user_id
         )
         .execute(&self.pool)
@@ -120,11 +125,11 @@ impl TransactionsDb {
     pub async fn get_last(&self, user_id: i64) -> Option<TransactionRow> {
         let row = sqlx::query!(
             r#"
-            SELECT 
+            SELECT
                 t.id,
                 t.amount,
                 t.description,
-                DATE(t.date, 'unixepoch') AS date,
+                t.date AS "date_unix!: i64",
                 c.name AS "category_name!: String",
                 c.id AS "category_id!: i64"
             FROM transactions t
@@ -139,16 +144,18 @@ impl TransactionsDb {
         .await
         .unwrap();
 
-        row.map(|r| {
-            let date = NaiveDate::parse_from_str(&r.date.unwrap(), "%Y-%m-%d").unwrap();
+        row.map(|row| {
+            let date = chrono::DateTime::from_timestamp(row.date_unix, 0)
+                .map(|dt| dt.naive_utc())
+                .unwrap_or_default();
 
             TransactionRow {
-                id: r.id,
-                amount: r.amount,
+                id: row.id,
+                amount: row.amount,
                 date,
-                category_name: r.category_name,
-                category_id: r.category_id,
-                description: r.description.unwrap(),
+                category_name: row.category_name,
+                category_id: row.category_id,
+                description: row.description.unwrap(),
             }
         })
     }
@@ -185,7 +192,7 @@ impl TransactionsDb {
                 t.id,
                 t.amount,
                 t.description,
-                COALESCE(DATE(t.date, 'unixepoch'), '') AS "date!: String",
+                t.date AS "date_unix!: i64",
                 c.name AS "category_name!: String",
                 c.id AS "category_id!: i64"
             FROM transactions t
@@ -209,22 +216,18 @@ impl TransactionsDb {
         .unwrap();
 
         rows.into_iter()
-            .map(|r| {
-                let id: i64 = r.id.unwrap();
-                let amount: i64 = r.amount;
-                let date_str: String = r.date.clone();
-                let category_id: i64 = r.category_id;
-                let category_name: String = r.category_name.clone();
-                let description: String = r.description.unwrap();
-                let date = NaiveDate::parse_from_str(&date_str, "%Y-%m-%d").unwrap();
+            .map(|row| {
+                let date = chrono::DateTime::from_timestamp(row.date_unix, 0)
+                    .map(|dt| dt.naive_utc())
+                    .unwrap_or_default();
 
                 TransactionRow {
-                    id,
-                    amount,
+                    id: row.id.unwrap(),
+                    amount: row.amount,
                     date,
-                    category_name,
-                    category_id,
-                    description,
+                    category_name: row.category_name.clone(),
+                    category_id: row.category_id,
+                    description: row.description.unwrap(),
                 }
             })
             .collect()

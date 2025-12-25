@@ -1,0 +1,50 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT\n                t.id,\n                t.amount,\n                t.description,\n                t.date AS \"date_unix!: i64\",\n                c.name AS \"category_name!: String\",\n                c.id AS \"category_id!: i64\"\n            FROM transactions t\n            JOIN categories c ON c.id = t.category_id\n            WHERE t.user_id = ?\n            AND LOWER(t.description) LIKE ?\n            ORDER BY\n                (COALESCE(INSTR(LOWER(t.description), ?), -1) = 1) DESC,\n                COALESCE(INSTR(LOWER(t.description), ?), -1) ASC,\n            LENGTH(t.description) ASC\n            LIMIT ?\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "amount",
+        "ordinal": 1,
+        "type_info": "Integer"
+      },
+      {
+        "name": "description",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "date_unix!: i64",
+        "ordinal": 3,
+        "type_info": "Integer"
+      },
+      {
+        "name": "category_name!: String",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "category_id!: i64",
+        "ordinal": 5,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 5
+    },
+    "nullable": [
+      true,
+      false,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "3427d07a19df0c01ef745949c8713919d05328e00d24f8ef655c63ee428729f8"
+}

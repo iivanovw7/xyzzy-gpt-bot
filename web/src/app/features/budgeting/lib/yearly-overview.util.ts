@@ -6,9 +6,9 @@ import type { OverviewResponse } from "@bindings";
 
 import { env } from "@/app/shared/env";
 
-import type { CurrencyFormatter } from "../model/overview.model";
+import type { CurrencyFormatter } from "../model/budgeting.model";
 
-import { MONTH_LABELS } from "../model/overview.model";
+import { MONTH_LABELS } from "../model/budgeting.model";
 
 export const getYearlyBarChartConfig = (summary: OverviewResponse["yearSummary"]): ChartData<"bar"> => {
 	let incomeColor = env.getCssVariable("--text-success");

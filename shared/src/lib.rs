@@ -1,4 +1,4 @@
-use chrono::NaiveDate;
+use chrono::{naive::serde::ts_seconds, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -25,8 +25,9 @@ pub struct OverviewTransaction {
     pub amount: f64,
     pub category: String,
     pub is_income: bool,
-    #[ts(type = "string")]
-    pub date: NaiveDate,
+    #[serde(with = "ts_seconds")]
+    #[ts(type = "number")]
+    pub date: NaiveDateTime,
     pub description: String,
 }
 

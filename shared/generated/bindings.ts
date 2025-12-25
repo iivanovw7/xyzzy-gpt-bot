@@ -26,7 +26,7 @@ export type OverviewTransaction = {
   amount: number;
   category: string;
   isIncome: boolean;
-  date: string;
+  date: number;
   description: string;
 };
 

@@ -118,7 +118,10 @@ pub async fn create_menu_button(bot: Bot, msg: Message, auth_state: AuthState) -
     let is_dev = cfg!(debug_assertions);
 
     if is_dev {
-        bot.send_message(msg.chat.id, web_app_url_with_token.to_string())
+        let dev_path = format!("http://localhost:{}", CONFIG.web.port);
+        let dev_web_app_url_with_token = format!("{}/?token={}", dev_path, tokens.access_token);
+
+        bot.send_message(msg.chat.id, dev_web_app_url_with_token.to_string())
             .await?;
     }
 

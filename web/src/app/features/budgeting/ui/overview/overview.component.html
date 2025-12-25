@@ -51,6 +51,21 @@
 }
 
 <div class="budgeting__overview-content">
+	@if (status() === "success" && monthlyBreakdownData() && monthlyBreakdownOptions()) {
+		<h2 class="budgeting__overview-content-card-title">Monthly breakdown</h2>
+		<span class="budgeting__overview-content-card-subtitle">{{ transformMonth(currentMonthIndex()) }}</span>
+		<div
+			app-chart
+			class="budgeting__overview-chart"
+			type="doughnut"
+			[config]="monthlyBreakdownData()!"
+			[options]="monthlyBreakdownOptions()!"></div>
+	} @else if (status() === "loading") {
+		<div app-skeleton class="budgeting__overview-skeleton-content-chart"></div>
+	}
+</div>
+
+<div class="budgeting__overview-content">
 	@if (status() === "success" && yearlyOverviewData() && yearlyOverviewOptions()) {
 		<h2 class="budgeting__overview-content-card-title">Yearly overview</h2>
 		<span class="budgeting__overview-content-card-subtitle">{{ yearlyOverviewDataYear() }}</span>
@@ -87,7 +102,7 @@
 				<span>[{{ tx.category }}]</span>
 				<span>{{ tx.description }}</span>
 			</span>
-			<span class="date-label">{{ tx.date | date: "MMMM d, y, EEEE" }}</span>
+			<span class="date-label">{{ tx.date * 1000 | date: "MMMM d, y, EEEE" }}</span>
 		</div>
 		<span class="budgeting__overview-content-col-amount" [class.income]="tx.isIncome">
 			{{ tx.isIncome ? "+" : "-" }} {{ tx.amount | currency: curr : "symbol" : "1.2-2" }}

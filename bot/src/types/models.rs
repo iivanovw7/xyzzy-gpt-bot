@@ -1,4 +1,4 @@
-use chrono::NaiveDate;
+use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -19,7 +19,7 @@ pub struct CategoryRow {
 pub struct TransactionRow {
     pub id: i64,
     pub amount: i64,
-    pub date: NaiveDate,
+    pub date: NaiveDateTime,
     pub category_id: i64,
     pub category_name: String,
     pub description: String,

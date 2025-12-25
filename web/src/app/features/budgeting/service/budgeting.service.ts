@@ -8,7 +8,7 @@ import { catchError, finalize, of } from "rxjs";
 @Injectable({
 	providedIn: "root",
 })
-export class OverviewService {
+export class BudgetingService {
 	private http = inject(HttpClient);
 
 	error = signal<boolean>(false);
