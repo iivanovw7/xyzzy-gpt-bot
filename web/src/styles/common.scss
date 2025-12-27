@@ -14,8 +14,13 @@ tui-root {
 	--tui-font-sans: inherit !important;
 
 	height: 100%;
-	color: inherit !important;
-	background-color: transparent !important;
+	color: var(--text-primary) !important;
+	background-color: var(--background-primary) !important;
+}
+
+.tui-overlay-host {
+	--tui-base-01: var(--background-content) !important;
+	--tui-base-09: var(--text-primary) !important;
 }
 
 html,
