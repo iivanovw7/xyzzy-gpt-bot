@@ -14,7 +14,6 @@
 		@include m(2, 2, 0);
 
 		text-align: start;
-		border-bottom: rem(2px) solid var(--tertiary);
 	}
 
 	.categories-ranking__expand {
@@ -26,6 +25,8 @@
 	}
 
 	.categories-ranking__expand-button {
+		@include text-setting(base);
+
 		margin: 0 auto;
 	}
 
@@ -33,8 +34,16 @@
 		@include text-setting(base);
 		@include m(0, 0, 0, 2);
 
-		color: var(--tertiary);
+		color: var(--secondary);
 		text-align: start;
+	}
+
+	.categories-ranking__card-divider {
+		@include m(0, 2);
+
+		width: calc(100% - rem(16px));
+		height: rem(1px);
+		border-bottom: rem(2px) solid var(--secondary);
 	}
 
 	.categories-ranking__skeleton {
@@ -46,7 +55,7 @@
 
 	.categories-ranking__list {
 		@include justify-align-flex;
-		@include p(2, 2, 3);
+		@include p(3, 2, 3);
 
 		flex-direction: column;
 		gap: 1.25rem;

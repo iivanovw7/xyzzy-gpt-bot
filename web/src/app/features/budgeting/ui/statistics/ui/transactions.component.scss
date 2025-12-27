@@ -2,9 +2,16 @@
 @use "mixins" as *;
 
 :host(.transactions) {
+	.transactions__header {
+		@include justify-align-flex;
+
+		flex-direction: column;
+	}
+
 	.transactions__container {
 		@include card;
-		@include m(3, 2, 2);
+		@include m(2);
+		@include pb(2);
 
 		justify-content: center;
 	}
@@ -16,11 +23,17 @@
 	}
 
 	.transactions__title {
-		@include text-setting(md);
+		@include text-setting(lg);
 		@include m(2, 2, 0);
 
 		text-align: start;
-		border-bottom: rem(2px) solid var(--tertiary);
+	}
+
+	.transactions__title-year {
+		@include text-setting(base);
+		@include m(0, 2, 0);
+
+		color: var(--text-secondary);
 	}
 
 	.transactions__expand {
@@ -45,6 +58,12 @@
 		flex-direction: column;
 	}
 
+	.transactions__content-col-end {
+		@include justify-align-flex(flex-start, flex-end);
+
+		flex-direction: column;
+	}
+
 	.transactions__content-col-description span {
 		@include mr(1);
 		@include text-setting(base);
@@ -54,13 +73,42 @@
 		}
 	}
 
+	.transactions__card-divider {
+		@include m(1, 2);
+
+		width: calc(100% - rem(16px));
+		height: rem(1px);
+		border-bottom: rem(2px) solid var(--secondary);
+	}
+
 	.transactions__content-col-amount {
 		@include text-setting(base);
+	}
+
+	.transactions__content-col-acc {
+		@include text-setting(base);
+	}
+
+	.transactions__filters-box {
+		@include px(2);
+		@include my(3);
+
+		display: flex;
+		width: 100%;
+		height: auto;
 	}
 
 	.transactions__date-label {
 		@include text-setting(sm);
 
 		color: var(--text-secondary);
+	}
+
+	.transactions__error {
+		@include justify-align-flex(center, center);
+		@include mt(2);
+
+		flex-direction: column;
+		gap: rem(18px);
 	}
 }

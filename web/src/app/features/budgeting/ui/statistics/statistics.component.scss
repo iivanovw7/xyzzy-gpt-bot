@@ -1,3 +1,32 @@
+@use "abstracts" as *;
+@use "mixins" as *;
+
 :host(.budgeting__statistics) {
 	position: relative;
+	min-height: 100%;
+
+	.budgeting__statistics-header {
+		@include sizer(auto, 100%);
+		@include justify-align-flex(center, center);
+
+		flex-direction: column;
+	}
+
+	.budgeting__statistics-title {
+		@include text-setting(xl);
+
+		text-align: center;
+	}
+
+	.budgeting__statistics-year {
+		@include text-setting(base);
+		@include m(0, auto);
+
+		color: var(--text-secondary);
+	}
+
+	.budgeting__statistics-skeleton-title {
+		@include sizer(rem(222px), rem(62px));
+		@include m(2, auto);
+	}
 }

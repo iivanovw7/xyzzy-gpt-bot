@@ -10,6 +10,14 @@
 	@include scrollbars(rem(6px), var(--scrollbar-thumb), var(--scrollbar));
 }
 
+tui-root {
+	--tui-font-sans: inherit !important;
+
+	height: 100%;
+	color: inherit !important;
+	background-color: transparent !important;
+}
+
 html,
 body {
 	height: 100%;

@@ -5,7 +5,8 @@
 	@case ("success") {
 		<div class="categories-ranking__container">
 			<h2 class="categories-ranking__title">Categories ranking</h2>
-			<span class="categories-ranking__subtitle">{{ title() }}</span>
+			<div class="categories-ranking__card-divider"></div>
+			<span class="categories-ranking__subtitle">{{ subtitle() }}</span>
 			<div class="categories-ranking__list">
 				@let maxVal = monthlyCategoriesRanking()[0]?.value ?? 1;
 

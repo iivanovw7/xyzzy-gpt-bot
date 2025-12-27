@@ -1,0 +1,57 @@
+<div class="transactions__header">
+	<h2 class="transactions__title">Transactions</h2>
+	<span class="transactions__title-year">for {{ service.transactions()?.year }}</span>
+	<div class="transactions__filters-box">
+		<app-combobox
+			class="transactions__filter-combobox"
+			[items]="service.transactions()?.transactionsCategories ?? []"
+			[(value)]="selectedCategory"
+			placeholder="Filter by Category">
+		</app-combobox>
+	</div>
+</div>
+
+@switch (service.status()) {
+	@case ("loading") {
+		<div app-skeleton class="transactions__skeleton"></div>
+	}
+	@case ("error") {
+		<div class="transactions__error">
+			<p>Failed to load statistics data.</p>
+			<button app-button (click)="service.queryTransactions({ category: selectedCategory(), description: null })">
+				Reload
+			</button>
+		</div>
+	}
+	@case ("success") {
+		@let data = service.transactions()!;
+
+		<div class="transactions__container">
+			@for (tx of data.transactions; track tx.id) {
+				<ng-container *ngTemplateOutlet="row; context: { $implicit: tx, currency: data.currency }" />
+			}
+		</div>
+	}
+}
+
+<ng-template #row let-tx let-curr="currency">
+	<div class="transactions__content-row">
+		<div class="transactions__content-col">
+			<span class="transactions__content-col-description">
+				<span>[{{ tx.category }}]</span>
+				<span>{{ tx.description }}</span>
+			</span>
+			<span class="transactions__date-label">{{ tx.date * 1000 | date: "MMMM d, y, EEEE" }}</span>
+		</div>
+		<div class="transactions__content-col-end">
+			<span class="transactions__content-col-amount" [class.income]="tx.isIncome">
+				{{ tx.isIncome ? "+" : "-" }} {{ tx.amount | currency: curr : "symbol" : "1.2-2" }}
+			</span>
+			<span
+				class="transactions__content-col-acc"
+				[style.color]="tx.accumulatdedAmount >= 0 ? 'var(--text-success)' : 'var(--text-error)'">
+				{{ tx.accumulatdedAmount | currency: curr : "symbol" : "1.2-2" }}
+			</span>
+		</div>
+	</div>
+</ng-template>

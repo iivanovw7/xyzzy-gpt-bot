@@ -3,6 +3,7 @@ import type { ApplicationConfig } from "@angular/core";
 import { provideHttpClient, withInterceptors } from "@angular/common/http";
 import { inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from "@angular/core";
 import { provideRouter } from "@angular/router";
+import { provideEventPlugins } from "@taiga-ui/event-plugins";
 import { firstValueFrom } from "rxjs";
 
 import { routes } from "./app.routes";
@@ -28,6 +29,7 @@ export const initAuth = (authService: AuthService) => {
 
 export const appConfig: ApplicationConfig = {
 	providers: [
+		provideEventPlugins(),
 		provideBrowserGlobalErrorListeners(),
 		provideRouter(routes),
 		provideHttpClient(withInterceptors([apiInterceptor, tokenInterceptor, errorInterceptor])),
@@ -47,5 +49,6 @@ export const appConfig: ApplicationConfig = {
 
 			return authInitializer();
 		}),
+		provideEventPlugins(),
 	],
 };

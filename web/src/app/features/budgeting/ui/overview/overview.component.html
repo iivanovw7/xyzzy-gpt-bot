@@ -5,8 +5,8 @@
 	}
 	@case ("error") {
 		<div class="budgeting__overview-error">
-			<p>Failed to load budgeting data.</p>
-			<button app-button (click)="service.query()">Try again</button>
+			<p>Failed to load overview data.</p>
+			<button app-button (click)="service.queryOverview()">Reload</button>
 		</div>
 	}
 	@case ("success") {
@@ -29,12 +29,12 @@
 	}
 }
 
-<div app-budgeting-transactions></div>
-<div app-budgeting-categories-ranking [title]="transformMonth(currentMonthIndex())"></div>
+<div app-budgeting-categories-ranking [subtitle]="transformMonth(currentMonthIndex())"></div>
 
 <div class="budgeting__overview-content">
 	@if (service.status() === "success" && monthlyBreakdownData() && monthlyBreakdownOptions()) {
 		<h2 class="budgeting__overview-content-card-title">Monthly spending breakdown</h2>
+		<div class="budgeting__overview-content-card-divider"></div>
 		<span class="budgeting__overview-content-card-subtitle">{{ transformMonth(currentMonthIndex()) }}</span>
 		<div
 			app-chart
@@ -50,6 +50,7 @@
 <div class="budgeting__overview-content">
 	@if (service.status() === "success" && yearlyOverviewData() && yearlyOverviewOptions()) {
 		<h2 class="budgeting__overview-content-card-title">Yearly overview</h2>
+		<div class="budgeting__overview-content-card-divider"></div>
 		<span class="budgeting__overview-content-card-subtitle">{{ yearlyOverviewDataYear() }}</span>
 		<div
 			app-chart
@@ -65,6 +66,7 @@
 <div class="budgeting__overview-content">
 	@if (service.status() === "success" && yearlyTrendsData() && yearlyTrendsOptions()) {
 		<h2 class="budgeting__overview-content-card-title">Yearly spending trends</h2>
+		<div class="budgeting__overview-content-card-divider"></div>
 		<span class="budgeting__overview-content-card-subtitle">{{ yearlyOverviewDataYear() }}</span>
 		<div
 			app-chart

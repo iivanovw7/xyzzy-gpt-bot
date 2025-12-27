@@ -14,8 +14,12 @@
 		@include focus-outline(outline);
 	}
 
-	&:not([data-disabled]):hover {
+	&:not([data-disabled], [data-active]):hover {
 		color: var(--nav-link-hover);
+
+		.navigation-link__text {
+			color: var(--nav-link-hover);
+		}
 	}
 
 	&[data-disabled] {
@@ -26,6 +30,10 @@
 		.navigation-link__icon {
 			background-color: transparent;
 		}
+
+		.navigation-link__text {
+			color: var(--nav-link-disabled);
+		}
 	}
 
 	&[data-active]:not([data-disabled]) {
@@ -35,13 +43,18 @@
 		.navigation-link__icon {
 			background-color: var(--nav-link-active-background);
 		}
+
+		.navigation-link__text {
+			color: var(--nav-link-active-background);
+		}
 	}
 
 	.navigation-link__text {
 		@include text-setting(md);
 		@include p(0, 2);
 
-		display: "inline";
+		display: inline;
+		color: var(--nav-link);
 
 		@include media(max, md) {
 			display: none;

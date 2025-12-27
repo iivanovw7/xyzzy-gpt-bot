@@ -50,14 +50,21 @@
 		@include m(2, 2, 0);
 
 		text-align: start;
-		border-bottom: rem(2px) solid var(--tertiary);
+	}
+
+	.budgeting__overview-content-card-divider {
+		@include m(0, 2);
+
+		width: calc(100% - rem(16px));
+		height: rem(1px);
+		border-bottom: rem(2px) solid var(--secondary);
 	}
 
 	.budgeting__overview-content-card-subtitle {
 		@include text-setting(base);
 		@include m(0, 0, 0, 2);
 
-		color: var(--tertiary);
+		color: var(--secondary);
 		text-align: start;
 	}
 

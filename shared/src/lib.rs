@@ -48,6 +48,40 @@ pub struct OverviewResponse {
 
 #[derive(Deserialize, Serialize, TS)]
 #[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct TransactionQuery {
+    pub category: Option<String>,
+    pub description: Option<String>,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct BudgetingTransaction {
+    pub id: i64,
+    pub amount: f64,
+    pub category: String,
+    pub is_income: bool,
+    #[serde(with = "ts_seconds")]
+    #[ts(type = "number")]
+    pub date: NaiveDateTime,
+    pub description: String,
+    pub accumulatded_amount: f64,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct TransactionsResponse {
+    pub currency: String,
+    pub year: u32,
+    pub transactions_categories: Vec<String>,
+    pub transactions: Vec<BudgetingTransaction>,
+    pub transactions_count: u32,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
 pub struct MonthlySummary {
     pub month: u32,
     pub income: f64,

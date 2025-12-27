@@ -84,6 +84,10 @@ pub async fn server() {
                     "/api/budgeting/overview",
                     web::get().to(handlers::web::budgeting::overview::get),
                 )
+                .route(
+                    "/api/budgeting/transactions",
+                    web::get().to(handlers::web::budgeting::transactions::get),
+                )
         })
         .bind(("0.0.0.0", CONFIG.api.port))
         .unwrap()

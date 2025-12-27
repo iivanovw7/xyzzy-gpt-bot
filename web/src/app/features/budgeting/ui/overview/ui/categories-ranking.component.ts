@@ -7,7 +7,7 @@ import { CommonModule, CurrencyPipe } from "@angular/common";
 import { Component, computed, inject, input } from "@angular/core";
 import { pipe } from "rxjs";
 
-import { BudgetingService } from "../../../service";
+import { OverviewService } from "../service/overview.service";
 
 @Component({
 	host: {
@@ -22,7 +22,7 @@ import { BudgetingService } from "../../../service";
 export default class CategoriesRankingComponent {
 	protected categoriesRankingExpanded = false;
 
-	protected readonly service = inject(BudgetingService);
+	protected readonly service = inject(OverviewService);
 
 	protected currentMonthIndex = computed(() => {
 		return this.service.overview()?.month ?? 1;
@@ -66,5 +66,5 @@ export default class CategoriesRankingComponent {
 		return splitAt(5, this.monthlyCategoriesRanking()).at(1);
 	});
 
-	title = input.required<string>();
+	subtitle = input.required<string>();
 }

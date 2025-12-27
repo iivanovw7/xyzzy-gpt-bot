@@ -6,25 +6,17 @@ import SkeletonComponent from "@/app/shared/ui/components/skeleton/skeleton.comp
 import { CommonModule, CurrencyPipe } from "@angular/common";
 import { Component, computed, inject } from "@angular/core";
 
-import { BudgetingService } from "../../service";
 import { getMonthlyDonutChartConfig, getMonthlyDonutOptions } from "./lib/monthly-breakdown.util";
 import { getYearlyBarChartConfig, getYearlyBarChartOptions } from "./lib/yearly-overview.util";
 import { getCategoryStackedChartConfig, getCategoryStackedOptions } from "./lib/yearly-trends.util";
+import { OverviewService } from "./service/overview.service";
 import CategoriesRankingComponent from "./ui/categories-ranking.component";
-import TransactionsComponent from "./ui/transactions.component";
 
 @Component({
 	host: {
 		class: "budgeting__overview",
 	},
-	imports: [
-		CommonModule,
-		ButtonComponent,
-		SkeletonComponent,
-		ChartComponent,
-		CategoriesRankingComponent,
-		TransactionsComponent,
-	],
+	imports: [CommonModule, ButtonComponent, SkeletonComponent, ChartComponent, CategoriesRankingComponent],
 	providers: [CurrencyPipe],
 	selector: "div[app-budgeting-overview]",
 	styleUrl: "./overview.component.scss",
@@ -33,7 +25,7 @@ import TransactionsComponent from "./ui/transactions.component";
 export default class BudgetingOverveiwComponent implements OnInit {
 	protected categoriesRankingExpanded = false;
 
-	protected readonly service = inject(BudgetingService);
+	protected readonly service = inject(OverviewService);
 
 	protected currentMonthIndex = computed(() => {
 		let overview = this.service.overview();
@@ -88,9 +80,9 @@ export default class BudgetingOverveiwComponent implements OnInit {
 		if (!overview?.yearSummary.monthly_spending_summaries) return null;
 
 		return getCategoryStackedChartConfig(
-			overview.yearSummary.monthly_spending_summaries.map((c) => ({
-				data: c.amounts,
-				name: c.name,
+			overview.yearSummary.monthly_spending_summaries.map((category) => ({
+				data: category.amounts,
+				name: category.name,
 			})),
 		);
 	});
@@ -107,7 +99,7 @@ export default class BudgetingOverveiwComponent implements OnInit {
 	});
 
 	ngOnInit() {
-		this.service.query();
+		this.service.queryOverview();
 	}
 
 	transformMonth(monthNumber: number): string {

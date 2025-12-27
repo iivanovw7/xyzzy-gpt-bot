@@ -1,0 +1,5 @@
+<tui-textfield class="combobox">
+	<input tuiComboBox [placeholder]="placeholder()" [(ngModel)]="value" />
+	<tui-data-list-wrapper [items]="items() | tuiFilterByInput: matcher" *tuiTextfieldDropdown new>
+	</tui-data-list-wrapper>
+</tui-textfield>
