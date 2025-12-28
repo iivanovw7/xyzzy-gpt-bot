@@ -4,8 +4,8 @@
 :host.icon {
 	position: relative;
 	display: inline-flex;
-	text-decoration: none;
-	outline: none;
+	align-items: center;
+	justify-content: center;
 	transition: $transition-colors;
 
 	&--size-x-small {
@@ -24,23 +24,24 @@
 		@include sizer(rem(48px));
 	}
 
-	> svg {
-		@include center(absolute, both);
-
-		.icon--size-x-small {
+	.icon-svg {
+		&--size-x-small {
 			@include sizer(rem(16px));
 		}
 
-		.icon--size-small {
+		&--size-small {
 			@include sizer(rem(20px));
 		}
 
-		.icon--size-medium {
+		&--size-medium {
 			@include sizer(rem(24px));
 		}
 
-		.icon--size-large {
+		&--size-large {
 			@include sizer(rem(32px));
 		}
+
+		color: inherit;
+		fill: currentcolor;
 	}
 }

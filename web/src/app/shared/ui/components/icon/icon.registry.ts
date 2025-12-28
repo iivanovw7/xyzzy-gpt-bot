@@ -1,11 +1,9 @@
-import { House, LogOut, Settings, User, Wallet } from "lucide-angular";
-
 export const Icon = {
-	House,
-	LogOut,
-	Settings,
-	User,
-	Wallet,
+	House: "@tui.house",
+	LogOut: "@tui.log-out",
+	Settings: "@tui.settings",
+	User: "@tui.user",
+	Wallet: "@tui.wallet",
 } as const;
 
 export type IconKey = keyof typeof Icon;

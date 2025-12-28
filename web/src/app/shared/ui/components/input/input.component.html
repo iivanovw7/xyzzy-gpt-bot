@@ -1,0 +1,6 @@
+<tui-textfield class="input" [tuiTextfieldCleaner]="true">
+	@if (isSearch()) {
+		<tui-icon tuiTextfieldIconLeft icon="@tui.search"></tui-icon>
+	}
+	<input tuiTextfield type="text" [placeholder]="placeholder()" [(ngModel)]="value" />
+</tui-textfield>

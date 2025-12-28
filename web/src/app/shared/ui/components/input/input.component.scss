@@ -1,0 +1,40 @@
+@use "abstracts" as *;
+@use "mixins" as *;
+
+:host {
+	display: block;
+	width: 100%;
+
+	--tui-base-01: transparent;
+}
+
+.input {
+	@include sizer(auto, rem(36px));
+	@include border-radius($border-radius-x-small);
+
+	background: var(--control-backgroud-primary);
+	border: rem(1px) solid var(--control-border-primary);
+	transition:
+		border-color 0.2s,
+		box-shadow 0.2s;
+
+	&:focus-within {
+		border-color: var(--accent3);
+	}
+
+	input {
+		@include border-radius($border-radius-x-small);
+		@include text-setting(base);
+		@include p(1, 3);
+
+		color: var(--control-primary);
+		outline: none;
+		background: transparent;
+		border: none;
+
+		&::placeholder {
+			color: var(--text-secondary);
+			opacity: 70%;
+		}
+	}
+}

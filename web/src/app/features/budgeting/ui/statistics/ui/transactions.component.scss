@@ -92,8 +92,10 @@
 	.transactions__filters-box {
 		@include px(2);
 		@include my(3);
+		@include justify-align-flex;
 
-		display: flex;
+		flex-direction: column;
+		gap: rem(12px);
 		width: 100%;
 		height: auto;
 	}

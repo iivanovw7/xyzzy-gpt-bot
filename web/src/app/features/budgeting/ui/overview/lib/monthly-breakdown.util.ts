@@ -44,7 +44,7 @@ export const getMonthlyDonutOptions = (currencyFormatter: CurrencyFormatter): Ch
 	return {
 		cutout: "70%",
 		layout: {
-			padding: 40,
+			padding: 50,
 		},
 		maintainAspectRatio: false,
 		plugins: {

@@ -1,32 +1,28 @@
 import type { Size } from "src/types/styles.types";
 
-import { Component, computed, input } from "@angular/core";
-import { LucideAngularModule } from "lucide-angular";
-
-import type { IconKey } from "./icon.registry";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import { TuiIcon } from "@taiga-ui/core";
 
 import { Icon } from "./icon.registry";
 
 @Component({
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	host: {
 		"[class.icon--large]": 'size() === "large"',
 		"[class.icon--medium]": 'size() === "medium"',
-		"[class.icon--x-xmall]": 'size() === "x-small"',
-		"[class.icon--xmall]": 'size() === "small"',
-		class: "icon class()",
+		"[class.icon--small]": 'size() === "small"',
+		"[class.icon--x-small]": 'size() === "x-small"',
+		class: "icon",
 	},
-	imports: [LucideAngularModule],
+	imports: [TuiIcon],
 	selector: "app-icon",
 	standalone: true,
 	styleUrl: "./icon.component.scss",
 	templateUrl: "./icon.component.html",
 })
 export default class IconComponent {
-	protected icon = computed(() => Icon[this.name()]);
+	protected readonly iconName = computed(() => Icon[this.name()]);
+	readonly name = input.required<keyof typeof Icon>();
 
-	class = input<string>("");
-	name = input.required<IconKey>();
-	size = input<Size>("medium");
-
-	strokeWidth = input(2);
+	readonly size = input<Size>("medium");
 }

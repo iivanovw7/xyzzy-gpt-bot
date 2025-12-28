@@ -97,6 +97,8 @@
 	}
 
 	.categories-ranking__info-category-value {
+		@include text-setting(base);
+
 		font-family: monospace;
 		font-weight: 500;
 	}

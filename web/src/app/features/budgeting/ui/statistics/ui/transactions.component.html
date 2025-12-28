@@ -8,6 +8,7 @@
 			[(value)]="selectedCategory"
 			placeholder="Filter by Category">
 		</app-combobox>
+		<app-input placeholder="Search by description..." [(value)]="searchTerm" [isSearch]="true"> </app-input>
 	</div>
 </div>
 
@@ -26,11 +27,13 @@
 	@case ("success") {
 		@let data = service.transactions()!;
 
-		<div class="transactions__container">
-			@for (tx of data.transactions; track tx.id) {
-				<ng-container *ngTemplateOutlet="row; context: { $implicit: tx, currency: data.currency }" />
-			}
-		</div>
+		@if (!!data.transactions.length) {
+			<div class="transactions__container">
+				@for (tx of data.transactions; track tx.id) {
+					<ng-container *ngTemplateOutlet="row; context: { $implicit: tx, currency: data.currency }" />
+				}
+			</div>
+		}
 	}
 }
 
