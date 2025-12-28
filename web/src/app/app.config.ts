@@ -11,7 +11,6 @@ import { AuthService } from "./core/auth";
 import { apiInterceptor, errorInterceptor, tokenInterceptor } from "./core/interceptors";
 import { config } from "./shared/config";
 import { logger } from "./shared/logger";
-import { ThemeService } from "./shared/services/theme.service";
 import { tokenStorage } from "./shared/storage";
 
 export const initAuth = (authService: AuthService) => {
@@ -41,9 +40,6 @@ export const appConfig: ApplicationConfig = {
 			});
 
 			let authInitializer = initAuth(inject(AuthService));
-			let themeService = inject(ThemeService);
-
-			themeService.initialize();
 
 			await tokenStorage.initialize();
 
