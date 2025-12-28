@@ -100,7 +100,8 @@ $theme-variants: (
 				tui-background-accent-1: palette.get(monokai-light, accent3),
 				tui-background-elevation-3: palette.get(monokai-light, dark2-lighten),
 				tui-text-action: palette.get(monokai-light, accent3),
-				tui-text-primary: palette.get(monokai-light, text)
+				tui-text-primary: palette.get(monokai-light, text),
+				tui-background-base: palette.get(monokai-light, background)
 			),
 			get-chart-palette(monokai-light)
 		),
@@ -184,7 +185,8 @@ $theme-variants: (
 				tui-background-accent-1: palette.get(monokai, accent3),
 				tui-background-elevation-3: palette.get(monokai, dark2-lighten),
 				tui-text-action: palette.get(monokai, accent3),
-				tui-text-primary: palette.get(monokai, text)
+				tui-text-primary: palette.get(monokai, text),
+				tui-background-base: palette.get(monokai, background)
 			),
 			get-chart-palette(monokai)
 		),

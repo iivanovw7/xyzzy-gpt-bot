@@ -5,15 +5,6 @@
 		<title>Web</title>
 		<base href="/" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<style>
-			html {
-				background-color: #2d2a2e !important;
-			}
-			body {
-				background-color: #2d2a2e !important;
-				margin: 0;
-			}
-		</style>
 		<link rel="icon" type="image/x-icon" href="favicon.ico" />
 		<script src="https://telegram.org/js/telegram-web-app.js"></script>
 		<script>
@@ -21,7 +12,7 @@
 				const savedTheme = localStorage?.getItem?.("theme");
 				const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 				const theme = savedTheme || (prefersDark ? "dark" : "light");
-				console.log(theme);
+
 				document.documentElement.dataset.theme = theme;
 			})();
 		</script>
