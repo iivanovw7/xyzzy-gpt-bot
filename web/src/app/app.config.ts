@@ -7,7 +7,7 @@ import { inject, provideAppInitializer, provideBrowserGlobalErrorListeners } fro
 import { Router } from "@angular/router";
 import { provideRouter } from "@angular/router";
 import { provideEventPlugins } from "@taiga-ui/event-plugins";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, take } from "rxjs";
 
 import { routes } from "./app.routes";
 import { AuthService } from "./core/auth";
@@ -34,11 +34,13 @@ export const initAuth = (authService: AuthService, router: Router) => {
 		}
 
 		try {
-			await firstValueFrom(authResult$, { defaultValue: null });
+			await firstValueFrom(authResult$.pipe(take(1)));
 		} catch (error) {
 			logger.error("Auth initialization failed", error);
+		}
 
-			router.navigate([routePath.login]);
+		if (!authService.isAuthenticated()) {
+			await router.navigate([routePath.login]);
 		}
 	};
 };
