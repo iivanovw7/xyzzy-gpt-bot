@@ -15,7 +15,7 @@ use teloxide::prelude::*;
 pub async fn commands(
     client: Client<OpenAIConfig>,
     state: ChatHistoryState,
-    auth_state: AuthState,
+    _auth_state: AuthState,
     bot: Bot,
     dialogue: BotDialogue,
     msg: Message,
@@ -24,7 +24,7 @@ pub async fn commands(
 ) -> HandleResult {
     match cmd {
         Commands::Start => {
-            keyboard::core::start(bot, msg, auth_state).await?;
+            keyboard::core::start(bot, msg).await?;
         }
         Commands::Help => {
             handlers::help::commands(bot, msg).await?;

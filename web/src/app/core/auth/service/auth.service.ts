@@ -3,6 +3,7 @@ import type { LoginResponse } from "@bindings";
 import type { Observable } from "rxjs";
 
 import { config } from "@/app/shared/config";
+import { env } from "@/app/shared/env";
 import { logger } from "@/app/shared/logger";
 import { routePath } from "@/app/shared/routes";
 import { tokenStorage } from "@/app/shared/storage";
@@ -77,23 +78,32 @@ export class AuthService {
 	}
 
 	public login(): Observable<Nullable<LoginResponse>> {
-		let initialUrlToken = this.extractTokenFromUrl();
+		let initData = env.telegramInitData;
+
+		if (!initData) {
+			logger.error("No Telegram initData found. Are you running inside Telegram?");
+
+			this.router.navigate([routePath.login]);
+
+			return of(null);
+		}
 
 		return this.http
-			.get<LoginResponse>("/auth/login", {
-				headers: { Authorization: `Bearer ${initialUrlToken}` },
-				withCredentials: true,
-			})
+			.post<LoginResponse>(
+				"/auth/login",
+				{ initData },
+				{
+					withCredentials: true,
+				},
+			)
 			.pipe(
 				tap((response) => {
 					this.saveAccessToken(response.accessToken);
 					this.startTokenRefreshTimer();
-					this.cleanTokenFromUrl();
 					this.setUser({ id: response.userId });
 				}),
 				catchError((errorData) => {
 					this.logout();
-					this.cleanTokenFromUrl();
 					this.router.navigate([routePath.login]);
 
 					logger.error("Login error", errorData.message);

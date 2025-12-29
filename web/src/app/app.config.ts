@@ -1,4 +1,6 @@
 import type { ApplicationConfig } from "@angular/core";
+import type { LoginResponse } from "@bindings";
+import type { Observable } from "rxjs";
 
 import { provideHttpClient, withInterceptors } from "@angular/common/http";
 import { inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from "@angular/core";
@@ -10,13 +12,22 @@ import { routes } from "./app.routes";
 import { AuthService } from "./core/auth";
 import { apiInterceptor, errorInterceptor, tokenInterceptor } from "./core/interceptors";
 import { config } from "./shared/config";
+import { env } from "./shared/env";
 import { logger } from "./shared/logger";
 import { tokenStorage } from "./shared/storage";
 
 export const initAuth = (authService: AuthService) => {
 	return async () => {
 		let accessToken = authService.getAccessToken();
-		let authResult$ = authService.hasTokenInUrl || !accessToken ? authService.login() : authService.refreshToken();
+		let authResult$: Observable<Nullable<LoginResponse>>;
+
+		if (accessToken) {
+			authResult$ = authService.refreshToken();
+		} else if (env.telegramInitData) {
+			authResult$ = authService.login();
+		} else {
+			return;
+		}
 
 		try {
 			await firstValueFrom(authResult$, { defaultValue: null });

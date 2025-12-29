@@ -102,3 +102,10 @@ pub struct YearlySummary {
     pub monthly_summaries: Vec<MonthlySummary>,
     pub monthly_spending_summaries: Vec<MonthlySpendingSummary>,
 }
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct LoginPayload {
+    pub init_data: String,
+}
