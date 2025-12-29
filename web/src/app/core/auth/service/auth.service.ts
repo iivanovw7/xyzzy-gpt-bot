@@ -30,21 +30,6 @@ export class AuthService {
 	public isRefreshing = false;
 	public refreshToken$: BehaviorSubject<null | string> = new BehaviorSubject<null | string>(null);
 
-	private cleanTokenFromUrl(): void {
-		let url = new URL(window.location.href);
-
-		if (url.searchParams.has("token")) {
-			url.searchParams.delete("token");
-			window.history.replaceState({}, document.title, url.toString());
-		}
-	}
-
-	private extractTokenFromUrl(): null | string {
-		let urlParameters = new URLSearchParams(window.location.search);
-
-		return urlParameters.get("token");
-	}
-
 	private saveAccessToken(token: string): void {
 		tokenStorage.setAccessToken(token);
 		this.accessTokenSignal.set(token);
@@ -152,21 +137,18 @@ export class AuthService {
 					this.refreshToken$.next(response.accessToken);
 				}),
 				catchError((errorData) => {
-					this.logout();
-					this.isRefreshing = false;
-					this.refreshToken$.next(null);
-					this.router.navigate([routePath.login]);
+					logger.warn("Refresh token failed", errorData);
 
-					logger.error("Refresh token error", errorData.message);
+					return this.login().pipe(
+						catchError((loginError) => {
+							this.logout();
+							this.router.navigate([routePath.login]);
+							logger.error("Re-login failed", loginError);
 
-					return of(null);
+							return of(null);
+						}),
+					);
 				}),
 			);
-	}
-
-	get hasTokenInUrl(): boolean {
-		let urlParameters = new URLSearchParams(window.location.search);
-
-		return urlParameters.has("token");
 	}
 }
