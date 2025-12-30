@@ -81,6 +81,8 @@
 
 	.categories-ranking__list-info-main > span {
 		@include only(first) {
+			@include text-setting(base);
+
 			font-weight: 600;
 			color: var(--text-primary);
 		}
