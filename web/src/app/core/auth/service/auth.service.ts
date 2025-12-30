@@ -3,6 +3,7 @@ import type { LoginResponse } from "@bindings";
 import type { Observable } from "rxjs";
 
 import { config } from "@/app/shared/config";
+import { env } from "@/app/shared/env";
 import { logger } from "@/app/shared/logger";
 import { routePath } from "@/app/shared/routes";
 import { tokenStorage } from "@/app/shared/storage";
@@ -28,21 +29,6 @@ export class AuthService {
 	public isAuthenticated: Signal<boolean> = computed(() => !!this.accessTokenSignal());
 	public isRefreshing = false;
 	public refreshToken$: BehaviorSubject<null | string> = new BehaviorSubject<null | string>(null);
-
-	private cleanTokenFromUrl(): void {
-		let url = new URL(window.location.href);
-
-		if (url.searchParams.has("token")) {
-			url.searchParams.delete("token");
-			window.history.replaceState({}, document.title, url.toString());
-		}
-	}
-
-	private extractTokenFromUrl(): null | string {
-		let urlParameters = new URLSearchParams(window.location.search);
-
-		return urlParameters.get("token");
-	}
 
 	private saveAccessToken(token: string): void {
 		tokenStorage.setAccessToken(token);
@@ -77,23 +63,32 @@ export class AuthService {
 	}
 
 	public login(): Observable<Nullable<LoginResponse>> {
-		let initialUrlToken = this.extractTokenFromUrl();
+		let initData = env.telegramInitData;
+
+		if (!initData) {
+			logger.error("No Telegram initData found. Are you running inside Telegram?");
+
+			this.router.navigate([routePath.login]);
+
+			return of(null);
+		}
 
 		return this.http
-			.get<LoginResponse>("/auth/login", {
-				headers: { Authorization: `Bearer ${initialUrlToken}` },
-				withCredentials: true,
-			})
+			.post<LoginResponse>(
+				"/auth/login",
+				{ initData },
+				{
+					withCredentials: true,
+				},
+			)
 			.pipe(
 				tap((response) => {
 					this.saveAccessToken(response.accessToken);
 					this.startTokenRefreshTimer();
-					this.cleanTokenFromUrl();
 					this.setUser({ id: response.userId });
 				}),
 				catchError((errorData) => {
 					this.logout();
-					this.cleanTokenFromUrl();
 					this.router.navigate([routePath.login]);
 
 					logger.error("Login error", errorData.message);
@@ -142,21 +137,18 @@ export class AuthService {
 					this.refreshToken$.next(response.accessToken);
 				}),
 				catchError((errorData) => {
-					this.logout();
-					this.isRefreshing = false;
-					this.refreshToken$.next(null);
-					this.router.navigate([routePath.login]);
+					logger.warn("Refresh token failed", errorData);
 
-					logger.error("Refresh token error", errorData.message);
+					return this.login().pipe(
+						catchError((loginError) => {
+							this.logout();
+							this.router.navigate([routePath.login]);
+							logger.error("Re-login failed", loginError);
 
-					return of(null);
+							return of(null);
+						}),
+					);
 				}),
 			);
-	}
-
-	get hasTokenInUrl(): boolean {
-		let urlParameters = new URLSearchParams(window.location.search);
-
-		return urlParameters.has("token");
 	}
 }

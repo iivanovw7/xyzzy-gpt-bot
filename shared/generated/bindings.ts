@@ -10,6 +10,8 @@ export type BudgetingTransaction = {
   accumulatdedAmount: number;
 };
 
+export type LoginPayload = { initData: string };
+
 export type LoginResponse = { accessToken: string; userId: string };
 
 export type MonthlySpendingSummary = { name: string; amounts: Array<number> };

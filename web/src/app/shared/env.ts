@@ -1,3 +1,5 @@
+import { isDevMode } from "@angular/core";
+
 export const env = {
 	getCssVariable: (variable: string) => {
 		// prettier-ignore
@@ -25,4 +27,5 @@ export const env = {
 	 * Root portal container.
 	 */
 	portal: document.getElementById("portal")! as HTMLDivElement,
+	telegramInitData: isDevMode() ? "dev_mode_active" : window.Telegram?.WebApp?.initData,
 };
