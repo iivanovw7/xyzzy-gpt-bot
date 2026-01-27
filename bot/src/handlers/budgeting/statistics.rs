@@ -87,7 +87,10 @@ pub async fn overview(
     }
 
     let table_output = match filter {
-        DateFilter::Today | DateFilter::CurrentMonth | DateFilter::LastMonth => {
+        DateFilter::Today
+        | DateFilter::CurrentWeek
+        | DateFilter::CurrentMonth
+        | DateFilter::LastMonth => {
             let mut per_category_spending: HashMap<String, Vec<MonthlyTransaction>> =
                 HashMap::new();
             let mut per_category_income: HashMap<String, Vec<MonthlyTransaction>> = HashMap::new();
@@ -118,6 +121,7 @@ pub async fn overview(
 
             let title = match filter {
                 DateFilter::Today => "Statistics for today",
+                DateFilter::CurrentWeek => "Statistics for current week",
                 DateFilter::CurrentMonth => "Statistics for current month",
                 DateFilter::LastMonth => "Statistics for last month",
                 _ => "Statistics",

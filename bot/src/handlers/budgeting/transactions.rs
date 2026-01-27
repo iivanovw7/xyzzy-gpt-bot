@@ -178,10 +178,14 @@ fn table(title: &str, data: &HashMap<String, Vec<MonthlyTransaction>>, total: f6
         output.push_str(&format!("{:<28} {:>12} {:>6}%\n", cat, amount_str, pct));
 
         if let Some(entries) = data.get(&cat) {
-            for tx in entries {
+            for tx in entries.iter().take(10) {
                 let amt_str = format_transaction_amount((tx.amount * 100.0) as i64, "");
 
                 output.push_str(&format!("  {:<6} - {:<12}\n", amt_str, tx.description));
+            }
+
+            if entries.len() > 10 {
+                output.push_str("  ...\n");
             }
         }
 
@@ -230,7 +234,10 @@ pub async fn list(
     }
 
     let table_output = match filter {
-        DateFilter::Today | DateFilter::CurrentMonth | DateFilter::LastMonth => {
+        DateFilter::Today
+        | DateFilter::CurrentWeek
+        | DateFilter::CurrentMonth
+        | DateFilter::LastMonth => {
             let mut per_category_spending: HashMap<String, Vec<MonthlyTransaction>> =
                 HashMap::new();
             let mut per_category_income: HashMap<String, Vec<MonthlyTransaction>> = HashMap::new();
@@ -262,6 +269,7 @@ pub async fn list(
 
             let title = match filter {
                 DateFilter::Today => "Statistics for today",
+                DateFilter::CurrentWeek => "Statistics for current week",
                 DateFilter::CurrentMonth => "Statistics for current month",
                 DateFilter::LastMonth => "Statistics for last month",
                 _ => "Statistics",

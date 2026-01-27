@@ -44,6 +44,13 @@ impl DateFilter {
                 let start = NaiveDate::from_ymd_opt(today.year(), today.month(), 1).unwrap();
                 (Some(start), Some(today))
             }
+            DateFilter::CurrentWeek => {
+                let today_weekday = today.weekday();
+                let days_from_monday = today_weekday.num_days_from_monday();
+                let start = today - Duration::days(days_from_monday as i64);
+                let end = start + Duration::days(6);
+                (Some(start), Some(end))
+            }
             DateFilter::LastMonth => {
                 let (year, month) = if today.month() == 1 {
                     (today.year() - 1, 12)

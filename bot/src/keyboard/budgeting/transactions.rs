@@ -14,6 +14,7 @@ use crate::{
 
 pub fn create_transactions_date_filter_keyboard() -> InlineKeyboardMarkup {
     let filters: Vec<DateFilter> = vec![
+        DateFilter::CurrentWeek,
         DateFilter::CurrentMonth,
         DateFilter::LastMonth,
         DateFilter::Last3Months,

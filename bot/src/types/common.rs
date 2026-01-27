@@ -151,6 +151,7 @@ pub enum DialogueState {
 pub enum DateFilter {
     Today,
     CurrentMonth,
+    CurrentWeek,
     LastMonth,
     Last3Months,
     CurrentYear,
@@ -161,6 +162,7 @@ impl DateFilter {
         match self {
             DateFilter::Today => "📅 Today",
             DateFilter::CurrentMonth => "📅 Current Month",
+            DateFilter::CurrentWeek => "📅 Current Week",
             DateFilter::LastMonth => "📅 Last Month",
             DateFilter::Last3Months => "📅 Last 3 Months",
             DateFilter::CurrentYear => "📅 This Year",
