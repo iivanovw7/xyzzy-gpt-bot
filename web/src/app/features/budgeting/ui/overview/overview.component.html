@@ -84,14 +84,14 @@
 		<h2 class="budgeting__overview-content-card-title">Categories overview</h2>
 		<div class="budgeting__overview-content-card-divider"></div>
 		<span class="budgeting__overview-content-card-subtitle">{{ categoriesOverviewYear() }}</span>
-        <div class="budgeting__overview-category-filter-box">
-		    <app-combobox
-			    class="transactions__filter-combobox"
-			    [items]="categoriesList()"
-			    [(value)]="selectedOverviewCategory"
-			    placeholder="Category">
-		    </app-combobox>
-        </div>
+		<div class="budgeting__overview-category-filter-box">
+			<app-combobox
+				class="transactions__filter-combobox"
+				[items]="categoriesList()"
+				[(value)]="selectedOverviewCategory"
+				placeholder="Category">
+			</app-combobox>
+		</div>
 		<div
 			app-chart
 			class="budgeting__overview-chart-trends"
