@@ -1,5 +1,4 @@
-import type { ChartData, ChartOptions, TooltipItem } from "chart.js";
-import type { Context } from "chartjs-plugin-datalabels";
+import type { ChartData, ChartOptions } from "chart.js";
 
 import type { CategorySummary } from "@bindings";
 
@@ -15,28 +14,28 @@ export const getCategoriesOverveiwConfig = (category: CategorySummary): ChartDat
 	let neutralColor = env.getCssVariable("--divider-dark");
 
 	let data = Array(12).fill(0);
+	let colors = Array(12).fill(neutralColor);
 
 	for (let summary of category.monthlySummaries) {
 		let monthIndex = summary.month - 1;
-		data[monthIndex] = summary.income - summary.spending;
+
+		if (summary.income) {
+			data[monthIndex] = summary.income;
+			colors[monthIndex] = incomeColor;
+		} else if (summary.spending > 0) {
+			data[monthIndex] = summary.spending;
+			colors[monthIndex] = spendingColor;
+		}
 	}
 
 	return {
 		datasets: [
 			{
-				backgroundColor: (context) => {
-					let value = context.raw as number;
-
-					if (value > 0) return incomeColor;
-					if (value < 0) return spendingColor;
-
-					return neutralColor;
-				},
+				backgroundColor: colors,
 				borderRadius: 0,
 				borderSkipped: false,
 				data,
 				label: category.category,
-				stack: "category",
 			},
 		],
 		labels: MONTH_LABELS,
@@ -47,7 +46,7 @@ export const getCategoriesOverviewOptions = (currencyFormatter: CurrencyFormatte
 	let labelColor = env.getCssVariable("--text-primary");
 	let gridColor = env.getCssVariable("--divider-dark");
 
-	let formatSigned = (value: number) => `${value > 0 ? "+" : ""}${currencyFormatter(value)}`;
+	let format = (value: number) => currencyFormatter(value);
 
 	return {
 		layout: {
@@ -58,23 +57,15 @@ export const getCategoriesOverviewOptions = (currencyFormatter: CurrencyFormatte
 		maintainAspectRatio: false,
 		plugins: {
 			datalabels: {
-				align: (context: Context) => {
-					let value = context.dataset.data[context.dataIndex] as number;
-
-					return value >= 0 ? "end" : "start";
-				},
-				anchor: (context: Context) => {
-					let value = context.dataset.data[context.dataIndex] as number;
-
-					return value >= 0 ? "end" : "start";
-				},
+				align: "end",
+				anchor: "end",
 				color: labelColor,
 				font: {
 					family: "monospace",
 					size: 10,
 				},
-				formatter: (value: number) => (value === 0 ? "" : formatSigned(value)),
-				offset: 5,
+				formatter: (value: number) => (value === 0 ? "" : format(value)),
+				offset: 6,
 				rotation: -90,
 				textAlign: "center",
 			},
@@ -83,21 +74,14 @@ export const getCategoriesOverviewOptions = (currencyFormatter: CurrencyFormatte
 			},
 			tooltip: {
 				callbacks: {
-					label: (context: TooltipItem<"bar">) => {
-						let value = context.parsed.y;
-
-						return `${context.dataset.label}: ${formatSigned(value || 0)}`;
-					},
+					label: (context) => `${context.dataset.label}: ${format(context.parsed.y || 0)}`,
 				},
-				intersect: false,
-				mode: "index",
-				padding: 12,
 			},
 		},
-		responsive: true,
 		scales: {
 			x: {
 				grid: { color: gridColor },
+				offset: true,
 				ticks: { color: labelColor },
 			},
 			y: {
@@ -105,7 +89,6 @@ export const getCategoriesOverviewOptions = (currencyFormatter: CurrencyFormatte
 				border: { display: false },
 				grid: { color: gridColor },
 				ticks: {
-					callback: (value) => (typeof value === "number" ? formatSigned(value) : value),
 					color: labelColor,
 					maxTicksLimit: 5,
 				},
