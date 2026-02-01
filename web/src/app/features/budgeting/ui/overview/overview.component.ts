@@ -2,10 +2,12 @@ import type { OnInit } from "@angular/core";
 
 import ButtonComponent from "@/app/shared/ui/components/button/button.component";
 import ChartComponent from "@/app/shared/ui/components/chart/chart.component";
+import ComboboxComponent from "@/app/shared/ui/components/combobox/combobox.component";
 import SkeletonComponent from "@/app/shared/ui/components/skeleton/skeleton.component";
 import { CommonModule, CurrencyPipe } from "@angular/common";
-import { Component, computed, inject } from "@angular/core";
+import { Component, computed, effect, inject, signal } from "@angular/core";
 
+import { getCategoriesOverveiwConfig, getCategoriesOverviewOptions } from "./lib/categories-overview.util";
 import { getMonthlyDonutChartConfig, getMonthlyDonutOptions } from "./lib/monthly-breakdown.util";
 import { getYearlyBarChartConfig, getYearlyBarChartOptions } from "./lib/yearly-overview.util";
 import { getCategoryStackedChartConfig, getCategoryStackedOptions } from "./lib/yearly-trends.util";
@@ -16,16 +18,66 @@ import CategoriesRankingComponent from "./ui/categories-ranking.component";
 	host: {
 		class: "budgeting__overview",
 	},
-	imports: [CommonModule, ButtonComponent, SkeletonComponent, ChartComponent, CategoriesRankingComponent],
+	imports: [
+		CommonModule,
+		ButtonComponent,
+		SkeletonComponent,
+		ChartComponent,
+		CategoriesRankingComponent,
+		ComboboxComponent,
+	],
 	providers: [CurrencyPipe],
 	selector: "div[app-budgeting-overview]",
 	styleUrl: "./overview.component.scss",
 	templateUrl: "./overview.component.html",
 })
 export default class BudgetingOverveiwComponent implements OnInit {
-	protected categoriesRankingExpanded = false;
-
 	protected readonly service = inject(OverviewService);
+
+	protected categoriesList = computed(() => {
+		let overview = this.service.overview();
+
+		if (!overview?.categoriesSummary.categories) return [];
+
+		return overview.categoriesSummary.categories.map(({ category }) => category);
+	});
+
+	protected categoriesOverviewCategories = computed(() => {
+		return this.service.overview()?.categoriesSummary.categories;
+	});
+
+	protected readonly selectedOverviewCategory = signal<Nullable<string>>(null);
+
+	protected categoriesOverviewData = computed(() => {
+		let overview = this.service.overview();
+		let categories = overview?.categoriesSummary.categories;
+
+		if (!categories) return null;
+
+		let category = categories.find((value) => {
+			return value.category === this.selectedOverviewCategory();
+		});
+
+		if (!category) return null;
+
+		return getCategoriesOverveiwConfig(category);
+	});
+
+	private currencyFormatter = (value: number): string => {
+		let currency = this.service.overview()?.currency;
+
+		return this.currencyPipe.transform(value, currency, "symbol", "1.2-2") ?? "";
+	};
+
+	protected categoriesOverviewOptions = computed(() => {
+		return getCategoriesOverviewOptions(this.currencyFormatter);
+	});
+
+	protected categoriesOverviewYear = computed(() => {
+		return this.service.overview()?.categoriesSummary.year;
+	});
+
+	protected categoriesRankingExpanded = false;
 
 	protected currentMonthIndex = computed(() => {
 		let overview = this.service.overview();
@@ -46,14 +98,8 @@ export default class BudgetingOverveiwComponent implements OnInit {
 		return getMonthlyDonutChartConfig(categoryData);
 	});
 
-	private currencyPipe = inject(CurrencyPipe);
-
 	protected monthlyBreakdownOptions = computed(() => {
-		let currencyFormatter = (value: number): string => {
-			return this.currencyPipe.transform(value, this.service.overview()?.currency, "symbol", "1.2-2") ?? "";
-		};
-
-		return getMonthlyDonutOptions(currencyFormatter);
+		return getMonthlyDonutOptions(this.currencyFormatter);
 	});
 
 	protected yearlyOverviewData = computed(() => {
@@ -67,11 +113,7 @@ export default class BudgetingOverveiwComponent implements OnInit {
 	});
 
 	protected yearlyOverviewOptions = computed(() => {
-		let currencyFormatter = (value: number): string => {
-			return this.currencyPipe.transform(value, this.service.overview()?.currency, "symbol", "1.2-2") ?? "";
-		};
-
-		return getYearlyBarChartOptions(currencyFormatter);
+		return getYearlyBarChartOptions(this.currencyFormatter);
 	});
 
 	protected yearlyTrendsData = computed(() => {
@@ -88,15 +130,22 @@ export default class BudgetingOverveiwComponent implements OnInit {
 	});
 
 	protected yearlyTrendsOptions = computed(() => {
-		let currencyFormatter = (value: number): string => {
-			let formatted =
-				this.currencyPipe.transform(value, this.service.overview()?.currency, "symbol", "1.2-2") ?? "";
-
-			return `- ${formatted}`;
-		};
-
-		return getCategoryStackedOptions(currencyFormatter);
+		return getCategoryStackedOptions((value) => `- ${this.currencyFormatter(value)}`);
 	});
+
+	private currencyPipe = inject(CurrencyPipe);
+
+	constructor() {
+		effect(() => {
+			let categories = this.service.overview()?.categoriesSummary.categories;
+
+			if (!categories?.length) return;
+
+			if (!this.selectedOverviewCategory()) {
+				this.selectedOverviewCategory.set(categories[0].category);
+			}
+		});
+	}
 
 	ngOnInit() {
 		this.service.queryOverview();

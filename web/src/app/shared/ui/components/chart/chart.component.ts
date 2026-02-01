@@ -4,7 +4,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 
 import type { ElementRef } from "@angular/core";
 
-import { afterNextRender, Component, input, ViewChild } from "@angular/core";
+import { afterNextRender, Component, effect, input, signal, ViewChild } from "@angular/core";
 
 Chart.register(...registerables, ChartDataLabels);
 
@@ -20,21 +20,36 @@ Chart.register(...registerables, ChartDataLabels);
 export default class ChartComponent {
 	private chart?: Chart;
 
+	private chartReady = signal(false);
+
 	@ViewChild("chartCanvas") canvas!: ElementRef<HTMLCanvasElement>;
 	config = input.required<ChartConfiguration["data"]>();
 	options = input<ChartConfiguration["options"]>();
+
 	type = input.required<"bar" | "doughnut" | "line">();
 
 	constructor() {
 		afterNextRender(() => {
-			let data = this.config();
+			this.initChart();
+			this.chartReady.set(true);
+		});
 
-			if (this.chart) {
-				this.chart.data = data;
-				this.chart.update();
-			} else {
-				this.initChart();
-			}
+		effect(() => {
+			if (!this.chartReady()) return;
+
+			let data = this.config();
+			let options = this.options();
+
+			if (!this.chart) return;
+
+			this.chart.data = data;
+			this.chart.options = {
+				maintainAspectRatio: false,
+				responsive: true,
+				...options,
+			};
+
+			this.chart.update();
 		});
 	}
 

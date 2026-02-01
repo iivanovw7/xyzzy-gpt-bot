@@ -36,6 +36,7 @@ pub struct OverviewTransaction {
 #[serde(rename_all = "camelCase")]
 pub struct OverviewResponse {
     pub currency: String,
+    pub categories_summary: CategoriesSummary,
     pub month: u32,
     pub month_balance: f64,
     pub month_income: f64,
@@ -67,6 +68,22 @@ pub struct BudgetingTransaction {
     pub date: NaiveDateTime,
     pub description: String,
     pub accumulatded_amount: f64,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct CategorySummary {
+    pub category: String,
+    pub monthly_summaries: Vec<MonthlySummary>,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct CategoriesSummary {
+    pub year: u32,
+    pub categories: Vec<CategorySummary>,
 }
 
 #[derive(Deserialize, Serialize, TS)]

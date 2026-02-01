@@ -12,6 +12,16 @@
 		justify-content: center;
 	}
 
+	.budgeting__overview-category-filter-box {
+		@include px(2);
+		@include my(3);
+		@include justify-align-flex;
+
+		flex-direction: column;
+		width: 100%;
+		height: auto;
+	}
+
 	.budgeting__overview-chart,
 	.budgeting__overview-chart-trends {
 		@include card;
