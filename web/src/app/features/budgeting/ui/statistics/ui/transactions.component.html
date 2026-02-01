@@ -30,6 +30,13 @@
 		@if (!!data.transactions.length) {
 			<div class="transactions__container">
 				@for (tx of data.transactions; track tx.id) {
+					@if (tx.isFirstTransactionInMonth) {
+						<div class="transactions__month-header">
+							<div class="transactions__month-header-content">
+								{{ tx.date * 1000 | date: "MMMM yyyy" }}
+							</div>
+						</div>
+					}
 					<ng-container *ngTemplateOutlet="row; context: { $implicit: tx, currency: data.currency }" />
 				}
 			</div>

@@ -24,7 +24,9 @@
 				<span>Spending:</span>
 				<b [style.color]="'var(--text-error)'">-{{ data.monthSpending | currency: data.currency }}</b>
 			</div>
-			<span class="budgeting__overview-content-header-month">for {{ transformMonth(data.month) }}</span>
+			<span class="budgeting__overview-content-header-month"
+				>for {{ transformMonth(data.month) }} {{ data.year }}</span
+			>
 		</div>
 	}
 }

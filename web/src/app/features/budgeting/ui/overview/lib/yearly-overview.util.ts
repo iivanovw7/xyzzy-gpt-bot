@@ -54,7 +54,7 @@ export const getYearlyBarChartOptions = (currencyFormatter: CurrencyFormatter): 
 	return {
 		layout: {
 			padding: {
-				top: 40,
+				top: 50,
 			},
 		},
 		maintainAspectRatio: false,

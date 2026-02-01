@@ -42,6 +42,7 @@ export type OverviewResponse = {
   monthTransactions: Array<OverviewTransaction>;
   monthTransactionsCount: number;
   monthSummary: MonthlySummary;
+  year: number;
   yearSummary: YearlySummary;
 };
 
@@ -54,6 +55,17 @@ export type OverviewTransaction = {
   description: string;
 };
 
+export type StatisticsTransaction = {
+  id: bigint;
+  amount: number;
+  category: string;
+  isIncome: boolean;
+  date: number;
+  description: string;
+  accumulatdedAmount: number;
+  isFirstTransactionInMonth: boolean;
+};
+
 export type TransactionQuery = {
   category: string | null;
   description: string | null;
@@ -63,7 +75,7 @@ export type TransactionsResponse = {
   currency: string;
   year: number;
   transactionsCategories: Array<string>;
-  transactions: Array<BudgetingTransaction>;
+  transactions: Array<StatisticsTransaction>;
   transactionsCount: number;
 };
 

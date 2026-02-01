@@ -146,6 +146,7 @@ pub async fn get(
             income: month_income,
             spending: month_spending,
         },
+        year: current_year,
         year_summary,
     };
 

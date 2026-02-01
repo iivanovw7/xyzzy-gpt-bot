@@ -7,7 +7,7 @@ use actix_web::web::Data;
 use actix_web::{web, Error as ActixError, HttpRequest, HttpResponse};
 use chrono::Datelike;
 use chrono::Local;
-use shared::{BudgetingTransaction, TransactionQuery, TransactionsResponse};
+use shared::{StatisticsTransaction, TransactionQuery, TransactionsResponse};
 use std::sync::Arc;
 
 pub async fn get(
@@ -31,7 +31,7 @@ pub async fn get(
     all_year_txs.sort_by(|a, b| a.date.cmp(&b.date));
 
     let mut accumulated_balance = 0.0;
-    let mut transactions: Vec<BudgetingTransaction> = vec![];
+    let mut transactions: Vec<StatisticsTransaction> = vec![];
     let mut categories_set: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
 
     let category_filter = query.category.as_deref();
@@ -55,7 +55,7 @@ pub async fn get(
 
             accumulated_balance += tx_amount_float;
 
-            transactions.push(BudgetingTransaction {
+            transactions.push(StatisticsTransaction {
                 id: tx.id,
                 amount: tx_amount_float.abs().round(),
                 category: tx.category_name.clone(),
@@ -63,11 +63,27 @@ pub async fn get(
                 date: tx.date,
                 description: tx.description.clone(),
                 accumulatded_amount: accumulated_balance,
+                is_first_transaction_in_month: false,
             });
         }
     }
 
     transactions.reverse();
+
+    for i in 0..transactions.len() {
+        let current = &transactions[i];
+
+        let is_first_transaction_in_month = match i {
+            0 => true,
+            _ => {
+                let prev = &transactions[i - 1];
+
+                current.date.month() != prev.date.month() || current.date.year() != prev.date.year()
+            }
+        };
+
+        transactions[i].is_first_transaction_in_month = is_first_transaction_in_month;
+    }
 
     let response = TransactionsResponse {
         currency: "EUR".to_string(),
