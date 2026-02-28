@@ -115,6 +115,10 @@ export default class BudgetingOverveiwComponent implements OnInit {
 		);
 	});
 
+	protected yearlyIncomeTrendsOptions = computed(() => {
+		return getCategoryStackedOptions(this.currencyFormatter);
+	});
+
 	protected yearlyOverviewData = computed(() => {
 		let summary = this.service.overview()?.yearSummary;
 
@@ -142,7 +146,7 @@ export default class BudgetingOverveiwComponent implements OnInit {
 		);
 	});
 
-	protected yearlyTrendsOptions = computed(() => {
+	protected yearlySpendingTrendsOptions = computed(() => {
 		return getCategoryStackedOptions((value) => `- ${this.currencyFormatter(value)}`);
 	});
 

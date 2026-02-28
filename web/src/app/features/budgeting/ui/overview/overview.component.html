@@ -66,7 +66,7 @@
 </div>
 
 <div class="budgeting__overview-content">
-	@if (service.status() === "success" && yearlySpendingTrendsData() && yearlyTrendsOptions()) {
+	@if (service.status() === "success" && yearlySpendingTrendsData() && yearlySpendingTrendsOptions()) {
 		<h2 class="budgeting__overview-content-card-title">Yearly spending trends</h2>
 		<div class="budgeting__overview-content-card-divider"></div>
 		<span class="budgeting__overview-content-card-subtitle">{{ yearlyOverviewDataYear() }}</span>
@@ -75,14 +75,14 @@
 			class="budgeting__overview-chart-trends"
 			type="bar"
 			[config]="yearlySpendingTrendsData()!"
-			[options]="yearlyTrendsOptions()!"></div>
+			[options]="yearlySpendingTrendsOptions()!"></div>
 	} @else if (service.status() === "loading") {
 		<div app-skeleton class="budgeting__overview-skeleton-content-chart-trends"></div>
 	}
 </div>
 
 <div class="budgeting__overview-content">
-	@if (service.status() === "success" && yearlyIncomeTrendsData() && yearlyTrendsOptions()) {
+	@if (service.status() === "success" && yearlyIncomeTrendsData() && yearlyIncomeTrendsOptions()) {
 		<h2 class="budgeting__overview-content-card-title">Yearly income trends</h2>
 		<div class="budgeting__overview-content-card-divider"></div>
 		<span class="budgeting__overview-content-card-subtitle">{{ yearlyOverviewDataYear() }}</span>
@@ -91,7 +91,7 @@
 			class="budgeting__overview-chart-trends"
 			type="bar"
 			[config]="yearlyIncomeTrendsData()!"
-			[options]="yearlyTrendsOptions()!"></div>
+			[options]="yearlyIncomeTrendsOptions()!"></div>
 	} @else if (service.status() === "loading") {
 		<div app-skeleton class="budgeting__overview-skeleton-content-chart-trends"></div>
 	}
