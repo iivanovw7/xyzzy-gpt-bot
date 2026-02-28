@@ -24,8 +24,8 @@ export default class ComboboxComponent {
 	};
 	protected readonly open = signal(false);
 
+	readonly isClearable = input<boolean>(true);
 	readonly items = input<string[]>([]);
-
 	readonly placeholder = input<string>("Select...");
 
 	readonly value = model<null | string>(null);

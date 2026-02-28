@@ -24,6 +24,8 @@ export type LoginPayload = { initData: string };
 
 export type LoginResponse = { accessToken: string; userId: string };
 
+export type MonthlyIncomeSummary = { name: string; amounts: Array<number> };
+
 export type MonthlySpendingSummary = { name: string; amounts: Array<number> };
 
 export type MonthlySummary = {
@@ -85,4 +87,5 @@ export type YearlySummary = {
   year: number;
   monthly_summaries: Array<MonthlySummary>;
   monthly_spending_summaries: Array<MonthlySpendingSummary>;
+  monthly_income_summaries: Array<MonthlyIncomeSummary>;
 };

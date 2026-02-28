@@ -4,3 +4,5 @@ web:
     cd web && pnpm dev
 gen:
     cd shared && cargo test
+test:
+    pnpm test

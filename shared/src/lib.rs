@@ -129,12 +129,20 @@ pub struct MonthlySpendingSummary {
     pub amounts: Vec<f64>,
 }
 
+#[derive(Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+pub struct MonthlyIncomeSummary {
+    pub name: String,
+    pub amounts: Vec<f64>,
+}
+
 #[derive(Deserialize, Serialize, TS)]
 #[ts(export, export_to = "../generated/bindings.ts")]
 pub struct YearlySummary {
     pub year: u32,
     pub monthly_summaries: Vec<MonthlySummary>,
     pub monthly_spending_summaries: Vec<MonthlySpendingSummary>,
+    pub monthly_income_summaries: Vec<MonthlyIncomeSummary>,
 }
 
 #[derive(Deserialize, Serialize, TS)]

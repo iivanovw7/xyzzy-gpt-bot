@@ -43,6 +43,9 @@ pub async fn get(
         std::collections::BTreeMap<u32, (f64, f64)>,
     > = std::collections::HashMap::new();
 
+    let mut monthly_income_summaries_map: std::collections::BTreeMap<String, Vec<f64>> =
+        std::collections::BTreeMap::new();
+
     let mut monthly_spending_summaries_map: std::collections::BTreeMap<String, Vec<f64>> =
         std::collections::BTreeMap::new();
 
@@ -62,6 +65,12 @@ pub async fn get(
         if tx.amount > 0 {
             global_entry.0 += tx_amount_float;
             cat_entry.0 += tx_amount_float;
+
+            let amounts = monthly_income_summaries_map
+                .entry(tx.category_name.clone())
+                .or_insert(vec![0.0; 12]);
+
+            amounts[(tx_month - 1) as usize] += tx_amount_float;
         } else {
             global_entry.1 += tx_amount_abs;
             cat_entry.1 += tx_amount_abs;
@@ -125,6 +134,10 @@ pub async fn get(
             .clone()
             .into_iter()
             .map(|(name, amounts)| shared::MonthlySpendingSummary { name, amounts })
+            .collect(),
+        monthly_income_summaries: monthly_income_summaries_map
+            .into_iter()
+            .map(|(name, amounts)| shared::MonthlyIncomeSummary { name, amounts })
             .collect(),
     };
 

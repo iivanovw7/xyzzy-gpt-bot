@@ -102,6 +102,19 @@ export default class BudgetingOverveiwComponent implements OnInit {
 		return getMonthlyDonutOptions(this.currencyFormatter);
 	});
 
+	protected yearlyIncomeTrendsData = computed(() => {
+		let overview = this.service.overview();
+
+		if (!overview?.yearSummary.monthly_income_summaries) return null;
+
+		return getCategoryStackedChartConfig(
+			overview.yearSummary.monthly_income_summaries.map((category) => ({
+				data: category.amounts,
+				name: category.name,
+			})),
+		);
+	});
+
 	protected yearlyOverviewData = computed(() => {
 		let summary = this.service.overview()?.yearSummary;
 
@@ -116,7 +129,7 @@ export default class BudgetingOverveiwComponent implements OnInit {
 		return getYearlyBarChartOptions(this.currencyFormatter);
 	});
 
-	protected yearlyTrendsData = computed(() => {
+	protected yearlySpendingTrendsData = computed(() => {
 		let overview = this.service.overview();
 
 		if (!overview?.yearSummary.monthly_spending_summaries) return null;
