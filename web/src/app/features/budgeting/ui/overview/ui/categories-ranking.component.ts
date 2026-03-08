@@ -20,7 +20,8 @@ import { OverviewService } from "../service/overview.service";
 	templateUrl: "./categories-ranking.component.html",
 })
 export default class CategoriesRankingComponent {
-	protected categoriesRankingExpanded = false;
+	protected categoriesIncomeRankingExpanded = false;
+	protected categoriesSpendingRankingExpanded = false;
 
 	protected readonly service = inject(OverviewService);
 
@@ -28,16 +29,43 @@ export default class CategoriesRankingComponent {
 		return this.service.overview()?.month ?? 1;
 	});
 
-	protected monthlyCategoriesRanking = computed(() => {
+	protected monthlyIncomeCategoriesRanking = computed(() => {
+		let overview = this.service.overview();
+		let summaries = overview?.yearSummary.monthly_income_summaries;
+
+		return this.getRanking(summaries, this.currentMonthIndex() - 1);
+	});
+
+	protected initialIncomeCategoriesRanking = computed(() => {
+		return splitAt(5, this.monthlyIncomeCategoriesRanking()).at(0);
+	});
+
+	protected monthlySpendingCategoriesRanking = computed(() => {
 		let overview = this.service.overview();
 		let summaries = overview?.yearSummary.monthly_spending_summaries;
 
+		return this.getRanking(summaries, this.currentMonthIndex() - 1);
+	});
+
+	protected initialSpendingCategoriesRanking = computed(() => {
+		return splitAt(5, this.monthlySpendingCategoriesRanking()).at(0);
+	});
+
+	protected restIncomeCategoriesRanking = computed(() => {
+		return splitAt(5, this.monthlyIncomeCategoriesRanking()).at(1);
+	});
+
+	protected restSpendingCategoriesRanking = computed(() => {
+		return splitAt(5, this.monthlySpendingCategoriesRanking()).at(1);
+	});
+
+	subtitle = input.required<string>();
+
+	private getRanking<T extends { amounts: number[]; name: string }>(summaries: T[] | undefined, monthIndex: number) {
 		if (!summaries) return [];
 
-		let monthIndex = this.currentMonthIndex() - 1;
-
 		let sortedCategories = pipe(
-			(items: typeof summaries) => {
+			(items: T[]) => {
 				return items.map((s) => ({
 					name: s.name,
 					value: s.amounts[monthIndex] || 0,
@@ -56,15 +84,5 @@ export default class CategoriesRankingComponent {
 		);
 
 		return sortedCategories(summaries);
-	});
-
-	protected initialCategoriesRanking = computed(() => {
-		return splitAt(5, this.monthlyCategoriesRanking()).at(0);
-	});
-
-	protected restCategoriesRanking = computed(() => {
-		return splitAt(5, this.monthlyCategoriesRanking()).at(1);
-	});
-
-	subtitle = input.required<string>();
+	}
 }

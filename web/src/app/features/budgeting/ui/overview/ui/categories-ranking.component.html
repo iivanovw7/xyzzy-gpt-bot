@@ -4,18 +4,53 @@
 	}
 	@case ("success") {
 		<div class="categories-ranking__container">
-			<h2 class="categories-ranking__title">Categories ranking</h2>
+			<h2 class="categories-ranking__title">Income categories ranking</h2>
 			<div class="categories-ranking__card-divider"></div>
 			<span class="categories-ranking__subtitle">{{ subtitle() }}</span>
 			<div class="categories-ranking__list">
-				@let maxVal = monthlyCategoriesRanking()[0]?.value ?? 1;
+				@let maxIncomeVal = monthlyIncomeCategoriesRanking()[0]?.value ?? 1;
 
-				@for (item of initialCategoriesRanking(); track item.name) {
+				@for (item of initialIncomeCategoriesRanking(); track item.name) {
+					<ng-container
+						*ngTemplateOutlet="category; context: { $implicit: item, max: maxIncomeVal, index: $index }" />
+				}
+				<div app-expand class="categories-ranking__expand" [expanded]="categoriesIncomeRankingExpanded">
+					@for (item of restIncomeCategoriesRanking(); track item.name) {
+						<ng-container
+							*ngTemplateOutlet="
+								category;
+								context: { $implicit: item, max: maxIncomeVal, index: $index + 5 }
+							" />
+					}
+				</div>
+				@if (!!restIncomeCategoriesRanking()?.length) {
+					<button
+						app-button
+						class="categories-ranking__expand-button"
+						[fill]="'none'"
+						(click)="categoriesIncomeRankingExpanded = !categoriesIncomeRankingExpanded">
+						{{
+							categoriesIncomeRankingExpanded
+								? "Show less"
+								: "Show more (" + restIncomeCategoriesRanking()?.length + ")"
+						}}
+					</button>
+				}
+			</div>
+		</div>
+		<div class="categories-ranking__container">
+			<h2 class="categories-ranking__title">Spending categories ranking</h2>
+			<div class="categories-ranking__card-divider"></div>
+			<span class="categories-ranking__subtitle">{{ subtitle() }}</span>
+			<div class="categories-ranking__list">
+				@let maxVal = monthlySpendingCategoriesRanking()[0]?.value ?? 1;
+
+				@for (item of initialSpendingCategoriesRanking(); track item.name) {
 					<ng-container
 						*ngTemplateOutlet="category; context: { $implicit: item, max: maxVal, index: $index }" />
 				}
-				<div app-expand class="categories-ranking__expand" [expanded]="categoriesRankingExpanded">
-					@for (item of restCategoriesRanking(); track item.name) {
+				<div app-expand class="categories-ranking__expand" [expanded]="categoriesSpendingRankingExpanded">
+					@for (item of restSpendingCategoriesRanking(); track item.name) {
 						<ng-container
 							*ngTemplateOutlet="
 								category;
@@ -23,16 +58,16 @@
 							" />
 					}
 				</div>
-				@if (!!restCategoriesRanking()?.length) {
+				@if (!!restSpendingCategoriesRanking()?.length) {
 					<button
 						app-button
 						class="categories-ranking__expand-button"
 						[fill]="'none'"
-						(click)="categoriesRankingExpanded = !categoriesRankingExpanded">
+						(click)="categoriesSpendingRankingExpanded = !categoriesSpendingRankingExpanded">
 						{{
-							categoriesRankingExpanded
+							categoriesSpendingRankingExpanded
 								? "Show less"
-								: "Show more (" + restCategoriesRanking()?.length + ")"
+								: "Show more (" + restSpendingCategoriesRanking()?.length + ")"
 						}}
 					</button>
 				}
