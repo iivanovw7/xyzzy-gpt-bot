@@ -33,7 +33,19 @@
 					@if (tx.isFirstTransactionInMonth) {
 						<div class="transactions__month-header">
 							<div class="transactions__month-header-content">
-								{{ tx.date * 1000 | date: "MMMM yyyy" }}
+								<span class="transactions__month-header-content-title">
+									{{ tx.date * 1000 | date: "MMMM yyyy" }}
+								</span>
+								<span
+									[style.color]="
+										service.getAccumulatedAmount(tx) >= 0
+											? 'var(--text-success)'
+											: 'var(--text-error)'
+									">
+									{{
+										service.getAccumulatedAmount(tx) | currency: data.currency : "symbol" : "1.2-2"
+									}}
+								</span>
 							</div>
 						</div>
 					}

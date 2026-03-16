@@ -43,7 +43,7 @@ pub struct StatisticsTransaction {
     #[ts(type = "number")]
     pub date: NaiveDateTime,
     pub description: String,
-    pub accumulatded_amount: f64,
+    pub accumulated_amount: f64,
     pub is_first_transaction_in_month: bool,
 }
 
@@ -70,21 +70,6 @@ pub struct OverviewResponse {
 pub struct TransactionQuery {
     pub category: Option<String>,
     pub description: Option<String>,
-}
-
-#[derive(Deserialize, Serialize, TS)]
-#[ts(export, export_to = "../generated/bindings.ts")]
-#[serde(rename_all = "camelCase")]
-pub struct BudgetingTransaction {
-    pub id: i64,
-    pub amount: f64,
-    pub category: String,
-    pub is_income: bool,
-    #[serde(with = "ts_seconds")]
-    #[ts(type = "number")]
-    pub date: NaiveDateTime,
-    pub description: String,
-    pub accumulatded_amount: f64,
 }
 
 #[derive(Deserialize, Serialize, TS)]

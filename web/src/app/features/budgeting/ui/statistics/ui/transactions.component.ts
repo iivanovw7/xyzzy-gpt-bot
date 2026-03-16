@@ -1,4 +1,4 @@
-import type { BudgetingTransaction } from "@bindings";
+import type { StatisticsTransaction } from "@bindings";
 
 import { config } from "@/app/shared/config";
 import ButtonComponent from "@/app/shared/ui/components/button/button.component";
@@ -29,7 +29,7 @@ export default class TransactionsComponent {
 	protected readonly selectedCategory = signal<Nullable<string>>(null);
 	protected readonly service = inject(StatisticsService);
 
-	protected trackTransactionById = (_index: number, transaction: BudgetingTransaction) => {
+	protected trackTransactionById = (_index: number, transaction: StatisticsTransaction) => {
 		return transaction.id;
 	};
 

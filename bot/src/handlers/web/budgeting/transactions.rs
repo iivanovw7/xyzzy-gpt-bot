@@ -62,7 +62,7 @@ pub async fn get(
                 is_income: tx.amount > 0,
                 date: tx.date,
                 description: tx.description.clone(),
-                accumulatded_amount: accumulated_balance,
+                accumulated_amount: accumulated_balance,
                 is_first_transaction_in_month: false,
             });
         }

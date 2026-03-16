@@ -110,10 +110,14 @@
 	.transactions__month-header-content {
 		@include mt(1);
 		@include text-setting(base);
+		@include justify-align-flex(space-between, center);
 
 		padding: 0;
-		color: var(--tertiary);
 		border-bottom: rem(2px) solid var(--tertiary);
+	}
+
+	.transactions__month-header-content-title {
+		color: var(--tertiary);
 	}
 
 	.transactions__date-label {
