@@ -71,8 +71,8 @@
 			</span>
 			<span
 				class="transactions__content-col-acc"
-				[style.color]="tx.accumulatdedAmount >= 0 ? 'var(--text-success)' : 'var(--text-error)'">
-				{{ tx.accumulatdedAmount | currency: curr : "symbol" : "1.2-2" }}
+				[style.color]="tx.accumulatedAmount >= 0 ? 'var(--text-success)' : 'var(--text-error)'">
+				{{ tx.accumulatedAmount | currency: curr : "symbol" : "1.2-2" }}
 			</span>
 		</div>
 	</div>
