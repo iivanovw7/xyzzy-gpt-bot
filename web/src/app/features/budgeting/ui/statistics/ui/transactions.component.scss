@@ -83,10 +83,42 @@
 
 	.transactions__content-col-amount {
 		@include text-setting(base);
+
+		color: var(--text-error);
+	}
+
+	.transactions__content-col-amount__income {
+		color: var(--text-success);
+	}
+
+	.transactions__content-col-amount-label {
+		color: var(--text-secondary);
+	}
+
+	.transactions__content-divider {
+		@include m(1, 2);
+
+		width: calc(100% - rem(16px));
+		height: rem(1px);
+		border-bottom: rem(2px) solid var(--secondary);
 	}
 
 	.transactions__content-col-acc {
-		@include text-setting(base);
+		@include text-setting(xs);
+
+		color: var(--text-error);
+	}
+
+	.transactions__content-col-acc__container {
+		@include pr(2);
+
+		display: flex;
+		justify-content: flex-end;
+		width: 100%;
+	}
+
+	.transactions__content-col-acc__income {
+		color: var(--text-success);
 	}
 
 	.transactions__filters-box {
@@ -120,8 +152,18 @@
 		color: var(--tertiary);
 	}
 
+	.transactions__month-header-content-amount {
+		@include text-setting(xs);
+
+		color: var(--text-error);
+	}
+
+	.transactions__month-header-content-amount__income {
+		color: var(--text-success);
+	}
+
 	.transactions__date-label {
-		@include text-setting(sm);
+		@include text-setting(xs);
 
 		color: var(--text-secondary);
 	}
