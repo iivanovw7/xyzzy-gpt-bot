@@ -36,14 +36,19 @@
 								<span class="transactions__month-header-content-title">
 									{{ tx.date * 1000 | date: "MMMM yyyy" }}
 								</span>
-								<span
-									class="transactions__month-header-content-amount"
-									[class.transactions___month-header-content-amount__income]="
-										service.getAccumulatedAmount(tx) >= 0
-									">
-									{{
-										service.getAccumulatedAmount(tx) | currency: data.currency : "symbol" : "1.2-2"
-									}}
+								<span>
+									<span class="transactions__month-header-content-title">[</span>
+									<span
+										class="transactions__month-header-content-amount"
+										[class.transactions__month-header-content-amount__income]="
+											service.getAccumulatedAmount(tx) >= 0
+										">
+										{{
+											service.getAccumulatedAmount(tx)
+												| currency: data.currency : "symbol" : "1.2-2"
+										}}
+									</span>
+									<span class="transactions__month-header-content-title">]</span>
 								</span>
 							</div>
 						</div>
@@ -73,12 +78,13 @@
 			</span>
 		</div>
 	</div>
-	<span class="transactions__content-divider"></span>
 	<span class="transactions__content-col-acc__container">
+		<span class="transactions__content-col-acc-label">Acc: </span>
 		<span
 			class="transactions__content-col-acc"
 			[class.transactions__content-col-acc__income]="tx.accumulatedAmount >= 0">
 			{{ tx.accumulatedAmount | currency: curr : "symbol" : "1.2-2" }}
 		</span>
 	</span>
+	<span class="transactions__content-divider"></span>
 </ng-template>

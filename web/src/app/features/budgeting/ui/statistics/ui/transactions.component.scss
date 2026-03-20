@@ -82,7 +82,7 @@
 	}
 
 	.transactions__content-col-amount {
-		@include text-setting(base);
+		@include text-setting(md);
 
 		color: var(--text-error);
 	}
@@ -103,8 +103,15 @@
 		border-bottom: rem(2px) solid var(--secondary);
 	}
 
+	.transactions__content-col-acc-label {
+		@include text-setting(sm);
+		@include mr(2);
+
+		color: var(--text-secondary);
+	}
+
 	.transactions__content-col-acc {
-		@include text-setting(xs);
+		@include text-setting(sm);
 
 		color: var(--text-error);
 	}
@@ -142,8 +149,9 @@
 	.transactions__month-header-content {
 		@include mt(1);
 		@include text-setting(base);
-		@include justify-align-flex(space-between, center);
+		@include justify-align-flex(flex-start, center);
 
+		gap: rem(16px);
 		padding: 0;
 		border-bottom: rem(2px) solid var(--tertiary);
 	}
@@ -153,7 +161,7 @@
 	}
 
 	.transactions__month-header-content-amount {
-		@include text-setting(xs);
+		@include text-setting(sm);
 
 		color: var(--text-error);
 	}

@@ -57,7 +57,7 @@ pub async fn get(
 
             transactions.push(StatisticsTransaction {
                 id: tx.id,
-                amount: tx_amount_float.abs().round(),
+                amount: tx_amount_float.abs(),
                 category: tx.category_name.clone(),
                 is_income: tx.amount > 0,
                 date: tx.date,
