@@ -1,5 +1,4 @@
 <header app-layout-header title="Budgeting"></header>
-<div app-tabs class="budgeting-page__tabs" [items]="['Overview', 'Transactions']" [(activeItemIndex)]="activeTab"></div>
 <div class="budgeting-page__content">
 	@if (activeTab() === 0) {
 		<div app-budgeting-overview></div>
@@ -8,4 +7,5 @@
 		<div app-budgeting-statistics></div>
 	}
 </div>
+<div app-tabs class="budgeting-page__tabs" [items]="['Overview', 'Transactions']" [(activeItemIndex)]="activeTab"></div>
 <nav app-navigation></nav>

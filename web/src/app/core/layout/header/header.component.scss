@@ -2,11 +2,14 @@
 
 :host(.header) {
 	@include p(2);
+	@include position(fixed, 0 auto auto auto);
+	@include z-index(overlay);
 
 	display: flex;
 	flex-direction: column;
 	gap: rem(24px);
 	width: 100%;
+	background-color: var(--background-content);
 	border-bottom: 1px solid var(--tertiary);
 
 	.header__container {

@@ -10,7 +10,7 @@
 
 	@if list.index($list, $value) {
 		@return $value;
-	} @else if meta.type-of($value) == "number" and not math.unitless($value) {
+	} @else if meta.type-of($value) == "number" and not math.is-unitless($value) {
 		@return $value;
 	} @else {
 		@warn 'Please pass some values with unit like `#{$value}px`, `#{$value}em`, or `#{$value}%` etc. or pass one of the following arguments: `auto`, ìnherit`, ìnitial` or `0`.';
