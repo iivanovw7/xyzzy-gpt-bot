@@ -8,6 +8,7 @@ use ts_rs::TS;
 pub struct LoginResponse {
     pub access_token: String,
     pub user_id: String,
+    pub username: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, TS)]
@@ -15,6 +16,7 @@ pub struct LoginResponse {
 #[serde(rename_all = "camelCase")]
 pub struct UserResponse {
     pub user_id: String,
+    pub username: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, TS)]
@@ -135,4 +137,16 @@ pub struct YearlySummary {
 #[serde(rename_all = "camelCase")]
 pub struct LoginPayload {
     pub init_data: String,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct SysInfoResponse {
+    pub uptime: u64,
+    pub total_mem: u64,
+    pub used_mem: u64,
+    pub cpu_usage: f32,
+    pub os_version: Option<String>,
+    pub db_latency_ms: u128,
 }

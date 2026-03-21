@@ -12,7 +12,11 @@ export type CategorySummary = {
 
 export type LoginPayload = { initData: string };
 
-export type LoginResponse = { accessToken: string; userId: string };
+export type LoginResponse = {
+  accessToken: string;
+  userId: string;
+  username: string | null;
+};
 
 export type MonthlyIncomeSummary = { name: string; amounts: Array<number> };
 
@@ -58,6 +62,15 @@ export type StatisticsTransaction = {
   isFirstTransactionInMonth: boolean;
 };
 
+export type SysInfoResponse = {
+  uptime: bigint;
+  totalMem: bigint;
+  usedMem: bigint;
+  cpuUsage: number;
+  osVersion: string | null;
+  dbLatencyMs: bigint;
+};
+
 export type TransactionQuery = {
   category: string | null;
   description: string | null;
@@ -71,7 +84,7 @@ export type TransactionsResponse = {
   transactionsCount: number;
 };
 
-export type UserResponse = { userId: string };
+export type UserResponse = { userId: string; username: string | null };
 
 export type YearlySummary = {
   year: number;

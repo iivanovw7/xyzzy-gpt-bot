@@ -10,4 +10,60 @@
 		display: flex;
 		flex-direction: column;
 	}
+
+	.home-page__greeting {
+		@include text-setting(lg);
+	}
+
+	.home-page__user-id {
+		@include text-setting(sm);
+		@include mb(2);
+
+		color: var(--text-secondary);
+	}
+
+	.home-page__heading {
+		@include text-setting(md);
+		@include pt(1);
+	}
+
+	.home-page__sysinfo {
+		@include p(1, 2);
+
+		display: grid;
+		background-color: var(--background-primary);
+		border: 1px solid var(--divider-dark);
+	}
+
+	.home-page__sysinfo-item {
+		@include justify-align-flex(space-between, center);
+
+		padding: rem(4px) 0;
+	}
+
+	.home-page__sysinfo-label {
+		@include text-setting(sm);
+
+		color: var(--text-secondary);
+	}
+
+	.home-page__sysinfo-value {
+		@include text-setting(sm);
+
+		font-family: monospace;
+	}
+
+	.home-page__username {
+		@include mr(1);
+
+		color: var(--accent4);
+	}
+
+	.home-page__divider {
+		@include m(1, 0);
+
+		width: 100%;
+		height: rem(1px);
+		border-bottom: rem(1px) solid var(--divider-dark);
+	}
 }

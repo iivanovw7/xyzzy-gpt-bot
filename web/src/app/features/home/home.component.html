@@ -1,6 +1,40 @@
 <header app-layout-header title="Profile"></header>
 <div class="home-page__content">
-	<h1>Hello, {{ user()?.id || "-" }}</h1>
-	<p>Congratulations! Your app is running. 🎉</p>
+	<h1 class="home-page__greeting">
+		<span>Hello, </span>
+		<span class="home-page__username">{{ user()?.username || "" }}</span>
+		<span>!</span>
+	</h1>
+	@if (user()?.id) {
+		<p class="home-page__user-id">[{{ user()?.id }}]</p>
+	}
+	@if (sysInfo()) {
+		<div class="home-page__divider"></div>
+		<h2 class="home-page__heading">System Info</h2>
+		<div class="home-page__sysinfo">
+			<div class="home-page__sysinfo-item">
+				<span class="home-page__sysinfo-label">OS Version</span>
+				<span class="home-page__sysinfo-value">{{ sysInfo()?.osVersion || "Unknown" }}</span>
+			</div>
+			<div class="home-page__sysinfo-item">
+				<span class="home-page__sysinfo-label">Uptime</span>
+				<span class="home-page__sysinfo-value">{{ sysInfo()?.formattedUptime }}</span>
+			</div>
+			<div class="home-page__sysinfo-item">
+				<span class="home-page__sysinfo-label">CPU Usage</span>
+				<span class="home-page__sysinfo-value">{{ sysInfo()?.formattedCpu }}</span>
+			</div>
+			<div class="home-page__sysinfo-item">
+				<span class="home-page__sysinfo-label">Memory</span>
+				<span class="home-page__sysinfo-value"
+					>{{ sysInfo()?.formattedUsedMem }} / {{ sysInfo()?.formattedTotalMem }}</span
+				>
+			</div>
+			<div class="home-page__sysinfo-item">
+				<span class="home-page__sysinfo-label">DB Latency</span>
+				<span class="home-page__sysinfo-value">{{ sysInfo()?.dbLatencyMs }}ms</span>
+			</div>
+		</div>
+	}
 </div>
 <nav app-navigation></nav>

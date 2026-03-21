@@ -74,6 +74,7 @@ pub async fn server() {
                 .app_data(web::Data::new(Arc::new(ENV.clone())))
                 .app_data(web::Data::new(Arc::new(CONFIG.clone())))
                 .app_data(web::Data::new(web_db.clone()))
+                .route("/api/sysinfo", web::get().to(handlers::web::sysinfo::get))
                 .route("/api/user", web::get().to(handlers::web::user::get))
                 .route(
                     "/api/auth/login",

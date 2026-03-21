@@ -85,7 +85,10 @@ export class AuthService {
 				tap((response) => {
 					this.saveAccessToken(response.accessToken);
 					this.startTokenRefreshTimer();
-					this.setUser({ id: response.userId });
+					this.setUser({
+						id: response.userId,
+						username: response.username,
+					});
 				}),
 				catchError((errorData) => {
 					this.logout();
@@ -113,6 +116,7 @@ export class AuthService {
 					(token): LoginResponse => ({
 						accessToken: token,
 						userId: this.currentUser()?.id ?? "",
+						username: this.currentUser()?.username ?? null,
 					}),
 				),
 			);
@@ -131,7 +135,10 @@ export class AuthService {
 			)
 			.pipe(
 				tap((response) => {
-					this.setUser({ id: response.userId });
+					this.setUser({
+						id: response.userId,
+						username: response.username,
+					});
 					this.saveAccessToken(response.accessToken);
 					this.isRefreshing = false;
 					this.refreshToken$.next(response.accessToken);

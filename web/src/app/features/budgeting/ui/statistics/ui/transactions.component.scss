@@ -100,7 +100,7 @@
 
 		width: calc(100% - rem(16px));
 		height: rem(1px);
-		border-bottom: rem(2px) solid var(--secondary);
+		border-bottom: rem(1px) solid var(--divider);
 	}
 
 	.transactions__content-col-acc-label {

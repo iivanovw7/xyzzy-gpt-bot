@@ -16,7 +16,7 @@
 	}
 
 	.header__title {
-		@include text-setting(lg);
+		@include text-setting(xl);
 	}
 
 	.header__title-container {
@@ -24,5 +24,12 @@
 
 		flex: 1;
 		flex-direction: row;
+		gap: rem(12px);
+	}
+
+	.header__logo {
+		@include sizer(48px);
+
+		object-fit: contain;
 	}
 }

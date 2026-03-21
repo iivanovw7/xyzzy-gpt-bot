@@ -12,9 +12,13 @@ use sha2::Sha256;
 use shared::{LoginPayload, LoginResponse};
 use std::sync::Arc;
 use teloxide::types::UserId;
+use tracing::info;
 use url::form_urlencoded;
 
-pub fn validate_telegram_init_data(init_data: &str, bot_token: &str) -> Result<u64, Box<AppError>> {
+pub fn validate_telegram_init_data(
+    init_data: &str,
+    bot_token: &str,
+) -> Result<(u64, Option<String>), Box<AppError>> {
     let mut params: Vec<(String, String)> = form_urlencoded::parse(init_data.as_bytes())
         .into_owned()
         .collect();
@@ -22,7 +26,7 @@ pub fn validate_telegram_init_data(init_data: &str, bot_token: &str) -> Result<u
     if cfg!(debug_assertions) && init_data == "dev_mode_active" {
         tracing::info!("dev mode, validation bypassed");
 
-        return Ok(ENV.user_id);
+        return Ok((ENV.user_id, Some("dev_user".to_string())));
     }
 
     let hash = params
@@ -64,13 +68,29 @@ pub fn validate_telegram_init_data(init_data: &str, bot_token: &str) -> Result<u
         .map(|(_, v)| v.clone())
         .ok_or_else(|| AppError::InternalError("No user data".into()))?;
 
-    let v: serde_json::Value = serde_json::from_str(&user_json).unwrap();
+    let user_json_value: serde_json::Value = serde_json::from_str(&user_json).unwrap();
 
-    let user_id = v["id"]
+    let user_id = user_json_value["id"]
         .as_u64()
         .ok_or_else(|| AppError::InternalError("Invalid User ID".into()))?;
 
-    Ok(user_id)
+    let username = user_json_value["username"]
+        .as_str()
+        .map(|s| s.to_string())
+        .or_else(|| {
+            let first_name = user_json_value["first_name"].as_str().unwrap_or("");
+            let last_name = user_json_value["last_name"].as_str().unwrap_or("");
+
+            let name = format!("{} {}", first_name, last_name).trim().to_string();
+
+            if name.is_empty() {
+                None
+            } else {
+                Some(name)
+            }
+        });
+
+    Ok((user_id, username))
 }
 
 fn create_refresh_cookie(refresh_token: String) -> Cookie<'static> {
@@ -87,9 +107,11 @@ pub async fn login(
     jwt_secret: web::Data<String>,
     _config: web::Data<Arc<Config>>,
     auth_state: AuthState,
+    db: web::Data<Arc<crate::types::databases::Database>>,
 ) -> Result<HttpResponse, ActixError> {
-    let user_id_u64 = validate_telegram_init_data(&payload.init_data, &ENV.token)
-        .map_err(|_| actix_web::error::ErrorUnauthorized("Telegram Auth Failed"))?;
+    let (user_id_u64, web_username) =
+        validate_telegram_init_data(&payload.init_data, &ENV.token)
+            .map_err(|_| actix_web::error::ErrorUnauthorized("Telegram Auth Failed"))?;
 
     let user_id = UserId(user_id_u64);
     let user_id_str = user_id_u64.to_string();
@@ -99,9 +121,16 @@ pub async fn login(
         .await
         .map_err(|_| actix_web::error::ErrorInternalServerError("Token issue failed"))?;
 
+    db.users()
+        .upsert_user(user_id_u64 as i64, web_username)
+        .await;
+    let user = db.users().get_user_by_telegram_id(user_id_u64 as i64).await;
+    info!("user from db: {:?}", user);
+
     let response = LoginResponse {
         access_token: tokens.access_token,
         user_id: user_id_str,
+        username: user.and_then(|u| u.username),
     };
 
     let refresh_cookie = create_refresh_cookie(tokens.refresh_token);
@@ -115,6 +144,7 @@ pub async fn refresh(
     _env: web::Data<Arc<Env>>,
     config: web::Data<Arc<Config>>,
     refresh_state: AuthState,
+    db: web::Data<Arc<crate::types::databases::Database>>,
 ) -> Result<HttpResponse, ActixError> {
     if !config.web.auth {
         return Err(actix_web::error::ErrorForbidden(
@@ -170,9 +200,13 @@ pub async fn refresh(
 
     let refresh_cookie = create_refresh_cookie(new_tokens.refresh_token);
 
+    let parsed_user_id = user_id_str.parse::<i64>().unwrap_or_default();
+    let user = db.users().get_user_by_telegram_id(parsed_user_id).await;
+
     let response = LoginResponse {
         access_token: new_tokens.access_token,
         user_id: user_id_str,
+        username: user.and_then(|u| u.username),
     };
 
     Ok(HttpResponse::Ok().cookie(refresh_cookie).json(response))
