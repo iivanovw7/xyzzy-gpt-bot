@@ -148,5 +148,5 @@ pub struct SysInfoResponse {
     pub used_mem: u64,
     pub cpu_usage: f32,
     pub os_version: Option<String>,
-    pub db_latency_ms: u128,
+    pub db_latency_ms: f64,
 }

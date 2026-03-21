@@ -27,9 +27,14 @@ const formatUptime = (secondsString: bigint | number | string) => {
 	return `${days}d ${hours}h ${mins}m`;
 };
 
+const formatDatabaseLatency = (ms: number) => {
+	return `${ms.toFixed(2)} ms`;
+};
+
 const enhanceSysInfo = (info: SysInfoResponse) => {
 	return mergeRight(info, {
 		formattedCpu: formatCpu(info.cpuUsage),
+		formattedDbLatency: formatDatabaseLatency(info.dbLatencyMs),
 		formattedTotalMem: formatMemory(info.totalMem),
 		formattedUptime: formatUptime(info.uptime),
 		formattedUsedMem: formatMemory(info.usedMem),

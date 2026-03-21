@@ -68,7 +68,7 @@ export type SysInfoResponse = {
   usedMem: bigint;
   cpuUsage: number;
   osVersion: string | null;
-  dbLatencyMs: bigint;
+  dbLatencyMs: number;
 };
 
 export type TransactionQuery = {

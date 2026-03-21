@@ -11,7 +11,7 @@ pub async fn get(db: web::Data<Arc<Database>>) -> Result<HttpResponse, ActixErro
 
     let db_start = Instant::now();
     let _ = sqlx::query("SELECT 1").execute(&db.pool).await;
-    let db_latency = db_start.elapsed().as_millis();
+    let db_latency = db_start.elapsed().as_secs_f64() * 1000.0;
 
     let response = SysInfoResponse {
         uptime: System::uptime(),
