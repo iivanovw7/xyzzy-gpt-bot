@@ -46,7 +46,6 @@
 			@include p(1);
 
 			white-space: nowrap;
-			border-bottom: rem(1px) solid var(--divider-dark);
 		}
 
 		td {
@@ -74,28 +73,23 @@
 		display: inline-flex;
 		width: fit-content;
 		line-height: 1.2rem;
-		color: var(--text-primary);
+		color: var(--text-inversed);
 		text-transform: uppercase;
-		background-color: var(--divider-dark);
+		background-color: var(--accent5);
 
 		&--weekend {
 			color: var(--text-inversed);
-			background-color: var(--accent4);
+			background-color: var(--accent1);
 		}
 	}
 
 	.home-page__cell-primary {
 		@include pb(0);
-
-		display: grid;
-		grid-template-columns: 50px auto;
 	}
 
 	.home-page__cell-secondary {
 		@include text-setting(sm);
 
-		display: grid;
-		grid-template-columns: 50px auto;
 		color: var(--text-secondary);
 	}
 
@@ -111,7 +105,7 @@
 
 	.home-page__arrow {
 		display: flex;
-		color: var(--accent5);
+		color: var(--accent1);
 
 		&--wind {
 			color: var(--text-secondary);

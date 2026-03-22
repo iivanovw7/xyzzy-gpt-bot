@@ -51,10 +51,10 @@ export const getTideChartConfig = (tides: number[]): ChartConfiguration["data"] 
 						let index = context.dataIndex;
 						let height = tides[index];
 						let hour = index;
-						let period = hour >= 12 ? "PM" : "AM";
+						let period = hour >= 12 ? "pm" : "am";
 						let hour12 = hour % 12 || 12;
 
-						return [`${height.toFixed(1)}m`, `${hour12}:00${period}`];
+						return `${height.toFixed(1)}m/${hour12}${period}`;
 					},
 				},
 				offset: 10,

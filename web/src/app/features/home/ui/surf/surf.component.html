@@ -11,6 +11,10 @@
 							<div class="home-page__th-sub">&nbsp;</div>
 						</th>
 						<th>
+							SR / SS
+							<div class="home-page__th-sub">&nbsp;</div>
+						</th>
+						<th>
 							Swell Size
 							<div class="home-page__th-sub">Wind Speed</div>
 						</th>
@@ -36,10 +40,16 @@
 									<div class="home-page__badge" [class.home-page__badge--weekend]="day.isWeekend">
 										{{ day.formattedWeekday }}
 									</div>
-									<span class="home-page__sun-info-inline">🌅 {{ day.formattedSunrise }}</span>
 								</div>
 								<div class="home-page__cell-secondary">
 									<span>{{ day.formattedDate }}</span>
+								</div>
+							</td>
+							<td>
+								<div class="home-page__cell-primary">
+									<span class="home-page__sun-info-inline">🌅 {{ day.formattedSunrise }}</span>
+								</div>
+								<div class="home-page__cell-secondary">
 									<span class="home-page__sun-info-inline">🌇 {{ day.formattedSunset }}</span>
 								</div>
 							</td>
@@ -80,12 +90,14 @@
 								</div>
 							</td>
 							<td [style.box-shadow]="'inset -4px 0 0 ' + day.energyColor">
-								<div class="home-page__cell-primary">{{ day.swellEnergy | number: "1.0-0" }} kJ</div>
+								<div [style.color]="day.energyColor" class="home-page__cell-primary">
+									{{ day.swellEnergy | number: "1.0-0" }} kJ
+								</div>
 								<div class="home-page__cell-secondary">&nbsp;</div>
 							</td>
 						</tr>
 						<tr class="home-page__tides-row">
-							<td [style.box-shadow]="'inset -4px 0 0 ' + day.energyColor" colspan="5">
+							<td [style.box-shadow]="'inset -4px 0 0 ' + day.energyColor" colspan="6">
 								<div class="home-page__tides-container">
 									<div class="home-page__tides-chart">
 										<div
