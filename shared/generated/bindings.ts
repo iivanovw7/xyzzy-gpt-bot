@@ -62,6 +62,24 @@ export type StatisticsTransaction = {
   isFirstTransactionInMonth: boolean;
 };
 
+export type SurfDailyReport = {
+  swellHeight: number;
+  swellPeriod: number;
+  swellDirection: number;
+  swellEnergy: number;
+  windSpeed: number;
+  windDirection: number;
+  timestamp: string;
+  sunrise: string;
+  sunset: string;
+  hourlyTides: Array<number>;
+};
+
+export type SurfReportResponse = {
+  location: string;
+  daily: Array<SurfDailyReport>;
+};
+
 export type SysInfoResponse = {
   uptime: bigint;
   totalMem: bigint;

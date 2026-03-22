@@ -8,6 +8,8 @@ $z-index: (
 	content: 1,
 	overlay: 1000,
 	progress: 5000,
+	navbar: 200,
+	navbar-extension: 201,
 );
 
 @function z-index($key) {

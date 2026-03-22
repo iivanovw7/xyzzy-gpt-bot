@@ -150,3 +150,27 @@ pub struct SysInfoResponse {
     pub os_version: Option<String>,
     pub db_latency_ms: f64,
 }
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct SurfReportResponse {
+    pub location: String,
+    pub daily: Vec<SurfDailyReport>,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct SurfDailyReport {
+    pub swell_height: f32,
+    pub swell_period: f32,
+    pub swell_direction: f32,
+    pub swell_energy: f32,
+    pub wind_speed: f32,
+    pub wind_direction: f32,
+    pub timestamp: String,
+    pub sunrise: String,
+    pub sunset: String,
+    pub hourly_tides: Vec<f32>,
+}

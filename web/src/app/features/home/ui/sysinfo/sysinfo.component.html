@@ -1,0 +1,29 @@
+@if (sysInfo()) {
+	<div class="home-page__setcion">
+		<h2 class="home-page__heading">💻 System Info</h2>
+		<div class="home-page__sysinfo">
+			<div class="home-page__sysinfo-item">
+				<span class="home-page__sysinfo-label">OS Version</span>
+				<span class="home-page__sysinfo-value">{{ sysInfo()?.osVersion || "Unknown" }}</span>
+			</div>
+			<div class="home-page__sysinfo-item">
+				<span class="home-page__sysinfo-label">Uptime</span>
+				<span class="home-page__sysinfo-value">{{ sysInfo()?.formattedUptime }}</span>
+			</div>
+			<div class="home-page__sysinfo-item">
+				<span class="home-page__sysinfo-label">CPU Usage</span>
+				<span class="home-page__sysinfo-value">{{ sysInfo()?.formattedCpu }}</span>
+			</div>
+			<div class="home-page__sysinfo-item">
+				<span class="home-page__sysinfo-label">Memory</span>
+				<span class="home-page__sysinfo-value"
+					>{{ sysInfo()?.formattedUsedMem }} / {{ sysInfo()?.formattedTotalMem }}</span
+				>
+			</div>
+			<div class="home-page__sysinfo-item">
+				<span class="home-page__sysinfo-label">DB Latency</span>
+				<span class="home-page__sysinfo-value">{{ sysInfo()?.formattedDbLatency }}</span>
+			</div>
+		</div>
+	</div>
+}

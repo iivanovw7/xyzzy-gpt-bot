@@ -1,0 +1,105 @@
+@if (surfReport()) {
+	<div class="home-page__section">
+		<h2 class="home-page__heading">🏄 Surf Forecast</h2>
+		<span>{{ surfReport()?.location }}</span>
+		<div class="home-page__surf-table-container">
+			<table class="home-page__surf-table">
+				<thead>
+					<tr>
+						<th>
+							Date
+							<div class="home-page__th-sub">&nbsp;</div>
+						</th>
+						<th>
+							Swell Size
+							<div class="home-page__th-sub">Wind Speed</div>
+						</th>
+						<th>
+							Period
+							<div class="home-page__th-sub">&nbsp;</div>
+						</th>
+						<th>
+							Swell Dir
+							<div class="home-page__th-sub">Wind Dir</div>
+						</th>
+						<th>
+							Energy
+							<div class="home-page__th-sub">&nbsp;</div>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					@for (day of surfReport()?.daily; track day.timestamp) {
+						<tr>
+							<td>
+								<div class="home-page__cell-primary">
+									<div class="home-page__badge" [class.home-page__badge--weekend]="day.isWeekend">
+										{{ day.formattedWeekday }}
+									</div>
+									<span class="home-page__sun-info-inline">🌅 {{ day.formattedSunrise }}</span>
+								</div>
+								<div class="home-page__cell-secondary">
+									<span>{{ day.formattedDate }}</span>
+									<span class="home-page__sun-info-inline">🌇 {{ day.formattedSunset }}</span>
+								</div>
+							</td>
+							<td>
+								<div class="home-page__cell-primary">🌊 {{ day.swellHeight | number: "1.1-2" }} m</div>
+								<div class="home-page__cell-secondary">
+									🌬️ {{ day.windSpeed | number: "1.0-1" }} m/s
+								</div>
+							</td>
+							<td>
+								<div class="home-page__cell-primary">{{ day.swellPeriod | number: "1.0-1" }} s</div>
+								<div class="home-page__cell-secondary">&nbsp;</div>
+							</td>
+							<td>
+								<div class="home-page__cell-primary">
+									<div class="home-page__direction">
+										<span class="home-page__direction-value"
+											>{{ day.swellDirection | number: "1.0-0" }}°</span
+										>
+										<app-icon
+											class="home-page__arrow"
+											name="MoveUp"
+											size="x-small"
+											[style.transform]="'rotate(' + day.swellArrowRotation + 'deg)'"></app-icon>
+									</div>
+								</div>
+								<div class="home-page__cell-secondary">
+									<div class="home-page__direction">
+										<span class="home-page__direction-value"
+											>{{ day.windDirection | number: "1.0-0" }}°</span
+										>
+										<app-icon
+											class="home-page__arrow home-page__arrow--wind"
+											name="MoveUp"
+											size="x-small"
+											[style.transform]="'rotate(' + day.windArrowRotation + 'deg)'"></app-icon>
+									</div>
+								</div>
+							</td>
+							<td [style.box-shadow]="'inset -4px 0 0 ' + day.energyColor">
+								<div class="home-page__cell-primary">{{ day.swellEnergy | number: "1.0-0" }} kJ</div>
+								<div class="home-page__cell-secondary">&nbsp;</div>
+							</td>
+						</tr>
+						<tr class="home-page__tides-row">
+							<td [style.box-shadow]="'inset -4px 0 0 ' + day.energyColor" colspan="5">
+								<div class="home-page__tides-container">
+									<div class="home-page__tides-chart">
+										<div
+											app-chart
+											type="line"
+											[config]="day.tideChartConfig"
+											[options]="day.tideChartOptions"></div>
+									</div>
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+}

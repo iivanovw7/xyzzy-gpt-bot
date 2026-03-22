@@ -8,6 +8,7 @@ pub struct Config {
     pub open_ai: OpenAiConfig,
     pub web: WebConfig,
     pub api: ApiConfig,
+    pub surf: SurfConfig,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -26,6 +27,13 @@ pub struct WebConfig {
     pub url: String,
     pub port: u16,
     pub dist: String,
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct SurfConfig {
+    pub location: String,
+    pub lon: f32,
+    pub lat: f32,
 }
 
 lazy_static! {

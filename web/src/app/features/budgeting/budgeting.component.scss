@@ -16,11 +16,13 @@
 	}
 
 	.budgeting-page__tabs {
-		@include sizer(100%, rem(54px));
+		@include sizer(100%, auto);
 		@include p(3, 3, 0);
 		@include position(fixed, auto auto 60px auto);
-		@include z-index(overlay);
+		@include z-index(navbar-extension);
 
 		background-color: var(--background-primary);
+		border-top: 1px solid var(--tertiary);
+		border-bottom: 1px solid var(--backgroud-primary);
 	}
 }

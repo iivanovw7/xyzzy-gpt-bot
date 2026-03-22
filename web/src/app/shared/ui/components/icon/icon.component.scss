@@ -10,37 +10,37 @@
 
 	&--size-x-small {
 		@include sizer(rem(20px));
+
+		.icon-svg {
+			@include sizer(rem(16px));
+		}
 	}
 
 	&--size-small {
 		@include sizer(rem(36px));
+
+		.icon-svg {
+			@include sizer(rem(20px));
+		}
 	}
 
 	&--size-medium {
 		@include sizer(rem(40px));
+
+		.icon-svg {
+			@include sizer(rem(24px));
+		}
 	}
 
 	&--size-large {
 		@include sizer(rem(48px));
+
+		.icon-svg {
+			@include sizer(rem(32px));
+		}
 	}
 
 	.icon-svg {
-		&--size-x-small {
-			@include sizer(rem(16px));
-		}
-
-		&--size-small {
-			@include sizer(rem(20px));
-		}
-
-		&--size-medium {
-			@include sizer(rem(24px));
-		}
-
-		&--size-large {
-			@include sizer(rem(32px));
-		}
-
 		color: inherit;
 		fill: currentcolor;
 	}
