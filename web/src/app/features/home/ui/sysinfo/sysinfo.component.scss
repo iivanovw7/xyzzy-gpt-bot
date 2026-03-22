@@ -1,0 +1,47 @@
+@use "abstracts" as *;
+@use "mixins" as *;
+
+:host(.sysinfo-page) {
+	display: block;
+
+	.home-page__section {
+		@include m(1);
+	}
+
+	.home-page__divider {
+		@include m(3, 0);
+
+		width: 100%;
+		height: rem(1px);
+		border-bottom: rem(1px) solid var(--divider-dark);
+	}
+
+	.home-page__heading {
+		@include text-setting(md);
+		@include pt(2);
+	}
+
+	.home-page__sysinfo {
+		@include p(1, 2);
+
+		display: grid;
+		background-color: var(--background-primary);
+		border: 1px solid var(--divider-dark);
+	}
+
+	.home-page__sysinfo-item {
+		@include justify-align-flex(space-between, center);
+
+		padding: rem(4px) 0;
+	}
+
+	.home-page__sysinfo-label {
+		@include text-setting(sm);
+
+		color: var(--text-secondary);
+	}
+
+	.home-page__sysinfo-value {
+		@include text-setting(sm);
+	}
+}

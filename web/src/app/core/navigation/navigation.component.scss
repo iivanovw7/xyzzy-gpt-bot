@@ -6,12 +6,13 @@
 	@include m(0);
 	@include p(3);
 	@include sizer(100%, rem(74px));
-	@include z-index(overlay);
+	@include z-index(navbar);
 
 	display: grid;
 	grid-template-columns: repeat(6, minmax(0, 1fr));
 	gap: rem(8px);
 	background-color: var(--background-primary);
+	border-top: 1px solid var(--tertiary);
 
 	.navigation__item {
 		display: inline-flex;

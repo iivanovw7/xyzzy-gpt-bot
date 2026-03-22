@@ -1,0 +1,154 @@
+@use "abstracts" as *;
+@use "mixins" as *;
+
+:host(.surf-forecast) {
+	display: block;
+
+	.home-page__section {
+		@include m(1);
+	}
+
+	.home-page__divider {
+		@include m(3, 0);
+		@include sizer(100%, auto);
+
+		height: rem(1px);
+		border-bottom: rem(1px) solid var(--divider-dark);
+	}
+
+	.home-page__heading {
+		@include text-setting(md);
+		@include pt(2);
+	}
+
+	.home-page__surf-table-container {
+		@include pt(2);
+
+		overflow-x: auto;
+	}
+
+	.home-page__surf-table {
+		@include text-setting(sm);
+		@include sizer(100%, auto);
+
+		text-align: left;
+		border-collapse: collapse;
+		background-color: var(--background-content);
+		border: rem(1px) solid var(--divider-dark);
+
+		th {
+			color: var(--text-primary);
+			background-color: var(--background-primary);
+		}
+
+		th,
+		td {
+			@include p(1);
+
+			white-space: nowrap;
+			border-bottom: rem(1px) solid var(--divider-dark);
+		}
+
+		td {
+			@include p(1);
+		}
+
+		tr:last-child td {
+			border-bottom: none;
+		}
+	}
+
+	.home-page__th-sub {
+		@include mt(0);
+		@include text-setting(xs);
+
+		color: var(--text-secondary);
+	}
+
+	.home-page__badge {
+		@include text-setting(xs);
+		@include mb(1);
+		@include p(0, 1);
+		@include border-radius($border-radius-x-small);
+
+		display: inline-flex;
+		width: fit-content;
+		line-height: 1.2rem;
+		color: var(--text-primary);
+		text-transform: uppercase;
+		background-color: var(--divider-dark);
+
+		&--weekend {
+			color: var(--text-inversed);
+			background-color: var(--accent4);
+		}
+	}
+
+	.home-page__cell-primary {
+		@include pb(0);
+
+		display: grid;
+		grid-template-columns: 50px auto;
+	}
+
+	.home-page__cell-secondary {
+		@include text-setting(sm);
+
+		display: grid;
+		grid-template-columns: 50px auto;
+		color: var(--text-secondary);
+	}
+
+	.home-page__direction {
+		display: flex;
+		gap: rem(4px);
+		align-items: center;
+	}
+
+	.home-page__direction-value {
+		width: rem(40px);
+	}
+
+	.home-page__arrow {
+		display: flex;
+		color: var(--accent5);
+
+		&--wind {
+			color: var(--text-secondary);
+		}
+	}
+
+	.home-page__tides-row td {
+		padding: 0;
+		background-color: var(--background-secondary);
+		border-bottom: rem(2px) solid var(--divider-dark);
+	}
+
+	.home-page__tides-container {
+		@include p(0);
+		@include m(1, 2, 1, 0);
+
+		display: flex;
+		align-items: center;
+	}
+
+	.home-page__sun-info-inline {
+		@include ml(1);
+		@include text-setting(xs);
+
+		line-height: 1.2rem;
+		color: var(--text-secondary);
+		white-space: nowrap;
+	}
+
+	.home-page__tides-chart {
+		width: 100%;
+		height: rem(40px);
+
+		& > * {
+			display: block;
+			width: 100%;
+			height: 100%;
+		}
+	}
+}

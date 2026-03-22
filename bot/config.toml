@@ -7,3 +7,7 @@ port = 5005
 dist = "./web-dist/browser"
 [api]
 port = 8080
+[surf]
+location = "Costa de Caparica, Almada, Setubal, Portugal"
+lat = 38.7067
+lon = -9.4139

@@ -8,10 +8,10 @@ import { Icon } from "./icon.registry";
 @Component({
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	host: {
-		"[class.icon--large]": 'size() === "large"',
-		"[class.icon--medium]": 'size() === "medium"',
-		"[class.icon--small]": 'size() === "small"',
-		"[class.icon--x-small]": 'size() === "x-small"',
+		"[class.icon--size-large]": 'size() === "large"',
+		"[class.icon--size-medium]": 'size() === "medium"',
+		"[class.icon--size-small]": 'size() === "small"',
+		"[class.icon--size-x-small]": 'size() === "x-small"',
 		class: "icon",
 	},
 	imports: [TuiIcon],
