@@ -6,21 +6,15 @@
 	width: 100%;
 
 	--tui-base-01: transparent;
+	--tui-height-m: #{rem(42px)};
+	--tui-height-s: #{rem(25.2px)};
 }
 
 .input {
-	@include sizer(auto, rem(36px));
 	@include border-radius($border-radius-x-small);
 
-	background: var(--control-backgroud-primary);
+	background: var(--control-background-primary);
 	border: rem(1px) solid var(--control-border-primary);
-	transition:
-		border-color 0.2s,
-		box-shadow 0.2s;
-
-	&:focus-within {
-		border-color: var(--accent3);
-	}
 
 	input {
 		@include border-radius($border-radius-x-small);
@@ -31,6 +25,22 @@
 		outline: none;
 		background: transparent;
 		border: none;
+		box-shadow: none !important;
+		transition: $transition-color;
+
+		&:focus-visible {
+			@include focus-outline(outline);
+		}
+
+		&::-webkit-outer-spin-button,
+		&::-webkit-inner-spin-button {
+			margin: 0;
+			appearance: none;
+		}
+
+		&[type="number"] {
+			appearance: textfield;
+		}
 
 		&::placeholder {
 			color: var(--text-secondary);

@@ -4,26 +4,37 @@
 :host {
 	display: block;
 	width: 100%;
+
+	--tui-base-01: transparent;
+	--tui-height-m: #{rem(42px)};
+	--tui-height-s: #{rem(25.2px)};
 }
 
 .combobox {
-	@include sizer(auto, rem(36px));
 	@include border-radius($border-radius-x-small);
 
 	overflow: hidden;
 	appearance: none;
-	background: var(--control-backgroud-primary);
+	background: var(--control-background-primary);
 	border: rem(1px) solid var(--control-border-primary);
-	transition:
-		border-color 0.2s,
-		box-shadow 0.2s;
+	transition: $transition-color;
+
+	&:focus-within {
+		@include focus-outline(outline);
+	}
+
+	&:hover {
+		tui-icon {
+			color: var(--control-primary);
+		}
+	}
 
 	input {
 		@include text-setting(base);
 		@include p(1, 3);
 
 		color: var(--control-primary);
-		outline: none;
+		outline: none !important;
 		background: transparent;
 		border: none;
 

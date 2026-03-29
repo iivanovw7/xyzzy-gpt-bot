@@ -12,6 +12,7 @@
 
 	.tabs__button {
 		@include p(1, 2);
+		@include border-radius($border-radius-x-small);
 
 		color: var(--text-primary);
 		cursor: pointer;
@@ -21,6 +22,14 @@
 		&._active {
 			color: var(--text-inversed);
 			background-color: var(--tab-button-active-background);
+		}
+
+		&:focus-visible {
+			@include focus-outline(outline);
+
+			&:not(:focus) {
+				outline: none;
+			}
 		}
 	}
 }

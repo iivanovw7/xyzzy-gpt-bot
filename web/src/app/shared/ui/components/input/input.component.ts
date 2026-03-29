@@ -11,7 +11,10 @@ import { TuiIcon, TuiTextfield } from "@taiga-ui/core";
 	templateUrl: "./input.component.html",
 })
 export default class InputComponent {
+	readonly disabled = input(false);
 	readonly isSearch = input(false);
 	readonly placeholder = input<string>("");
-	readonly value = model<string>("");
+	readonly size = input<"m" | "s">("m");
+	readonly type = input<string>("text");
+	readonly value = model<number | string>("");
 }

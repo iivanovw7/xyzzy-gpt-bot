@@ -1,4 +1,4 @@
-<tui-textfield class="combobox" [tuiTextfieldCleaner]="isClearable()">
+<tui-textfield class="combobox" [tuiTextfieldCleaner]="isClearable() && size() !== 's'" [tuiTextfieldSize]="size()">
 	<input tuiComboBox [placeholder]="placeholder()" [(ngModel)]="value" />
 	<tui-data-list-wrapper [items]="items() | tuiFilterByInput: matcher" *tuiTextfieldDropdown new>
 	</tui-data-list-wrapper>

@@ -3,12 +3,14 @@
 	<span class="transactions__title-year">for {{ service.transactions()?.year }}</span>
 	<div class="transactions__filters-box">
 		<app-combobox
+			size="m"
 			class="transactions__filter-combobox"
 			[items]="service.transactions()?.transactionsCategories ?? []"
 			[(value)]="selectedCategory"
 			placeholder="Filter by Category">
 		</app-combobox>
-		<app-input placeholder="Search by description..." [(value)]="searchTerm" [isSearch]="true"> </app-input>
+		<app-input size="m" placeholder="Search by description..." [(value)]="searchTerm" [isSearch]="true">
+		</app-input>
 	</div>
 </div>
 

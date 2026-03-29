@@ -89,8 +89,16 @@ pub async fn server() {
                     web::get().to(handlers::web::budgeting::overview::get),
                 )
                 .route(
+                    "/api/budgeting/recurrent",
+                    web::get().to(handlers::web::budgeting::recurrent::get),
+                )
+                .route(
                     "/api/budgeting/transactions",
                     web::get().to(handlers::web::budgeting::transactions::get),
+                )
+                .route(
+                    "/api/budgeting/transactions",
+                    web::post().to(handlers::web::budgeting::transactions::post),
                 )
                 .route(
                     "/api/surf/forecast",

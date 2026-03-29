@@ -23,6 +23,21 @@
 			<div app-surf-forecast></div>
 		}
 	}
+	@switch (recurrentService.status()) {
+		@case ("loading") {
+			<div app-skeleton class="home-page__sysinfo-skeleton-title"></div>
+			<div app-skeleton class="home-page__sysinfo-skeleton"></div>
+		}
+		@case ("error") {
+			<div class="home-page__sysinfo-error">
+				<p>Failed to load recurrent payments.</p>
+				<button app-button (click)="recurrentService.queryRecurrent()">Reload</button>
+			</div>
+		}
+		@case ("success") {
+			<div app-recurrent></div>
+		}
+	}
 	@switch (sysInfoService.status()) {
 		@case ("loading") {
 			<div app-skeleton class="home-page__sysinfo-skeleton-title"></div>

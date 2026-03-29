@@ -1,0 +1,112 @@
+@use "abstracts" as *;
+@use "mixins" as *;
+
+:host(.recurrent-page) {
+	display: block;
+
+	.home-page__section {
+		@include m(1);
+	}
+
+	.home-page__heading {
+		@include text-setting(md);
+		@include pt(2);
+	}
+
+	.recurrent-stats {
+		@include p(2);
+		@include mb(2);
+		@include border-radius($border-radius-x-small);
+
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: rem(10px);
+		background-color: var(--background-primary);
+		border: 1px solid var(--divider-dark);
+	}
+
+	.progress-container {
+		@include mt(1);
+
+		grid-column: span 2;
+	}
+
+	.stat-item {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.stat-label {
+		@include text-setting(xs);
+
+		color: var(--text-secondary);
+	}
+
+	.stat-value {
+		@include text-setting(sm);
+
+		font-weight: bold;
+	}
+
+	.recurrent-section-title {
+		@include text-setting(sm);
+		@include mt(2);
+		@include mb(1);
+
+		color: var(--text-secondary);
+		text-transform: uppercase;
+	}
+
+	.recurrent-list {
+		display: flex;
+		flex-direction: column;
+		gap: rem(10px);
+	}
+
+	.recurrent-item {
+		@include justify-align-flex(space-between, center);
+		@include p(2);
+		@include border-radius($border-radius-x-small);
+
+		background-color: var(--background-primary);
+		border: 1px solid var(--divider-dark);
+
+		&.is-paid {
+			background-color: var(--background-secondary);
+			opacity: 60%;
+		}
+	}
+
+	.item-info {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.item-desc {
+		@include text-setting(sm);
+
+		font-weight: 500;
+	}
+
+	.item-status {
+		@include text-setting(xs);
+
+		font-weight: bold;
+		color: var(--text-success);
+	}
+
+	.item-action {
+		display: flex;
+		gap: rem(10px);
+		align-items: center;
+	}
+
+	.item-input {
+		width: rem(100px);
+	}
+
+	.item-pay-btn {
+		min-width: rem(60px);
+		padding: rem(4px) rem(8px);
+	}
+}

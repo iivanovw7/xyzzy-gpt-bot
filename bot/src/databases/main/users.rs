@@ -44,9 +44,12 @@ impl UsersDb {
             .and_then(|r| r.id)
     }
 
-    pub async fn get_user_by_telegram_id(&self, telegram_id: i64) -> Option<crate::types::models::User> {
+    pub async fn get_user_by_telegram_id(
+        &self,
+        telegram_id: i64,
+    ) -> Option<crate::types::models::User> {
         sqlx::query_as::<_, crate::types::models::User>(
-            "SELECT id, telegram_id, username FROM users WHERE telegram_id = ?"
+            "SELECT id, telegram_id, username FROM users WHERE telegram_id = ?",
         )
         .bind(telegram_id)
         .fetch_optional(&self.pool)

@@ -9,11 +9,17 @@ pub struct Config {
     pub web: WebConfig,
     pub api: ApiConfig,
     pub surf: SurfConfig,
+    pub budgeting: BudgetingConfig,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct OpenAiConfig {
     pub model: String,
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct BudgetingConfig {
+    pub recurrent_categories: Vec<i64>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]

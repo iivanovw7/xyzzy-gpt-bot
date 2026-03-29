@@ -12,6 +12,8 @@
 
 tui-root {
 	--tui-font-sans: inherit !important;
+	--tui-text-primary: var(--text-primary);
+	--tui-text-secondary: var(--text-secondary);
 
 	height: 100%;
 	color: var(--text-primary) !important;

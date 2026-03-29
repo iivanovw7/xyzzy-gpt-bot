@@ -19,6 +19,8 @@ import IconComponent from "../icon/icon.component";
 		"[class.button--fill-outline]": "fill() === 'outline'",
 		"[class.button--full-width]": "fullWidth()",
 		"[class.button--icon-only]": "icon() && !text()",
+		"[class.button--size-m]": "size() === 'm'",
+		"[class.button--size-s]": "size() === 's'",
 		class: "button",
 	},
 	imports: [CommonModule, IconComponent],
@@ -51,5 +53,6 @@ export default class ButtonComponent {
 
 	isLoading = input<boolean>(false);
 	loaderClass = input<string>("");
+	size = input<"m" | "s">("m");
 	text = input<Nullable<string>>(null);
 }
