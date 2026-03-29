@@ -11,3 +11,5 @@ port = 8080
 location = "Costa de Caparica, Almada, Setubal, Portugal"
 lat = 38.7067
 lon = -9.4139
+[budgeting]
+recurrent_categories = [11, 12, 22]

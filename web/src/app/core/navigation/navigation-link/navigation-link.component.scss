@@ -2,6 +2,7 @@
 
 .navigation-link {
 	@include justify-align-flex(center, flex-start);
+	@include border-radius($border-radius-x-small);
 
 	width: rem(40px);
 	color: var(--nav-link);

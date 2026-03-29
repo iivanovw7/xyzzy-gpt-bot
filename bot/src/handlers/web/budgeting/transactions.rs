@@ -2,12 +2,16 @@ use crate::handlers::auth;
 use crate::types::common::DateFilter;
 use crate::types::databases::Database;
 use crate::utils::statistics::amount_to_float;
+use crate::utils::strings::parse_amount;
 use crate::{config::Config, env::Env};
 use actix_web::web::Data;
 use actix_web::{web, Error as ActixError, HttpRequest, HttpResponse};
 use chrono::Datelike;
 use chrono::Local;
-use shared::{StatisticsTransaction, TransactionQuery, TransactionsResponse};
+use shared::{
+    CreateTransactionRequest, CreateTransactionResponse, StatisticsTransaction, TransactionQuery,
+    TransactionsResponse,
+};
 use std::sync::Arc;
 
 pub async fn get(
@@ -94,4 +98,47 @@ pub async fn get(
     };
 
     Ok(HttpResponse::Ok().json(serde_json::json!({ "data": response })))
+}
+
+pub async fn post(
+    req: HttpRequest,
+    payload: web::Json<CreateTransactionRequest>,
+    jwt_secret: web::Data<String>,
+    _env: web::Data<Arc<Env>>,
+    config: web::Data<Arc<Config>>,
+    db: Data<Arc<Database>>,
+) -> Result<HttpResponse, ActixError> {
+    let (user_id, _) = auth::jwt::authorize_request(req, jwt_secret, config.web.auth)?;
+    let parsed_user_id: i64 = user_id.trim().parse::<i64>().unwrap_or_default();
+
+    let categories_db = db.categories();
+
+    if !categories_db.has(payload.category).await {
+        return Ok(
+            HttpResponse::BadRequest().json(serde_json::json!({ "error": "Category not found" }))
+        );
+    }
+
+    let amount_str = payload.amount.to_string();
+    let amount = match parse_amount(&amount_str) {
+        Some(val) => val,
+        None => {
+            return Ok(HttpResponse::BadRequest()
+                .json(serde_json::json!({ "error": "Invalid amount format" })));
+        }
+    };
+
+    let transactions_db = db.transactions();
+
+    transactions_db
+        .add(
+            amount,
+            Some(payload.description.clone()),
+            parsed_user_id,
+            payload.category,
+        )
+        .await;
+
+    Ok(HttpResponse::Ok()
+        .json(serde_json::json!({ "data": CreateTransactionResponse { success: true } })))
 }

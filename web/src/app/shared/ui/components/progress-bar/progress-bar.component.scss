@@ -1,0 +1,17 @@
+@use "abstracts" as *;
+@use "mixins" as *;
+
+:host {
+	display: block;
+	width: 100%;
+
+	--tui-progress-color: var(--primary);
+	--tui-progress-bg: var(--background-primary);
+}
+
+.progress-bar {
+	width: 100%;
+	height: rem(8px);
+	background: var(--background-content);
+	border-radius: rem(4px);
+}

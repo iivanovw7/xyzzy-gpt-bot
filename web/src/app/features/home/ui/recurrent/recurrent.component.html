@@ -1,0 +1,66 @@
+@if (dashboard()) {
+	<div class="home-page__section">
+		<h2 class="home-page__heading">💸 Recurrent Payments</h2>
+
+		<div class="recurrent-stats">
+			<div class="stat-item">
+				<span class="stat-label">Commitment</span>
+				<span class="stat-value"
+					>{{ dashboard()?.monthlyStats?.totalMonthlyCommitment | number: "1.2-2" }}€</span
+				>
+			</div>
+			<div class="stat-item">
+				<span class="stat-label">Paid So Far</span>
+				<span class="stat-value">{{ dashboard()?.monthlyStats?.totalPaidSoFar | number: "1.2-2" }}€</span>
+			</div>
+			<div class="stat-item">
+				<span class="stat-label">Remaining</span>
+				<span class="stat-value">{{ dashboard()?.monthlyStats?.totalRemaining | number: "1.2-2" }}€</span>
+			</div>
+			<div class="stat-item">
+				<span class="stat-label">Progress</span>
+				<span class="stat-value">{{ dashboard()?.monthlyStats?.percentPaid }}%</span>
+			</div>
+			<div class="progress-container">
+				<app-progress-bar [value]="dashboard()?.monthlyStats?.percentPaid ?? 0"></app-progress-bar>
+			</div>
+		</div>
+
+		@for (section of dashboard()?.sections; track section.title) {
+			<h3 class="recurrent-section-title">{{ section.title }}</h3>
+			<div class="recurrent-list">
+				@for (item of section.items; track item.id) {
+					<div class="recurrent-item" [class.is-paid]="item.isPaidThisMonth">
+						<div class="item-info">
+							<span class="item-desc">{{ item.description }}</span>
+							@if (item.isPaidThisMonth) {
+								<span class="item-status">Paid</span>
+							}
+						</div>
+						<div class="item-action">
+							@if (item.isPaidThisMonth) {
+								<app-icon name="Check" size="medium"></app-icon>
+							} @else {
+								<app-input
+									#amountInput
+									type="number"
+									size="s"
+									[value]="item.lastAmount"
+									class="item-input"
+									[disabled]="item.isPaidThisMonth"></app-input>
+								<button
+									app-button
+									size="s"
+									(click)="pay(item, amountInput.value())"
+									[disabled]="item.isPaidThisMonth"
+									class="item-pay-btn">
+									Pay
+								</button>
+							}
+						</div>
+					</div>
+				}
+			</div>
+		}
+	</div>
+}

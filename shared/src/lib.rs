@@ -77,6 +77,22 @@ pub struct TransactionQuery {
 #[derive(Deserialize, Serialize, TS)]
 #[ts(export, export_to = "../generated/bindings.ts")]
 #[serde(rename_all = "camelCase")]
+pub struct CreateTransactionRequest {
+    pub amount: f64,
+    pub category: i64,
+    pub description: String,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct CreateTransactionResponse {
+    pub success: bool,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
 pub struct CategorySummary {
     pub category: String,
     pub monthly_summaries: Vec<MonthlySummary>,
@@ -173,4 +189,47 @@ pub struct SurfDailyReport {
     pub sunrise: String,
     pub sunset: String,
     pub hourly_tides: Vec<f32>,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct RecurrentPayment {
+    pub id: i64,
+    pub description: String,
+    pub last_amount: f64,
+    pub category_name: String,
+    pub category_id: i64,
+    #[serde(with = "ts_seconds")]
+    #[ts(type = "number")]
+    pub last_date: NaiveDateTime,
+    pub is_paid_this_month: bool,
+    pub occurrence_count: i32,
+    pub is_income: bool,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct RecurrentDashboard {
+    pub sections: Vec<RecurrentSection>,
+    pub monthly_stats: RecurrentStats,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct RecurrentSection {
+    pub title: String,
+    pub items: Vec<RecurrentPayment>,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct RecurrentStats {
+    pub total_monthly_commitment: f32,
+    pub total_paid_so_far: f32,
+    pub total_remaining: f32,
+    pub percent_paid: f32,
 }

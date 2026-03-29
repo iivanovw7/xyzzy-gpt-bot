@@ -10,6 +10,14 @@ export type CategorySummary = {
   monthlySummaries: Array<MonthlySummary>;
 };
 
+export type CreateTransactionRequest = {
+  amount: number;
+  category: bigint;
+  description: string;
+};
+
+export type CreateTransactionResponse = { success: boolean };
+
 export type LoginPayload = { initData: string };
 
 export type LoginResponse = {
@@ -49,6 +57,35 @@ export type OverviewTransaction = {
   isIncome: boolean;
   date: number;
   description: string;
+};
+
+export type RecurrentDashboard = {
+  sections: Array<RecurrentSection>;
+  monthlyStats: RecurrentStats;
+};
+
+export type RecurrentPayment = {
+  id: bigint;
+  description: string;
+  lastAmount: number;
+  categoryName: string;
+  categoryId: bigint;
+  lastDate: number;
+  isPaidThisMonth: boolean;
+  occurrenceCount: number;
+  isIncome: boolean;
+};
+
+export type RecurrentSection = {
+  title: string;
+  items: Array<RecurrentPayment>;
+};
+
+export type RecurrentStats = {
+  totalMonthlyCommitment: number;
+  totalPaidSoFar: number;
+  totalRemaining: number;
+  percentPaid: number;
 };
 
 export type StatisticsTransaction = {

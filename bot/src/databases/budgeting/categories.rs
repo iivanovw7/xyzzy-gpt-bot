@@ -90,4 +90,13 @@ impl CategoriesDb {
 
         row.is_some()
     }
+
+    pub async fn get_id_by_name(&self, name: &str) -> Option<i64> {
+        let row = sqlx::query!("SELECT id as \"id!\" FROM categories WHERE name = ?", name)
+            .fetch_optional(&self.pool)
+            .await
+            .unwrap();
+
+        row.map(|r| r.id)
+    }
 }

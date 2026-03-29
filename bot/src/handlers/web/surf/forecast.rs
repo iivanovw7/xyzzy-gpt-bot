@@ -81,14 +81,18 @@ pub async fn get(
         let day_start = i * 24;
         let day_end = day_start + 24;
 
-        if idx < m_data.hourly.time.len() && idx < w_data.hourly.wind_speed_10m.len() && i < w_data.daily.sunrise.len() {
+        if idx < m_data.hourly.time.len()
+            && idx < w_data.hourly.wind_speed_10m.len()
+            && i < w_data.daily.sunrise.len()
+        {
             let h = m_data.hourly.swell_wave_height[idx].unwrap_or(0.0);
             let p = m_data.hourly.swell_wave_period[idx].unwrap_or(0.0);
 
             let h_feet = h / 0.3048;
             let energy = h_feet.powi(2) * p;
 
-            let tides = m_data.hourly.sea_level_height_msl[day_start..day_end.min(m_data.hourly.sea_level_height_msl.len())]
+            let tides = m_data.hourly.sea_level_height_msl
+                [day_start..day_end.min(m_data.hourly.sea_level_height_msl.len())]
                 .iter()
                 .map(|v| v.unwrap_or(0.0))
                 .collect::<Vec<f32>>();
