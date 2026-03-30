@@ -1,13 +1,39 @@
 @charset "UTF-8";
 
-@use "./abstracts/typography" as *;
-@use "./abstracts/layout" as *;
-@use "./abstracts/media" as *;
-@use "./abstracts/convert" as *;
+@use "./abstracts" as *;
 @use "./mixins/mixins" as *;
 
 * {
 	@include scrollbars(rem(6px), var(--scrollbar-thumb), var(--scrollbar));
+}
+
+.progress {
+	@include sizer(100%, rem(4px));
+	@include z-index(progress);
+	@include position(fixed, 0 auto auto 0);
+
+	display: none;
+	overflow: hidden;
+	pointer-events: none;
+	background-color: var(--divider-dark);
+
+	&::before,
+	&::after {
+		@include sizer(33.33%, 100%);
+		@include position(absolute, 0 100% auto auto);
+
+		content: "";
+		background-color: var(--tertiary);
+		animation: progress 3s infinite $cb-transition;
+	}
+
+	&::after {
+		animation-delay: 1.5s;
+	}
+
+	&--is-visible {
+		display: block;
+	}
 }
 
 tui-root {

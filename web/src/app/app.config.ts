@@ -11,7 +11,7 @@ import { firstValueFrom, take } from "rxjs";
 
 import { routes } from "./app.routes";
 import { AuthService } from "./core/auth";
-import { apiInterceptor, errorInterceptor, tokenInterceptor } from "./core/interceptors";
+import { apiInterceptor, errorInterceptor, loadingInterceptor, tokenInterceptor } from "./core/interceptors";
 import { config } from "./shared/config";
 import { env } from "./shared/env";
 import { logger } from "./shared/logger";
@@ -50,7 +50,7 @@ export const appConfig: ApplicationConfig = {
 		provideEventPlugins(),
 		provideBrowserGlobalErrorListeners(),
 		provideRouter(routes),
-		provideHttpClient(withInterceptors([apiInterceptor, tokenInterceptor, errorInterceptor])),
+		provideHttpClient(withInterceptors([loadingInterceptor, apiInterceptor, tokenInterceptor, errorInterceptor])),
 		provideAppInitializer(async () => {
 			logger.configure({
 				enableColors: config.logger.logColors,

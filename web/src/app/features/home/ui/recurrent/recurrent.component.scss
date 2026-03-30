@@ -88,10 +88,24 @@
 		font-weight: 500;
 	}
 
-	.item-status {
+	.item-date {
 		@include text-setting(xs);
+		@include mt(0);
 
-		font-weight: bold;
+		line-height: 1rem;
+		color: var(--text-secondary);
+	}
+
+	.item-status-text {
+		@include text-setting(sm);
+
+		color: var(--text-secondary);
+	}
+
+	.item-status-icon {
+		@include sizer(rem(24px));
+
+		margin: 0 auto;
 		color: var(--text-success);
 	}
 

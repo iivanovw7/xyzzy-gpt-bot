@@ -5,7 +5,7 @@ import IconComponent from "@/app/shared/ui/components/icon/icon.component";
 import InputComponent from "@/app/shared/ui/components/input/input.component";
 import ProgressBarComponent from "@/app/shared/ui/components/progress-bar/progress-bar.component";
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 
 import { RecurrentService } from "../../service/recurrent.service";
 
@@ -21,11 +21,20 @@ import { RecurrentService } from "../../service/recurrent.service";
 export default class RecurrentComponent {
 	protected readonly recurrentService = inject(RecurrentService);
 	protected dashboard = this.recurrentService.dashboard;
+	protected loadingItems = signal<Set<bigint>>(new Set());
 
 	pay(item: RecurrentPayment, amountInput: number | string) {
 		let amount = typeof amountInput === "string" ? parseFloat(amountInput) : amountInput;
 
 		if (isNaN(amount) || amount <= 0) return;
+
+		this.loadingItems.update((set) => {
+			let newSet = new Set(set);
+
+			newSet.add(item.id);
+
+			return newSet;
+		});
 
 		this.recurrentService.postTransaction(
 			{
@@ -34,7 +43,16 @@ export default class RecurrentComponent {
 				description: item.description,
 			},
 			() => {
-				// Transaction successful
+				// TODO: notify success
+			},
+			() => {
+				this.loadingItems.update((set) => {
+					let newSet = new Set(set);
+
+					newSet.delete(item.id);
+
+					return newSet;
+				});
 			},
 		);
 	}

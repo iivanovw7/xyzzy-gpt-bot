@@ -10,7 +10,7 @@
 				>
 			</div>
 			<div class="stat-item">
-				<span class="stat-label">Paid So Far</span>
+				<span class="stat-label">Paid</span>
 				<span class="stat-value">{{ dashboard()?.monthlyStats?.totalPaidSoFar | number: "1.2-2" }}€</span>
 			</div>
 			<div class="stat-item">
@@ -33,13 +33,16 @@
 					<div class="recurrent-item" [class.is-paid]="item.isPaidThisMonth">
 						<div class="item-info">
 							<span class="item-desc">{{ item.description }}</span>
-							@if (item.isPaidThisMonth) {
-								<span class="item-status">Paid</span>
+							@if (item.lastDate > 0) {
+								<span class="item-date">{{ item.lastDate * 1000 | date: "d MMMM yyyy" }}</span>
 							}
 						</div>
 						<div class="item-action">
 							@if (item.isPaidThisMonth) {
-								<app-icon name="Check" size="medium"></app-icon>
+								@if (item.isPaidThisMonth) {
+									<span class="item-status-text">{{ item.lastAmount | number: "1.2-2" }}€</span>
+									<app-icon class="item-status-icon" name="Check" size="small"></app-icon>
+								}
 							} @else {
 								<app-input
 									#amountInput
@@ -52,7 +55,8 @@
 									app-button
 									size="s"
 									(click)="pay(item, amountInput.value())"
-									[disabled]="item.isPaidThisMonth"
+									[isLoading]="loadingItems().has(item.id)"
+									[disabled]="item.isPaidThisMonth || loadingItems().has(item.id)"
 									class="item-pay-btn">
 									Pay
 								</button>

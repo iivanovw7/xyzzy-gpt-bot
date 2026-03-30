@@ -33,10 +33,13 @@ export class RecurrentService {
 		}
 	});
 
-	postTransaction(data: CreateTransactionRequest, onSuccess: () => void) {
+	postTransaction(data: CreateTransactionRequest, onSuccess: () => void, onComplete?: () => void) {
 		this.http
 			.post<QueryResponse<CreateTransactionResponse>>("/budgeting/transactions", data)
 			.pipe(
+				finalize(() => {
+					if (onComplete) onComplete();
+				}),
 				catchError((errorData) => {
 					logger.error("RecurrentService post error", errorData.message);
 

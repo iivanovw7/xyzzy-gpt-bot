@@ -5,11 +5,10 @@
 	@include m(0);
 	@include p(1);
 	@include border-radius($border-radius-x-small);
+	@include justify-align-flex(center, center);
 
 	display: inline-flex;
 	flex-direction: row;
-	align-items: center;
-	justify-content: center;
 	color: var(--background-content);
 	cursor: pointer;
 	outline: none;
@@ -30,6 +29,10 @@
 
 		.button__text {
 			@include text-setting(sm);
+		}
+
+		.button__loader {
+			@include sizer(rem(14px));
 		}
 	}
 
@@ -72,11 +75,9 @@
 
 	.button__icon {
 		@include z-index(content);
+		@include justify-align-flex(center, center);
 
-		display: flex;
 		grid-area: icon;
-		align-items: center;
-		justify-content: center;
 		color: inherit;
 
 		.button--align-start {
@@ -94,13 +95,12 @@
 
 	.button__loader {
 		@include border-radius(50%);
+		@include sizer(rem(24px));
 
 		box-sizing: border-box;
 		display: inline-block;
-		width: rem(24px);
-		height: rem(24px);
-		border-top: rem(1px) solid var(--primary);
-		border-right: rem(1px) solid transparent;
+		border-top: rem(2px) solid currentcolor;
+		border-right: rem(2px) solid transparent;
 		animation: rotation 1s linear infinite;
 	}
 
@@ -109,12 +109,10 @@
 		@include z-index(content);
 		@include ellipsis;
 		@include mr(1);
+		@include justify-align-flex(center, center);
 
-		display: flex;
 		flex: 1 1 auto;
 		grid-area: text;
-		align-items: center;
-		justify-content: center;
 		order: 2;
 
 		&.button__text--align-center {
