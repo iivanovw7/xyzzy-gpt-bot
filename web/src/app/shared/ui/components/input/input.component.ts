@@ -13,6 +13,8 @@ import { TuiIcon, TuiTextfield } from "@taiga-ui/core";
 export default class InputComponent {
 	readonly disabled = input(false);
 	readonly isSearch = input(false);
+	readonly max = input<number | string>("");
+	readonly min = input<number | string>("");
 	readonly placeholder = input<string>("");
 	readonly size = input<"m" | "s">("m");
 	readonly type = input<string>("text");

@@ -35,7 +35,14 @@
 			</div>
 		}
 		@case ("success") {
-			<div app-recurrent></div>
+			<div
+				app-recurrent
+				[dashboard]="recurrentService.dashboards()?.expenses ?? null"
+				title="💸 Recurrent Payments"></div>
+			<div
+				app-recurrent
+				[dashboard]="recurrentService.dashboards()?.incomes ?? null"
+				title="💰 Recurrent Incomes"></div>
 		}
 	}
 	@switch (sysInfoService.status()) {

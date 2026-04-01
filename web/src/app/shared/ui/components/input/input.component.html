@@ -2,5 +2,12 @@
 	@if (isSearch()) {
 		<tui-icon tuiTextfieldIconLeft icon="@tui.search"></tui-icon>
 	}
-	<input tuiTextfield [disabled]="disabled()" [placeholder]="placeholder()" [type]="type()" [(ngModel)]="value" />
+	<input
+		tuiTextfield
+		[disabled]="disabled()"
+		[max]="max()"
+		[min]="min()"
+		[placeholder]="placeholder()"
+		[type]="type()"
+		[(ngModel)]="value" />
 </tui-textfield>

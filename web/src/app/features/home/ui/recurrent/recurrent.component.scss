@@ -84,6 +84,7 @@
 
 	.item-desc {
 		@include text-setting(sm);
+		@include ellipsis;
 
 		font-weight: 500;
 	}
@@ -116,7 +117,7 @@
 	}
 
 	.item-input {
-		width: rem(100px);
+		width: rem(120px);
 	}
 
 	.item-pay-btn {

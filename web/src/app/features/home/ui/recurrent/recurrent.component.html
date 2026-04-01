@@ -1,6 +1,6 @@
 @if (dashboard()) {
 	<div class="home-page__section">
-		<h2 class="home-page__heading">💸 Recurrent Payments</h2>
+		<h2 class="home-page__heading">{{ title() }}</h2>
 
 		<div class="recurrent-stats">
 			<div class="stat-item">
@@ -48,6 +48,7 @@
 									#amountInput
 									type="number"
 									size="s"
+									min="0"
 									[value]="item.lastAmount"
 									class="item-input"
 									[disabled]="item.isPaidThisMonth"></app-input>
@@ -56,7 +57,12 @@
 									size="s"
 									(click)="pay(item, amountInput.value())"
 									[isLoading]="loadingItems().has(item.id)"
-									[disabled]="item.isPaidThisMonth || loadingItems().has(item.id)"
+									[disabled]="
+										item.isPaidThisMonth ||
+										loadingItems().has(item.id) ||
+										!amountInput.value() ||
+										1 * $any(amountInput.value()) <= 0
+									"
 									class="item-pay-btn">
 									Pay
 								</button>

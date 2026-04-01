@@ -64,6 +64,11 @@ export type RecurrentDashboard = {
   monthlyStats: RecurrentStats;
 };
 
+export type RecurrentDashboards = {
+  incomes: RecurrentDashboard;
+  expenses: RecurrentDashboard;
+};
+
 export type RecurrentPayment = {
   id: bigint;
   description: string;

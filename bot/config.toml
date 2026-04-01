@@ -8,8 +8,9 @@ dist = "./web-dist/browser"
 [api]
 port = 8080
 [surf]
-location = "Costa de Caparica, Almada, Setubal, Portugal"
+location = "Costa de Caparica, Portugal"
 lat = 38.7067
 lon = -9.4139
 [budgeting]
-recurrent_categories = [11, 12, 22]
+recurrent_income_categories = [1, 27]
+recurrent_payment_categories = [11, 12, 21, 22]

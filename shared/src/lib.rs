@@ -211,6 +211,14 @@ pub struct RecurrentPayment {
 #[derive(Deserialize, Serialize, TS)]
 #[ts(export, export_to = "../generated/bindings.ts")]
 #[serde(rename_all = "camelCase")]
+pub struct RecurrentDashboards {
+    pub incomes: RecurrentDashboard,
+    pub expenses: RecurrentDashboard,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
 pub struct RecurrentDashboard {
     pub sections: Vec<RecurrentSection>,
     pub monthly_stats: RecurrentStats,

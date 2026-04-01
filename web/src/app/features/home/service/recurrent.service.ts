@@ -1,4 +1,4 @@
-import type { CreateTransactionRequest, CreateTransactionResponse, RecurrentDashboard } from "@bindings";
+import type { CreateTransactionRequest, CreateTransactionResponse, RecurrentDashboards } from "@bindings";
 
 import { logger } from "@/app/shared/logger";
 import { HttpClient } from "@angular/common/http";
@@ -11,7 +11,7 @@ import { catchError, finalize, of } from "rxjs";
 export class RecurrentService {
 	private http = inject(HttpClient);
 
-	dashboard = signal<Nullable<RecurrentDashboard>>(null);
+	dashboards = signal<Nullable<RecurrentDashboards>>(null);
 	error = signal<boolean>(false);
 
 	isLoading = signal<boolean>(false);
@@ -24,23 +24,21 @@ export class RecurrentService {
 			case this.error(): {
 				return "error";
 			}
-			case !!this.dashboard(): {
+			case !!this.dashboards(): {
 				return "success";
 			}
 			default: {
-				return "idle";
+				return "loading";
 			}
 		}
 	});
 
-	postTransaction(data: CreateTransactionRequest, onSuccess: () => void, onComplete?: () => void) {
+	postTransaction(request: CreateTransactionRequest, onSuccess: () => void, onError: () => void) {
 		this.http
-			.post<QueryResponse<CreateTransactionResponse>>("/budgeting/transactions", data)
+			.post<QueryResponse<CreateTransactionResponse>>("/budgeting/transactions", request)
 			.pipe(
-				finalize(() => {
-					if (onComplete) onComplete();
-				}),
 				catchError((errorData) => {
+					onError();
 					logger.error("RecurrentService post error", errorData.message);
 
 					return of(null);
@@ -59,7 +57,7 @@ export class RecurrentService {
 		this.error.set(false);
 
 		this.http
-			.get<QueryResponse<RecurrentDashboard>>("/budgeting/recurrent")
+			.get<QueryResponse<RecurrentDashboards>>("/budgeting/recurrent")
 			.pipe(
 				finalize(() => this.isLoading.set(false)),
 				catchError((errorData) => {
@@ -70,7 +68,7 @@ export class RecurrentService {
 				}),
 			)
 			.subscribe((response) => {
-				this.dashboard.set(response?.data ?? null);
+				this.dashboards.set(response?.data ?? null);
 			});
 	}
 }

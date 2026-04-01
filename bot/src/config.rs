@@ -19,7 +19,8 @@ pub struct OpenAiConfig {
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct BudgetingConfig {
-    pub recurrent_categories: Vec<i64>,
+    pub recurrent_income_categories: Vec<i64>,
+    pub recurrent_payment_categories: Vec<i64>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]

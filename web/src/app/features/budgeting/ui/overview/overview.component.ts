@@ -1,5 +1,6 @@
 import type { OnInit } from "@angular/core";
 
+import { allKeyValuesZero } from "@/app/shared/list";
 import ButtonComponent from "@/app/shared/ui/components/button/button.component";
 import ChartComponent from "@/app/shared/ui/components/chart/chart.component";
 import ComboboxComponent from "@/app/shared/ui/components/combobox/combobox.component";
@@ -94,6 +95,8 @@ export default class BudgetingOverveiwComponent implements OnInit {
 			name: category.name,
 			value: category.amounts[this.currentMonthIndex() - 1],
 		}));
+
+		if (allKeyValuesZero(categoryData, "value")) return null;
 
 		return getMonthlyDonutChartConfig(categoryData);
 	});
