@@ -56,10 +56,10 @@ importers:
                 specifier: ^5.2.0
                 version: 5.2.0(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.0))(@ng-web-apis/common@5.2.0(@angular/common@21.0.0(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.0))(rxjs@7.8.0))(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.0))(@types/dom-speech-recognition@0.0.8)(rxjs@7.8.0))(rxjs@7.8.0)
             "@taiga-ui/cdk":
-                specifier: ^5.0.0
+                specifier: 5.0.0
                 version: 5.0.0(91147fb7c0cb078ea149d4210d224018)
             "@taiga-ui/core":
-                specifier: ^5.0.0
+                specifier: 5.0.0
                 version: 5.0.0(7b4c74bd2b2943b71a13855f844761c9)
             "@taiga-ui/event-plugins":
                 specifier: 5.0.0
@@ -71,7 +71,7 @@ importers:
                 specifier: ^5.0.0
                 version: 5.0.0
             "@taiga-ui/kit":
-                specifier: ^5.0.0
+                specifier: 5.0.0
                 version: 5.0.0(3764219feec3dc8aec65469f725a28ad)
             "@taiga-ui/polymorpheus":
                 specifier: ^5.0.0
