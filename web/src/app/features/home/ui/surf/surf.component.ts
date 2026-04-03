@@ -1,5 +1,6 @@
 import type { SurfReportResponse } from "@bindings";
 
+import { CompactNumberPipe } from "@/app/shared/pipes";
 import { DecimalPipe } from "@angular/common";
 import { Component, computed, inject } from "@angular/core";
 
@@ -38,7 +39,7 @@ const enhanceSurfReport = (report: SurfReportResponse) => {
 	host: {
 		class: "surf-forecast",
 	},
-	imports: [DecimalPipe, IconComponent, ChartComponent],
+	imports: [DecimalPipe, IconComponent, ChartComponent, CompactNumberPipe],
 	selector: "div[app-surf-forecast]",
 	styleUrl: "./surf.component.scss",
 	templateUrl: "./surf.component.html",

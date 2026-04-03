@@ -83,6 +83,7 @@
 
 	.transactions__content-col-amount {
 		@include text-setting(md);
+		@include ellipsis;
 
 		color: var(--text-error);
 	}
@@ -137,6 +138,11 @@
 		gap: rem(12px);
 		width: 100%;
 		height: auto;
+	}
+
+	.transactions__search-input {
+		@include tui-custom-input("m", calc(100% - rem(68px)));
+		@include sizer(100%, auto);
 	}
 
 	.transactions__month-header {

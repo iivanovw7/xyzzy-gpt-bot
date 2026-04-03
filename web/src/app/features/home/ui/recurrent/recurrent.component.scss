@@ -11,6 +11,7 @@
 	.home-page__heading {
 		@include text-setting(md);
 		@include pt(2);
+		@include mt(2);
 	}
 
 	.recurrent-stats {
@@ -117,7 +118,7 @@
 	}
 
 	.item-input {
-		width: rem(120px);
+		@include tui-custom-input("s", rem(90px));
 	}
 
 	.item-pay-btn {

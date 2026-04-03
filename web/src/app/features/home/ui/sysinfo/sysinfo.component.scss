@@ -19,6 +19,7 @@
 	.home-page__heading {
 		@include text-setting(md);
 		@include pt(2);
+		@include mt(2);
 	}
 
 	.home-page__sysinfo {

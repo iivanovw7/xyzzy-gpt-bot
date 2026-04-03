@@ -1,3 +1,5 @@
+import { isNil } from "ramda";
+
 import type { CreateTransactionRequest, CreateTransactionResponse, RecurrentDashboards } from "@bindings";
 
 import { logger } from "@/app/shared/logger";
@@ -53,7 +55,10 @@ export class RecurrentService {
 	}
 
 	queryRecurrent() {
-		this.isLoading.set(true);
+		if (isNil(this.dashboards)) {
+			this.isLoading.set(true);
+		}
+
 		this.error.set(false);
 
 		this.http

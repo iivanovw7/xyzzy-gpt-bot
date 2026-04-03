@@ -9,8 +9,16 @@
 			[(value)]="selectedCategory"
 			placeholder="Filter by Category">
 		</app-combobox>
-		<app-input size="m" placeholder="Search by description..." [(value)]="searchTerm" [isSearch]="true">
-		</app-input>
+		<tui-textfield
+			class="transactions__search-input"
+			tuiTextfieldSize="m"
+			iconStart="@tui.search"
+			[tuiTextfieldCleaner]="!!searchTerm()">
+			<input
+				placeholder="Search by description..."
+				[ngModel]="searchTerm()"
+				(ngModelChange)="searchTerm.set($event)" />
+		</tui-textfield>
 	</div>
 </div>
 

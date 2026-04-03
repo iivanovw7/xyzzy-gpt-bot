@@ -1,17 +1,24 @@
-import type { TuiStringMatcher } from "@taiga-ui/cdk/types";
-
 import { ChangeDetectionStrategy, Component, contentChild, input, model, signal, TemplateRef } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { TuiItem } from "@taiga-ui/cdk/directives/item";
-import { TuiDataList, TuiTextfield } from "@taiga-ui/core";
-import { TuiComboBox, TuiDataListWrapper, TuiFilterByInputPipe } from "@taiga-ui/kit";
+import { TuiDataList, TuiDropdown, TuiTextfield } from "@taiga-ui/core";
+import { TuiFilterByInputPipe } from "@taiga-ui/core";
+import { TuiComboBox, TuiDataListWrapper } from "@taiga-ui/kit";
 
 @Component({
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	host: {
 		class: "combobox",
 	},
-	imports: [FormsModule, TuiComboBox, TuiDataListWrapper, TuiFilterByInputPipe, TuiTextfield, TuiDataList],
+	imports: [
+		FormsModule,
+		TuiComboBox,
+		TuiDataListWrapper,
+		TuiFilterByInputPipe,
+		TuiTextfield,
+		TuiDataList,
+		TuiDropdown,
+	],
 	selector: "app-combobox",
 	standalone: true,
 	styleUrl: "./combobox.component.scss",
@@ -19,11 +26,9 @@ import { TuiComboBox, TuiDataListWrapper, TuiFilterByInputPipe } from "@taiga-ui
 })
 export default class ComboboxComponent {
 	protected readonly content = contentChild(TuiItem, { read: TemplateRef });
-	protected readonly matcher: TuiStringMatcher<string> = (item, query) => {
-		return item.toLowerCase().includes(query.toLowerCase());
-	};
 	protected readonly open = signal(false);
 
+	readonly iconStart = input<string>("");
 	readonly isClearable = input<boolean>(true);
 	readonly items = input<string[]>([]);
 	readonly placeholder = input<string>("Select...");

@@ -42,3 +42,57 @@
 		border-radius: 10px;
 	}
 }
+
+@mixin tui-custom-input($size: "s", $input-width: 100%) {
+	@include border-radius($border-radius-x-small);
+
+	--tui-base-01: transparent;
+	--tui-height-s: #{rem(24px)};
+	--tui-height-m: #{rem(42px)};
+
+	background: var(--control-background-primary);
+	border: rem(1px) solid var(--control-border-primary);
+
+	&:focus-within {
+		@include focus-outline(outline);
+	}
+
+	input {
+		@include border-radius($border-radius-x-small);
+		@include text-setting(base);
+		@include text-overflow;
+
+		@if $size == "s" {
+			@include p(1, 2);
+
+			height: rem(24px);
+		} @else if $size == "m" {
+			@include p(1, 4, 1, 2);
+
+			height: rem(42px);
+		}
+
+		width: $input-width;
+		color: var(--control-primary);
+		outline: none;
+		background: transparent;
+		border: none;
+		box-shadow: none !important;
+		transition: $transition-color;
+
+		&::-webkit-outer-spin-button,
+		&::-webkit-inner-spin-button {
+			margin: 0;
+			appearance: none;
+		}
+
+		&[type="number"] {
+			appearance: textfield;
+		}
+
+		&::placeholder {
+			color: var(--text-secondary);
+			opacity: 70%;
+		}
+	}
+}

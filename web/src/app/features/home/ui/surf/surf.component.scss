@@ -19,6 +19,7 @@
 	.home-page__heading {
 		@include text-setting(md);
 		@include pt(2);
+		@include mt(2);
 	}
 
 	.home-page__surf-table-container {
@@ -43,17 +44,27 @@
 
 		th,
 		td {
-			@include p(1);
+			@include pl(1);
 
 			white-space: nowrap;
 		}
 
 		td {
-			@include p(2, 1, 1, 1);
+			@include pt(1);
 		}
 
 		tr:last-child td {
 			border-bottom: none;
+		}
+
+		tr td:first-of-type,
+		tr th:first-of-type {
+			@include pl(1);
+		}
+
+		tr td:last-of-type,
+		tr th:last-of-type {
+			@include pr(1);
 		}
 	}
 

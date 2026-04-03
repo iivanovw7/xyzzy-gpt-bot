@@ -4,6 +4,7 @@
 @use "sass:list";
 @use "sass:color";
 @use "palette" as palette;
+@use "../abstracts" as abstracts;
 
 @function get-chart-palette($variant) {
 	$chart-map: ();
@@ -97,11 +98,52 @@ $theme-variants: (
 				tui-tertiary: palette.get(monokai-light, accent3),
 				tui-selection: palette.get(monokai-light, dimmed5),
 				tui-text-tertiary: palette.get(monokai-light, text-darken),
-				tui-background-accent-1: palette.get(monokai-light, accent3),
+				tui-status-negative: palette.get(monokai-light, text-error),
+				tui-status-negative-pale: color-mix(in srgb, palette.get(monokai-light, text-error) 32%, transparent),
+				tui-status-negative-pale-hover: color-mix(
+						in srgb,
+						palette.get(monokai-light, text-error) 40%,
+						transparent
+					),
+				tui-status-positive: palette.get(monokai-light, text-success),
+				tui-status-positive-pale: color-mix(in srgb, palette.get(monokai-light, text-success) 32%, transparent),
+				tui-status-positive-pale-hover: color-mix(
+						in srgb,
+						palette.get(monokai-light, text-success) 40%,
+						transparent
+					),
+				tui-status-warning: palette.get(monokai-light, accent3),
+				tui-status-warning-pale: color-mix(in srgb, palette.get(monokai-light, accent3) 32%, transparent),
+				tui-status-warning-pale-hover: color-mix(in srgb, palette.get(monokai-light, accent3) 40%, transparent),
+				tui-status-info: palette.get(monokai-light, accent5),
+				tui-status-info-pale: color-mix(in srgb, palette.get(monokai-light, accent5) 32%, transparent),
+				tui-status-info-pale-hover: color-mix(in srgb, palette.get(monokai-light, accent5) 40%, transparent),
+				tui-status-neutral: palette.get(monokai-light, dimmed2),
+				tui-background-accent-1-hover: palette.get(monokai-light, accent3-lighten),
+				tui-background-accent-1-pressed: palette.get(monokai-light, accent3),
+				tui-text-primary-on-accent-1: palette.get(monokai-light, text-inversed),
 				tui-background-elevation-3: palette.get(monokai-light, dark2-lighten),
 				tui-text-action: palette.get(monokai-light, accent3),
 				tui-text-primary: palette.get(monokai-light, text),
-				tui-background-base: palette.get(monokai-light, background)
+				tui-background-base: palette.get(monokai-light, background),
+				tui-height-l: abstracts.rem(abstracts.$control-size-large),
+				tui-height-m: abstracts.rem(abstracts.$control-size-medium),
+				tui-height-s: abstracts.rem(abstracts.$control-size-small),
+				tui-height-xs: abstracts.rem(abstracts.$control-size-x-small),
+				tui-radius-l: abstracts.rem(abstracts.$border-radius-large),
+				tui-radius-m: abstracts.rem(abstracts.$border-radius-medium),
+				tui-radius-s: abstracts.rem(abstracts.$border-radius-small),
+				tui-radius-xs: abstracts.rem(abstracts.$border-radius-x-small),
+				tui-typography-family-text: abstracts.$base-font-family,
+				tui-typography-family-heading: abstracts.$base-font-family,
+				tui-typography-body-m:
+					"#{abstracts.$font-weight-regular} #{abstracts.text-scale(base)}/#{abstracts.line-height(base)} var(--tui-typography-family-text)",
+				tui-typography-body-s:
+					"#{abstracts.$font-weight-regular} #{abstracts.text-scale(sm)}/#{abstracts.line-height(sm)} var(--tui-typography-family-text)",
+				tui-disabled-opacity: 0.6,
+				tui-padding-l: abstracts.rem(16px),
+				tui-padding-m: abstracts.rem(12px),
+				tui-padding-s: abstracts.rem(8px)
 			),
 			get-chart-palette(monokai-light)
 		),
@@ -182,11 +224,44 @@ $theme-variants: (
 				tui-tertiary: palette.get(monokai, accent3),
 				tui-selection: palette.get(monokai, dimmed5),
 				tui-text-tertiary: palette.get(monokai, text-darken),
-				tui-background-accent-1: palette.get(monokai, accent3),
+				tui-status-negative: palette.get(monokai, text-error),
+				tui-status-negative-pale: color-mix(in srgb, palette.get(monokai, text-error) 32%, transparent),
+				tui-status-negative-pale-hover: color-mix(in srgb, palette.get(monokai, text-error) 40%, transparent),
+				tui-status-positive: palette.get(monokai, text-success),
+				tui-status-positive-pale: color-mix(in srgb, palette.get(monokai, text-success) 32%, transparent),
+				tui-status-positive-pale-hover: color-mix(in srgb, palette.get(monokai, text-success) 40%, transparent),
+				tui-status-warning: palette.get(monokai, accent3),
+				tui-status-warning-pale: color-mix(in srgb, palette.get(monokai, accent3) 32%, transparent),
+				tui-status-warning-pale-hover: color-mix(in srgb, palette.get(monokai, accent3) 40%, transparent),
+				tui-status-info: palette.get(monokai, accent5),
+				tui-status-info-pale: color-mix(in srgb, palette.get(monokai, accent5) 32%, transparent),
+				tui-status-info-pale-hover: color-mix(in srgb, palette.get(monokai, accent5) 40%, transparent),
+				tui-status-neutral: palette.get(monokai, dimmed2),
+				tui-background-accent-1-hover: palette.get(monokai, accent3-lighten),
+				tui-background-accent-1-pressed: palette.get(monokai, accent3),
+				tui-text-primary-on-accent-1: palette.get(monokai, text-inversed),
 				tui-background-elevation-3: palette.get(monokai, dark2-lighten),
 				tui-text-action: palette.get(monokai, accent3),
 				tui-text-primary: palette.get(monokai, text),
-				tui-background-base: palette.get(monokai, background)
+				tui-background-base: palette.get(monokai, background),
+				tui-height-l: abstracts.rem(abstracts.$control-size-large),
+				tui-height-m: abstracts.rem(abstracts.$control-size-medium),
+				tui-height-s: abstracts.rem(abstracts.$control-size-small),
+				tui-height-xs: abstracts.rem(abstracts.$control-size-x-small),
+				tui-radius-l: abstracts.rem(abstracts.$border-radius-large),
+				tui-radius-m: abstracts.rem(abstracts.$border-radius-medium),
+				tui-radius-s: abstracts.rem(abstracts.$border-radius-small),
+				tui-radius-xs: abstracts.rem(abstracts.$border-radius-x-small),
+				tui-typography-family-text: abstracts.$base-font-family,
+				tui-typography-family-heading: abstracts.$base-font-family,
+				tui-typography-body-m:
+					"#{abstracts.$font-weight-regular} #{abstracts.text-scale(base)}/#{abstracts.line-height(base)} var(--tui-typography-family-text)",
+				tui-typography-body-s:
+					"#{abstracts.$font-weight-regular} #{abstracts.text-scale(sm)}/#{abstracts.line-height(sm)} var(--tui-typography-family-text)",
+				tui-disabled-opacity: 0.6,
+				tui-padding-l: abstracts.rem(16px),
+				tui-padding-m: abstracts.rem(12px),
+				tui-padding-s: abstracts.rem(8px)
 			),
 			get-chart-palette(monokai)
 		),

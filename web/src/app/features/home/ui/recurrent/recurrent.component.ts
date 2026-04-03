@@ -2,10 +2,12 @@ import type { RecurrentDashboard, RecurrentPayment } from "@bindings";
 
 import ButtonComponent from "@/app/shared/ui/components/button/button.component";
 import IconComponent from "@/app/shared/ui/components/icon/icon.component";
-import InputComponent from "@/app/shared/ui/components/input/input.component";
+import { NotificationService } from "@/app/shared/ui/components/notification/notification.service";
 import ProgressBarComponent from "@/app/shared/ui/components/progress-bar/progress-bar.component";
 import { CommonModule } from "@angular/common";
 import { Component, inject, input, signal } from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { TuiTextfield } from "@taiga-ui/core";
 
 import { RecurrentService } from "../../service/recurrent.service";
 
@@ -13,13 +15,14 @@ import { RecurrentService } from "../../service/recurrent.service";
 	host: {
 		class: "recurrent-page",
 	},
-	imports: [CommonModule, ButtonComponent, InputComponent, IconComponent, ProgressBarComponent],
+	imports: [CommonModule, FormsModule, TuiTextfield, ButtonComponent, IconComponent, ProgressBarComponent],
 	selector: "div[app-recurrent]",
 	styleUrl: "./recurrent.component.scss",
 	templateUrl: "./recurrent.component.html",
 })
 export default class RecurrentComponent {
 	protected loadingItems = signal<Set<bigint>>(new Set());
+	protected readonly notificationService = inject(NotificationService);
 	protected readonly recurrentService = inject(RecurrentService);
 
 	readonly dashboard = input.required<Nullable<RecurrentDashboard>>();
@@ -47,7 +50,9 @@ export default class RecurrentComponent {
 				description: item.description,
 			},
 			() => {
-				// TODO: notify success
+				this.notificationService.success(`Payment of ${amount}€ recorded for ${item.description}`, {
+					label: "Payment Successful",
+				});
 			},
 			() => {
 				this.loadingItems.update((set) => {

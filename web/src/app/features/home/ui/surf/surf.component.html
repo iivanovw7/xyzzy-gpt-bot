@@ -15,16 +15,16 @@
 							<div class="home-page__th-sub">&nbsp;</div>
 						</th>
 						<th>
-							Swell Size
-							<div class="home-page__th-sub">Wind Speed</div>
+							Swell
+							<div class="home-page__th-sub">Wind</div>
 						</th>
 						<th>
 							Period
 							<div class="home-page__th-sub">&nbsp;</div>
 						</th>
 						<th>
-							Swell Dir
-							<div class="home-page__th-sub">Wind Dir</div>
+							Swell
+							<div class="home-page__th-sub">Wind</div>
 						</th>
 						<th>
 							Energy
@@ -91,7 +91,7 @@
 							</td>
 							<td [style.box-shadow]="'inset -4px 0 0 ' + day.energyColor">
 								<div [style.color]="day.energyColor" class="home-page__cell-primary">
-									{{ day.swellEnergy | number: "1.0-0" }} kJ
+									{{ day.swellEnergy | compactNumber }} kJ
 								</div>
 								<div class="home-page__cell-secondary">&nbsp;</div>
 							</td>

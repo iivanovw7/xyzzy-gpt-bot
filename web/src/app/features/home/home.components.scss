@@ -2,15 +2,22 @@
 @use "mixins" as *;
 
 :host(.home-page) {
+	@include border-box("only");
 	@include page;
 
+	max-width: 100vw;
 	height: auto;
+	overflow-x: hidden;
 
 	.home-page__content {
+		@include border-box("only");
 		@include p(2, 2, 6);
 
 		display: flex;
 		flex-direction: column;
+		width: 100%;
+		min-width: 0;
+		max-width: 100vw;
 	}
 
 	.home-page__greeting {
