@@ -2,22 +2,39 @@
 	<h2 class="transactions__title">Transactions</h2>
 	<span class="transactions__title-year">for {{ service.transactions()?.year }}</span>
 	<div class="transactions__filters-box">
-		<app-combobox
-			size="m"
-			class="transactions__filter-combobox"
-			[items]="service.transactions()?.transactionsCategories ?? []"
-			[(value)]="selectedCategory"
-			placeholder="Filter by Category">
-		</app-combobox>
+		<tui-textfield
+			class="transactions__filter-combobox combobox"
+			[tuiTextfieldCleaner]="false"
+			tuiTextfieldSize="m"
+			iconStart="@tui.filter">
+			<input
+				tuiComboBox
+				placeholder="Filter by Category"
+				[ngModel]="selectedCategory()"
+				(ngModelChange)="selectedCategory.set($event)" />
+			<tui-data-list-wrapper
+				[items]="service.transactions()?.transactionsCategories ?? [] | tuiFilterByInput"
+				*tuiDropdown>
+			</tui-data-list-wrapper>
+
+			@if (selectedCategory()) {
+				<button tuiButtonX (click)="selectedCategory.set(null)">Clear</button>
+			}
+		</tui-textfield>
 		<tui-textfield
 			class="transactions__search-input"
 			tuiTextfieldSize="m"
 			iconStart="@tui.search"
-			[tuiTextfieldCleaner]="!!searchTerm()">
+			[tuiTextfieldCleaner]="false">
 			<input
 				placeholder="Search by description..."
+				tuiInput
 				[ngModel]="searchTerm()"
 				(ngModelChange)="searchTerm.set($event)" />
+
+			@if (searchTerm()) {
+				<button tuiButtonX (click)="handleSearchClear()">Clear</button>
+			}
 		</tui-textfield>
 	</div>
 </div>

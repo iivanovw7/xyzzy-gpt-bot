@@ -2,13 +2,13 @@ import type { StatisticsTransaction } from "@bindings";
 
 import { config } from "@/app/shared/config";
 import ButtonComponent from "@/app/shared/ui/components/button/button.component";
-import ComboboxComponent from "@/app/shared/ui/components/combobox/combobox.component";
 import SkeletonComponent from "@/app/shared/ui/components/skeleton/skeleton.component";
 import { CommonModule, CurrencyPipe } from "@angular/common";
 import { Component, effect, inject, signal, untracked } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { TuiTextfield } from "@taiga-ui/core";
+import { TuiButtonX, TuiDropdown, TuiFilterByInputPipe, TuiInput, TuiTextfield } from "@taiga-ui/core";
+import { TuiComboBox, TuiDataListWrapper } from "@taiga-ui/kit";
 import { debounceTime, distinctUntilChanged } from "rxjs";
 
 import { StatisticsService } from "../service/statistics.service";
@@ -17,7 +17,19 @@ import { StatisticsService } from "../service/statistics.service";
 	host: {
 		class: "transactions",
 	},
-	imports: [CommonModule, FormsModule, ButtonComponent, SkeletonComponent, ComboboxComponent, TuiTextfield],
+	imports: [
+		CommonModule,
+		FormsModule,
+		ButtonComponent,
+		SkeletonComponent,
+		TuiComboBox,
+		TuiDataListWrapper,
+		TuiFilterByInputPipe,
+		TuiDropdown,
+		TuiTextfield,
+		TuiButtonX,
+		TuiInput,
+	],
 	providers: [CurrencyPipe],
 	selector: "div[app-budgeting-transactions]",
 	styleUrl: "./transactions.component.scss",
@@ -48,5 +60,9 @@ export default class TransactionsComponent {
 				this.service.queryTransactions({ category, description });
 			});
 		});
+	}
+
+	protected handleSearchClear(): void {
+		this.searchTerm.set("");
 	}
 }

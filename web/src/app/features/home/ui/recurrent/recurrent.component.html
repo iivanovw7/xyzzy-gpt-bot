@@ -39,29 +39,30 @@
 						</div>
 						<div class="item-action">
 							@if (item.isPaidThisMonth) {
-								@if (item.isPaidThisMonth) {
-									<span class="item-status-text">{{ item.lastAmount | number: "1.2-2" }}€</span>
-									<app-icon class="item-status-icon" name="Check" size="small"></app-icon>
-								}
+								<span class="item-status-text">{{ item.lastAmount | number: "1.2-2" }}€</span>
+								<app-icon class="item-status-icon" name="Check" size="small"></app-icon>
 							} @else {
-								<tui-textfield tuiTextfieldSize="s" iconStart="@tui.euro" class="item-input">
+								<tui-textfield
+									tuiTextfieldSize="m"
+									iconStart="@tui.euro"
+									[tuiTextfieldCleaner]="true"
+									class="item-input">
 									<input
-										#amountInput
-										type="number"
-										min="0"
-										[ngModel]="item.lastAmount"
+										tuiInputNumber
+										[min]="0"
+										[(ngModel)]="item.lastAmount"
 										[disabled]="item.isPaidThisMonth" />
 								</tui-textfield>
 								<button
 									app-button
-									size="s"
-									(click)="pay(item, amountInput.value)"
+									size="m"
+									(click)="pay(item, item.lastAmount)"
 									[isLoading]="loadingItems().has(item.id)"
 									[disabled]="
 										item.isPaidThisMonth ||
 										loadingItems().has(item.id) ||
-										!amountInput.value ||
-										1 * $any(amountInput.value) <= 0
+										!item.lastAmount ||
+										1 * item.lastAmount <= 0
 									"
 									class="item-pay-btn">
 									Pay

@@ -3,10 +3,12 @@ import type { OnInit } from "@angular/core";
 import { allKeyValuesZero } from "@/app/shared/list";
 import ButtonComponent from "@/app/shared/ui/components/button/button.component";
 import ChartComponent from "@/app/shared/ui/components/chart/chart.component";
-import ComboboxComponent from "@/app/shared/ui/components/combobox/combobox.component";
 import SkeletonComponent from "@/app/shared/ui/components/skeleton/skeleton.component";
 import { CommonModule, CurrencyPipe } from "@angular/common";
 import { Component, computed, effect, inject, signal } from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { TuiButtonX, TuiDropdown, TuiFilterByInputPipe, TuiInput, TuiTextfield } from "@taiga-ui/core";
+import { TuiComboBox, TuiDataListWrapper } from "@taiga-ui/kit";
 
 import { getCategoriesOverveiwConfig, getCategoriesOverviewOptions } from "./lib/categories-overview.util";
 import { getMonthlyDonutChartConfig, getMonthlyDonutOptions } from "./lib/monthly-breakdown.util";
@@ -21,11 +23,18 @@ import CategoriesRankingComponent from "./ui/categories-ranking.component";
 	},
 	imports: [
 		CommonModule,
+		FormsModule,
 		ButtonComponent,
 		SkeletonComponent,
 		ChartComponent,
 		CategoriesRankingComponent,
-		ComboboxComponent,
+		TuiComboBox,
+		TuiDataListWrapper,
+		TuiFilterByInputPipe,
+		TuiDropdown,
+		TuiTextfield,
+		TuiButtonX,
+		TuiInput,
 	],
 	providers: [CurrencyPipe],
 	selector: "div[app-budgeting-overview]",

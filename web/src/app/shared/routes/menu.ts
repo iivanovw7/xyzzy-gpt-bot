@@ -29,7 +29,6 @@ export const menuItemSet: Record<string, MenuItem> = {
 		to: home,
 	},
 	settings: {
-		disabled: true,
 		icon: "Settings",
 		order: 2,
 		text: "Settings",

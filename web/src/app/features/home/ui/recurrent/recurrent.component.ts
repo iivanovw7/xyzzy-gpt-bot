@@ -8,6 +8,7 @@ import { CommonModule } from "@angular/common";
 import { Component, inject, input, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { TuiTextfield } from "@taiga-ui/core";
+import { TuiInputNumber } from "@taiga-ui/kit";
 
 import { RecurrentService } from "../../service/recurrent.service";
 
@@ -15,7 +16,15 @@ import { RecurrentService } from "../../service/recurrent.service";
 	host: {
 		class: "recurrent-page",
 	},
-	imports: [CommonModule, FormsModule, TuiTextfield, ButtonComponent, IconComponent, ProgressBarComponent],
+	imports: [
+		CommonModule,
+		FormsModule,
+		TuiTextfield,
+		TuiInputNumber,
+		ButtonComponent,
+		IconComponent,
+		ProgressBarComponent,
+	],
 	selector: "div[app-recurrent]",
 	styleUrl: "./recurrent.component.scss",
 	templateUrl: "./recurrent.component.html",

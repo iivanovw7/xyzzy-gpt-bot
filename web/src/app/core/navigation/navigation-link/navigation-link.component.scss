@@ -57,7 +57,7 @@
 		display: inline;
 		color: var(--nav-link);
 
-		@include media(max, md) {
+		@include media(max, lg) {
 			display: none;
 		}
 	}

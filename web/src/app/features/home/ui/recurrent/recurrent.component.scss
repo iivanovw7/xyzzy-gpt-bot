@@ -99,26 +99,29 @@
 	}
 
 	.item-status-text {
-		@include text-setting(sm);
+		@include text-setting(base);
 
+		margin: 0 0 0 auto;
 		color: var(--text-secondary);
 	}
 
 	.item-status-icon {
 		@include sizer(rem(24px));
 
-		margin: 0 auto;
+		margin-right: 0;
 		color: var(--text-success);
 	}
 
 	.item-action {
+		@include sizer(rem(240px), auto);
+
 		display: flex;
 		gap: rem(10px);
 		align-items: center;
 	}
 
 	.item-input {
-		@include tui-custom-input("s", rem(90px));
+		@include tui-custom-input("m", calc(100% - rem(58px)));
 	}
 
 	.item-pay-btn {

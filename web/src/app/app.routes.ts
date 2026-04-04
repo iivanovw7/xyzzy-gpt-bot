@@ -35,6 +35,15 @@ export const routes: Routes = [
 	{
 		canActivate: [
 			authGuard((isAuth, router) => {
+				return isAuth ? true : router.createUrlTree([routePath.settings]);
+			}),
+		],
+		loadComponent: () => import("./features/settings/settings.component"),
+		path: basePath.settings,
+	},
+	{
+		canActivate: [
+			authGuard((isAuth, router) => {
 				return isAuth ? router.createUrlTree([routePath.home]) : true;
 			}),
 		],

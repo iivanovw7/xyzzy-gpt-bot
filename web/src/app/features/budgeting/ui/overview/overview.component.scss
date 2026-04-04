@@ -22,6 +22,11 @@
 		height: auto;
 	}
 
+	.transactions__filter-combobox {
+		@include tui-custom-combobox("m", calc(100% - rem(68px)));
+		@include sizer(100%, auto);
+	}
+
 	.budgeting__overview-chart,
 	.budgeting__overview-chart-trends {
 		@include card;

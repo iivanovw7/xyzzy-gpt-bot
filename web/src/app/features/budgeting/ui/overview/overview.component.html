@@ -103,13 +103,22 @@
 		<div class="budgeting__overview-content-card-divider"></div>
 		<span class="budgeting__overview-content-card-subtitle">{{ categoriesOverviewYear() }}</span>
 		<div class="budgeting__overview-category-filter-box">
-			<app-combobox
-				class="transactions__filter-combobox"
-				[items]="categoriesList()"
-				[(value)]="selectedOverviewCategory"
-				[isClearable]="false"
-				placeholder="Category">
-			</app-combobox>
+			<tui-textfield
+				class="transactions__filter-combobox combobox"
+				[tuiTextfieldCleaner]="false"
+				tuiTextfieldSize="m">
+				<input
+					tuiComboBox
+					placeholder="Category"
+					[ngModel]="selectedOverviewCategory()"
+					(ngModelChange)="selectedOverviewCategory.set($event)" />
+				<tui-data-list-wrapper [items]="categoriesList() | tuiFilterByInput" *tuiDropdown>
+				</tui-data-list-wrapper>
+
+				@if (selectedOverviewCategory()) {
+					<button tuiButtonX (click)="selectedOverviewCategory.set(null)">Clear</button>
+				}
+			</tui-textfield>
 		</div>
 		<div
 			app-chart

@@ -169,3 +169,81 @@ pub fn authorize_request(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use actix_web::test::TestRequest;
+    use std::collections::HashMap;
+    use std::sync::{Arc, Mutex};
+
+    #[actix_web::test]
+    async fn test_create_and_refresh_tokens() {
+        let user_id = UserId(123);
+        let secret = b"test_secret";
+        let state_map = Arc::new(Mutex::new(HashMap::new()));
+        let state: AuthState = web::Data::new(state_map.clone());
+
+        let tokens = create_tokens(user_id, secret, state.clone()).await.unwrap();
+        assert!(!tokens.access_token.is_empty());
+        assert!(!tokens.refresh_token.is_empty());
+
+        {
+            let map = state_map.lock().unwrap();
+            assert_eq!(map.get(&user_id).unwrap(), &tokens.refresh_token);
+        }
+
+        let new_tokens = refresh_access_token(user_id, tokens.refresh_token, secret, state.clone())
+            .await
+            .unwrap();
+        assert!(!new_tokens.access_token.is_empty());
+
+        {
+            let map = state_map.lock().unwrap();
+            assert_eq!(map.get(&user_id).unwrap(), &new_tokens.refresh_token);
+        }
+    }
+
+    #[test]
+    fn test_authorize_request_missing_auth() {
+        let req = TestRequest::default().to_http_request();
+        let jwt_secret = web::Data::new("test_secret".to_string());
+
+        let res = authorize_request(req, jwt_secret, true);
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn test_authorize_request_disabled() {
+        let req = TestRequest::default().to_http_request();
+        let jwt_secret = web::Data::new("test_secret".to_string());
+
+        let res = authorize_request(req, jwt_secret, false).unwrap();
+        assert_eq!(res.0, "0");
+        assert_eq!(res.1, "NO_TOKEN");
+    }
+
+    #[actix_web::test]
+    async fn test_authorize_request_valid() {
+        let user_id = UserId(123);
+        let secret_str = "test_secret".to_string();
+        let secret = secret_str.as_bytes();
+        let state_map = Arc::new(Mutex::new(HashMap::new()));
+        let state: AuthState = web::Data::new(state_map.clone());
+
+        let tokens = create_tokens(user_id, secret, state).await.unwrap();
+
+        let req = TestRequest::default()
+            .insert_header((
+                header::AUTHORIZATION,
+                format!("Bearer {}", tokens.access_token),
+            ))
+            .to_http_request();
+
+        let jwt_secret = web::Data::new(secret_str);
+
+        let res = authorize_request(req, jwt_secret, true).unwrap();
+        assert_eq!(res.0, "123");
+        assert_eq!(res.1, tokens.access_token);
+    }
+}

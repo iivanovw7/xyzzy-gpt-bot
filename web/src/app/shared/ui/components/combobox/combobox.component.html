@@ -1,8 +1,0 @@
-<tui-textfield
-	class="combobox"
-	[tuiTextfieldCleaner]="isClearable() && size() !== 's' && !!value()"
-	[tuiTextfieldSize]="size()"
-	[iconStart]="iconStart()">
-	<input tuiComboBox [placeholder]="placeholder()" [(ngModel)]="value" />
-	<tui-data-list-wrapper [items]="items() | tuiFilterByInput" *tuiDropdown> </tui-data-list-wrapper>
-</tui-textfield>

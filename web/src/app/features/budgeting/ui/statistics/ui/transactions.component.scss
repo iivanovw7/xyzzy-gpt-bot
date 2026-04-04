@@ -145,6 +145,11 @@
 		@include sizer(100%, auto);
 	}
 
+	.transactions__filter-combobox {
+		@include tui-custom-combobox("m", calc(100% - rem(68px)));
+		@include sizer(100%, auto);
+	}
+
 	.transactions__month-header {
 		@include p(2, 2, 0);
 		@include m(1, 0, 0);

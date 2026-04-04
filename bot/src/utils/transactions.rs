@@ -87,3 +87,30 @@ impl DateFilter {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_format_transaction_amount() {
+        assert_eq!(format_transaction_amount(1500, "+"), "+15.00 €");
+        assert_eq!(format_transaction_amount(1500, ""), "15.00 €");
+        assert_eq!(format_transaction_amount(-1550, "+"), "-15.50 €");
+        assert_eq!(format_transaction_amount(99, ""), "0.99 €");
+        assert_eq!(format_transaction_amount(-99, ""), "-0.99 €");
+        assert_eq!(format_transaction_amount(1234567, ""), "12,345.67 €");
+    }
+
+    #[test]
+    fn test_round_balance() {
+        assert_eq!(round_balance(10.123, 5.101), 5.02);
+        assert_eq!(round_balance(10.0, 5.0), 5.0);
+    }
+
+    #[test]
+    fn test_day_key_from_timestamp() {
+        let date = NaiveDate::from_ymd_opt(2023, 10, 5).unwrap();
+        assert_eq!(day_key_from_timestamp(date), "2023-10-05");
+    }
+}
