@@ -11,12 +11,50 @@
 
 	.settings-page__content {
 		@include border-box("only");
-		@include p(2, 2, 6);
+		@include p(2, 2, 7);
 
 		display: flex;
 		flex-direction: column;
 		width: 100%;
 		min-width: 0;
 		max-width: 100vw;
+	}
+
+	.settings-page__section {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.settings-page__section-title {
+		@include text-setting(lg);
+		@include mt(2);
+
+		color: var(--text-promary);
+	}
+
+	.settings-page__field {
+		@include justify-align-flex(space-between, center);
+
+		gap: rem(8px);
+	}
+
+	.settings-page__field-label {
+		@include text-setting(md);
+
+		color: var(--text-primary);
+	}
+
+	.settings-page__field-select {
+		@include tui-custom-select("m", calc(100% - rem(58px)));
+
+		width: rem(200px);
+	}
+
+	.settings-page__divider {
+		@include my(1, 3);
+		@include sizer(100%, auto);
+
+		height: rem(1px);
+		border-bottom: rem(1px) solid var(--divider-dark);
 	}
 }

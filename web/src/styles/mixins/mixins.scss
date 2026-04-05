@@ -100,6 +100,58 @@
 	}
 }
 
+@mixin tui-custom-select($size: "m", $input-width: 100%) {
+	@include border-radius($border-radius-x-small);
+
+	--tui-base-01: transparent;
+	--tui-height-s: #{rem(25.2px)};
+	--tui-height-m: #{rem(42px)};
+	--tui-icon-size: #{rem(20px)};
+
+	background: var(--control-background-primary);
+	border: rem(1px) solid var(--control-border-primary);
+	transition: $transition-color;
+
+	&:focus-within {
+		@include focus-outline(outline);
+	}
+
+	&:hover {
+		tui-icon {
+			color: var(--control-primary);
+		}
+	}
+
+	tui-icon {
+		margin-left: rem(12px);
+	}
+
+	input {
+		@include border-radius($border-radius-x-small);
+		@include text-setting(base);
+		@include text-overflow;
+
+		@if $size == "s" {
+			@include p(1, 2);
+		} @else if $size == "m" {
+			@include p(1, 2, 1, 0);
+		}
+
+		position: relative;
+		width: $input-width;
+		color: var(--control-primary);
+		outline: none !important;
+		background: transparent;
+		border: none;
+		box-shadow: none !important;
+
+		&::placeholder {
+			color: var(--text-secondary);
+			opacity: 70%;
+		}
+	}
+}
+
 @mixin tui-custom-combobox($size: "m", $input-width: 100%) {
 	@include border-radius($border-radius-x-small);
 

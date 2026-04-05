@@ -19,7 +19,7 @@
 	&.button--size-m {
 		@include p(1, 3);
 
-		height: rem(44px);
+		height: 2.6rem;
 	}
 
 	&.button--size-s {
@@ -156,7 +156,7 @@
 
 		&:disabled {
 			background-color: var(--background-content);
-			border-color: var(--divider-color);
+			border-color: var(--divider);
 		}
 	}
 
@@ -173,7 +173,7 @@
 
 		&:disabled {
 			background-color: var(--background-content);
-			border-color: var(--divider-color);
+			border-color: var(--divider);
 		}
 	}
 

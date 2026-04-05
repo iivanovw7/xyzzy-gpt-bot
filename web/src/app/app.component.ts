@@ -3,6 +3,7 @@ import { RouterOutlet } from "@angular/router";
 import { TuiRoot } from "@taiga-ui/core";
 
 import { LoadingService } from "./core/services/loading.service";
+import { ThemeService } from "./core/services/theme.service";
 
 @Component({
 	imports: [RouterOutlet, TuiRoot],
@@ -12,4 +13,5 @@ import { LoadingService } from "./core/services/loading.service";
 })
 export class AppComponent {
 	protected readonly loadingService = inject(LoadingService);
+	protected readonly themeService = inject(ThemeService);
 }

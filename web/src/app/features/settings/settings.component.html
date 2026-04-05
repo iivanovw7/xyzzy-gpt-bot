@@ -1,8 +1,14 @@
 <header app-layout-header title="Settings"></header>
 <div class="settings-page__content">
-	<h1 class="settings-page__greeting">
-		<span>👋 Hello, </span>
-		<span>!</span>
-	</h1>
+	<div class="settings-page__section">
+		<h1 class="settings-page__section-title">General</h1>
+		<div class="settings-page__field">
+			<span class="settings-page__field-label">Theme</span>
+			<tui-textfield class="settings-page__field-select" tuiTextfieldSize="m">
+				<input tuiSelect [formControl]="themeControl" placeholder="Choose theme" />
+				<tui-data-list-wrapper *tuiDropdown [items]="themes"></tui-data-list-wrapper>
+			</tui-textfield>
+		</div>
+	</div>
 	<nav app-navigation></nav>
 </div>

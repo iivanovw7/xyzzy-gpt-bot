@@ -5,7 +5,7 @@
 	@include position(fixed, auto auto 0 0);
 	@include m(0);
 	@include p(3);
-	@include sizer(100%, rem(74px));
+	@include sizer(100%, rem(84px));
 	@include z-index(navbar);
 
 	display: grid;
