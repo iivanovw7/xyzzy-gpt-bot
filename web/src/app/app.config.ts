@@ -7,7 +7,7 @@ import { inject, provideAppInitializer, provideBrowserGlobalErrorListeners } fro
 import { provideAnimations } from "@angular/platform-browser/animations";
 import { Router } from "@angular/router";
 import { provideRouter } from "@angular/router";
-import { provideEventPlugins } from "@taiga-ui/event-plugins";
+import { provideTaiga } from "@taiga-ui/core";
 import { firstValueFrom, take } from "rxjs";
 
 import { routes } from "./app.routes";
@@ -49,7 +49,7 @@ export const initAuth = (authService: AuthService, router: Router) => {
 export const appConfig: ApplicationConfig = {
 	providers: [
 		provideAnimations(),
-		provideEventPlugins(),
+		provideTaiga(),
 		provideBrowserGlobalErrorListeners(),
 		provideRouter(routes),
 		provideHttpClient(withInterceptors([loadingInterceptor, apiInterceptor, tokenInterceptor, errorInterceptor])),

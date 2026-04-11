@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            INSERT INTO link_categories (user_id, name)\n            VALUES (?, ?)\n            ON CONFLICT(user_id, name) DO UPDATE SET name = excluded.name\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "513693444efe9717da85b684e33f69fbc65878627d84c2f775430e35b79072f3"
+}

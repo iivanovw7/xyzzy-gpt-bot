@@ -4,7 +4,7 @@ import type { IconKey } from "../ui/components/icon";
 
 import { routePath } from "./routes";
 
-const { budgeting, home, settings } = routePath;
+const { budgeting, home, links, settings } = routePath;
 
 export type MenuItem = {
 	disabled?: boolean;
@@ -28,9 +28,15 @@ export const menuItemSet: Record<string, MenuItem> = {
 		text: "Accounts",
 		to: home,
 	},
+	links: {
+		icon: "Link",
+		order: 2,
+		text: "Links",
+		to: links,
+	},
 	settings: {
 		icon: "Settings",
-		order: 2,
+		order: 3,
 		text: "Settings",
 		to: settings,
 	},

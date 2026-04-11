@@ -1,6 +1,7 @@
 export const Icon = {
 	Check: "@tui.check",
 	House: "@tui.house",
+	Link: "@tui.link",
 	LogOut: "@tui.log-out",
 	MoveUp: "@tui.move-up",
 	Settings: "@tui.settings",

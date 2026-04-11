@@ -20,3 +20,22 @@ export class CompactNumberPipe implements PipeTransform {
 		return intl.format(value);
 	}
 }
+
+@Pipe({
+	name: "highlight",
+	standalone: true,
+})
+export class HighlightPipe implements PipeTransform {
+	transform(value: null | string | undefined, search: null | string): string {
+		if (!value) return "";
+
+		let safeValue = value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+
+		if (!search) return safeValue;
+
+		let safeSearch = search.replaceAll(/[\s#$()*+,.?[\\\]^{|}-]/g, "\\$&");
+		let regex = new RegExp(`(${safeSearch})`, "gi");
+
+		return safeValue.replace(regex, `<mark class="highlight">$1</mark>`);
+	}
+}

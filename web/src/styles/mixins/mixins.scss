@@ -203,3 +203,25 @@
 		}
 	}
 }
+
+@mixin tui-custom-link($size: "m", $color: var(--text-primary), $hover-color: var(--primary)) {
+	--tui-text-action-hover: var(--primary);
+
+	font-weight: $font-weight-semi-bold;
+	color: $color;
+	text-decoration: none dashed currentcolor 1px;
+	text-decoration-color: color-mix(in srgb, currentcolor 20%, transparent);
+	transition: $transition-color;
+
+	@if $size == "s" {
+		@include text-setting(sm);
+	} @else if $size == "m" {
+		@include text-setting(base);
+	} @else if $size == "l" {
+		@include text-setting(lg);
+	}
+
+	&:focus-visible {
+		@include focus-outline(outline);
+	}
+}

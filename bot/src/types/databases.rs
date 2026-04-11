@@ -17,6 +17,10 @@ pub struct TransactionsDb {
     pub pool: SqlitePool,
 }
 
+pub struct LinksDb {
+    pub pool: SqlitePool,
+}
+
 impl UsersDb {
     pub fn new(pool: &SqlitePool) -> Self {
         Self { pool: pool.clone() }
@@ -30,6 +34,12 @@ impl CategoriesDb {
 }
 
 impl TransactionsDb {
+    pub fn new(pool: &SqlitePool) -> Self {
+        Self { pool: pool.clone() }
+    }
+}
+
+impl LinksDb {
     pub fn new(pool: &SqlitePool) -> Self {
         Self { pool: pool.clone() }
     }

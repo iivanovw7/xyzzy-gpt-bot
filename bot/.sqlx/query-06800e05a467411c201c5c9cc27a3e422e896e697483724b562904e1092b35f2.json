@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            INSERT INTO links (user_id, url, title, description, thumbnail_url, category_id, tags)\n            VALUES (?, ?, ?, ?, ?, ?, ?)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 7
+    },
+    "nullable": []
+  },
+  "hash": "06800e05a467411c201c5c9cc27a3e422e896e697483724b562904e1092b35f2"
+}

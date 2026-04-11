@@ -1,0 +1,22 @@
+@use "abstracts" as *;
+@use "mixins" as *;
+
+:host(.links-page) {
+	@include border-box("only");
+	@include page;
+
+	max-width: 100vw;
+	height: auto;
+	overflow-x: hidden;
+
+	.links-page__content {
+		@include border-box("only");
+		@include p(2, 2, 7);
+		@include sizer(100%, auto);
+
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+		max-width: 100vw;
+	}
+}

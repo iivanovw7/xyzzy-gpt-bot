@@ -72,6 +72,8 @@ pub enum Commands {
     Delete,
     #[command(description = "Reset bot")]
     Reset,
+    #[command(description = "View last 10 saved links")]
+    Links,
 }
 
 #[derive(
@@ -86,6 +88,8 @@ pub enum Commands {
     Hash,
     sqlx::Type,
     AsRefStr,
+    Serialize,
+    Deserialize,
 )]
 #[sqlx(type_name = "TEXT")]
 pub enum TransactionKind {
@@ -127,7 +131,17 @@ pub type HandleResult = Result<(), AppError>;
 
 pub type BotDialogue = Dialogue<DialogueState, InMemStorage<DialogueState>>;
 
-#[derive(Clone, Default, Debug, PartialEq)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
+pub struct LinkDraft {
+    pub url: String,
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub thumbnail_url: Option<String>,
+    pub category: String,
+    pub tags: Vec<String>,
+}
+
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub enum DialogueState {
     #[default]
     Start,
@@ -145,6 +159,7 @@ pub enum DialogueState {
         category_id: String,
         description: Option<String>,
     },
+    WaitingForLinkConfirmation(LinkDraft),
 }
 
 #[derive(Debug, Clone, Copy, EnumString, EnumIter)]

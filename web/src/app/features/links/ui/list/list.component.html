@@ -1,0 +1,141 @@
+<div class="links-list__header">
+	<div class="links-list__filters-box">
+		<tui-textfield
+			class="links-list__filter-combobox combobox"
+			[tuiTextfieldCleaner]="false"
+			tuiTextfieldSize="m"
+			iconStart="@tui.filter">
+			<input
+				tuiComboBox
+				placeholder="Filter by Category"
+				[ngModel]="selectedCategory()"
+				(ngModelChange)="selectedCategory.set($event)" />
+			<tui-data-list-wrapper [items]="service.categories() | tuiFilterByInput" *tuiDropdown>
+			</tui-data-list-wrapper>
+
+			@if (selectedCategory()) {
+				<button tuiButtonX (click)="selectedCategory.set(null)">Clear</button>
+			}
+		</tui-textfield>
+
+		<tui-textfield
+			class="links-list__filter-combobox combobox"
+			[tuiTextfieldCleaner]="false"
+			tuiTextfieldSize="m"
+			iconStart="@tui.tag">
+			<input
+				tuiComboBox
+				placeholder="Filter by Tag"
+				[ngModel]="selectedTag()"
+				(ngModelChange)="selectedTag.set($event)" />
+			<tui-data-list-wrapper [items]="service.tags() | tuiFilterByInput" *tuiDropdown> </tui-data-list-wrapper>
+
+			@if (selectedTag()) {
+				<button tuiButtonX (click)="selectedTag.set(null)">Clear</button>
+			}
+		</tui-textfield>
+
+		<tui-textfield
+			class="links-list__search-input"
+			tuiTextfieldSize="m"
+			iconStart="@tui.search"
+			[tuiTextfieldCleaner]="false">
+			<input
+				placeholder="Search links..."
+				tuiInput
+				[ngModel]="searchTerm()"
+				(ngModelChange)="searchTerm.set($event)" />
+
+			@if (searchTerm()) {
+				<button tuiButtonX (click)="handleSearchClear()">Clear</button>
+			}
+		</tui-textfield>
+	</div>
+</div>
+
+@switch (service.status()) {
+	@case ("loading") {
+		<div app-skeleton class="links-list__skeleton"></div>
+		<div app-skeleton class="links-list__skeleton"></div>
+		<div app-skeleton class="links-list__skeleton"></div>
+		<div app-skeleton class="links-list__skeleton"></div>
+		<div app-skeleton class="links-list__skeleton"></div>
+		<div app-skeleton class="links-list__skeleton"></div>
+	}
+	@case ("error") {
+		<div class="links-list__error">
+			<p>Failed to load links data.</p>
+			<button app-button (click)="this.handleReload()">Reload</button>
+		</div>
+	}
+	@case ("success") {
+		@let data = service.linksResponse()!;
+
+		@if (!!data.links.length) {
+			<div class="links-list__container">
+				@for (link of data.links; track link.id) {
+					<div class="links-list__row">
+						<div class="links-list__row-content">
+							<a
+								tuiLink
+								class="links-list__link-title"
+								[href]="link.url"
+								target="_blank"
+								rel="noopener noreferrer"
+								[innerHTML]="link.title || link.url | highlight: searchTerm()">
+							</a>
+							<div class="links-list__row-info">
+								@if (link.categoryName) {
+									<span
+										class="links-list__link-category"
+										[class.links-list__link-category--highlight]="
+											link.categoryName === selectedCategory()
+										">
+										[{{ link.categoryName }}]
+									</span>
+								}
+								<div class="links-list__tag-cloud">
+									@for (tag of link.tags; track tag) {
+										<span
+											class="links-list__tag"
+											[class.links-list__tag--highlight]="tag === selectedTag()">
+											{{ tag }}
+										</span>
+									}
+								</div>
+							</div>
+						</div>
+						@if (link.thumbnailUrl) {
+							<a
+								[href]="link.url"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="links-list__thumbnail-box">
+								<img [src]="link.thumbnailUrl" class="links-list__thumbnail" alt="thumbnail" />
+							</a>
+						}
+						<div class="links-list__item-action">
+							<span class="links-list__link-date">
+								{{ link.createdAt * 1000 | date: "mediumDate" }}
+							</span>
+							<button
+								app-button
+								size="s"
+								color="error"
+								(click)="service.deleteLink(link.id)"
+								[isLoading]="service.deletingLinks().has(link.id)"
+								[disabled]="service.deletingLinks().has(link.id)">
+								Remove
+							</button>
+						</div>
+					</div>
+					<span class="links-list__divider"></span>
+				}
+			</div>
+		} @else {
+			<div class="links-list__empty">
+				<p>No links found.</p>
+			</div>
+		}
+	}
+}

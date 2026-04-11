@@ -29,6 +29,15 @@ export const routes: Routes = [
 				return isAuth ? true : router.createUrlTree([routePath.login]);
 			}),
 		],
+		loadComponent: () => import("./features/links/links.component"),
+		path: basePath.links,
+	},
+	{
+		canActivate: [
+			authGuard((isAuth, router) => {
+				return isAuth ? true : router.createUrlTree([routePath.login]);
+			}),
+		],
 		loadComponent: () => import("./features/budgeting/budgeting.component"),
 		path: basePath.budgeting,
 	},
@@ -44,7 +53,7 @@ export const routes: Routes = [
 	{
 		canActivate: [
 			authGuard((isAuth, router) => {
-				return isAuth ? router.createUrlTree([routePath.home]) : true;
+				return isAuth ? true : router.createUrlTree([routePath.login]);
 			}),
 		],
 		loadComponent: () => import("./features/login/login.component"),

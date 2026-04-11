@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            UPDATE links\n            SET title = COALESCE(?, title),\n                description = COALESCE(?, description),\n                thumbnail_url = COALESCE(?, thumbnail_url),\n                category_id = COALESCE(?, category_id),\n                tags = COALESCE(?, tags),\n                updated_at = ?\n            WHERE id = ?\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 7
+    },
+    "nullable": []
+  },
+  "hash": "2663c98bc1ee97a63c2017f22bed82336678218d9e2861f15c75d4603f334404"
+}

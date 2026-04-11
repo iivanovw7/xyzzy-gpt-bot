@@ -15,6 +15,7 @@ $adaptive-font-size-additive: 0.3vi;
 /* Font weights. */
 $font-weight-light: 100;
 $font-weight-regular: 400;
+$font-weight-semi-bold: 500;
 $font-weight-bold: 600;
 $font-weight-extra-bold: 800;
 
@@ -73,4 +74,13 @@ $text-settings: (
 	display: $display;
 	max-width: $width;
 	overflow-wrap: normal;
+}
+
+@mixin line-clamp($lines: 2) {
+	display: -webkit-box;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: $lines;
+	overflow-wrap: break-word;
 }

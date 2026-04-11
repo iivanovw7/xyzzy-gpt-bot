@@ -6,3 +6,4 @@ pub mod help;
 pub mod reset;
 pub mod util;
 pub mod web;
+pub mod links;

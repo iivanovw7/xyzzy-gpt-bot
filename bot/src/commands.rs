@@ -56,6 +56,9 @@ pub async fn commands(
         Commands::Reset => {
             handlers::reset::reset(bot, msg).await?;
         }
+        Commands::Links => {
+            handlers::links::links::list_recent(bot, msg, &db).await?;
+        }
     }
 
     Ok(())
