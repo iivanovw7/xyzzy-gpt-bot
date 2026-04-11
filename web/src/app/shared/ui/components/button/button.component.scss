@@ -33,6 +33,7 @@
 
 		.button__loader {
 			@include sizer(rem(14px));
+			@include ml(2);
 		}
 	}
 
@@ -46,6 +47,7 @@
 		width: $control-size-medium;
 	}
 
+	&[aria-busy="true"],
 	&:disabled,
 	&:hover:disabled,
 	&:focus:disabled {
@@ -60,7 +62,7 @@
 		}
 	}
 
-	&:disabled {
+	&:disabled:not([aria-busy="true"]) {
 		color: var(--divider-dark);
 		background-color: var(--primary-background-disabled);
 	}
@@ -138,7 +140,23 @@
 			}
 		}
 
-		&:disabled {
+		&:disabled:not([aria-busy="true"]) {
+			background-color: var(--divider);
+		}
+	}
+
+	&.button--color-error {
+		color: var(--text-inversed);
+		background-color: var(--error);
+
+		@media (hover: hover) {
+			&:hover {
+				background-color: var(--error-hover);
+			}
+		}
+
+		&:disabled:not([aria-busy="true"]) {
+			color: var(--text-secondary);
 			background-color: var(--divider);
 		}
 	}
@@ -154,7 +172,7 @@
 			}
 		}
 
-		&:disabled {
+		&:disabled:not([aria-busy="true"]) {
 			background-color: var(--background-content);
 			border-color: var(--divider);
 		}
@@ -171,27 +189,27 @@
 			}
 		}
 
-		&:disabled {
+		&:disabled:not([aria-busy="true"]) {
 			background-color: var(--background-content);
 			border-color: var(--divider);
 		}
 	}
 
-	&.button--fill-outlined.button--color-danger {
-		color: var(--error-color);
+	&.button--fill-outlined.button--color-error {
+		color: var(--error);
 		background-color: var(--background-content);
-		border-color: var(--error-color);
+		border-color: var(--error);
 
 		@media (hover: hover) {
 			&:hover:enabled {
-				background-color: var(--light-error-color);
+				background-color: color-mix(in srgb, var(--error) 10%, transparent);
 			}
 		}
 
-		&:disabled {
-			color: var(--light-error-color);
+		&:disabled:not([aria-busy="true"]) {
+			color: color-mix(in srgb, var(--error) 50%, transparent);
 			background-color: var(--background-content);
-			border-color: var(--light-error-color);
+			border-color: color-mix(in srgb, var(--error) 50%, transparent);
 		}
 	}
 
@@ -206,7 +224,7 @@
 			}
 		}
 
-		&:disabled {
+		&:disabled:not([aria-busy="true"]) {
 			color: var(--primary-disabled);
 			background-color: transparent;
 		}
@@ -218,6 +236,16 @@
 		@media (hover: hover) {
 			&:hover:enabled {
 				color: var(--secondary-text);
+			}
+		}
+	}
+
+	&.button--fill-none.button--color-error {
+		color: var(--error);
+
+		@media (hover: hover) {
+			&:hover:enabled {
+				color: var(--error-hover);
 			}
 		}
 	}

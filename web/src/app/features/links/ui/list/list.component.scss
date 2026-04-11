@@ -1,0 +1,187 @@
+@use "sass:math";
+@use "abstracts" as *;
+@use "mixins" as *;
+
+:host(.links-list) {
+	@include sizer(100%, auto);
+
+	display: flex;
+	flex-direction: column;
+	gap: rem(16px);
+
+	.links-list__filters-box {
+		@include px(2);
+		@include my(3);
+		@include justify-align-flex;
+		@include sizer(100%, auto);
+
+		flex-direction: column;
+		gap: rem(12px);
+	}
+
+	.links-list__search-input {
+		@include tui-custom-input("m", calc(100% - rem(68px)));
+		@include sizer(100%, auto);
+	}
+
+	.links-list__filter-combobox {
+		@include tui-custom-combobox("m", calc(100% - rem(68px)));
+		@include sizer(100%, auto);
+	}
+}
+
+.links-list {
+	&__header {
+		display: flex;
+		flex-direction: column;
+		gap: rem(8px);
+	}
+
+	&__skeleton {
+		@include sizer(100%, rem(160px));
+		@include p(0, 2);
+
+		border-radius: var(--border-radius);
+	}
+
+	&__error,
+	&__empty {
+		@include justify-align-flex(center, center);
+
+		flex-direction: column;
+		gap: rem(16px);
+		padding: rem(32px);
+		text-align: center;
+	}
+
+	&__container {
+		@include border-radius($border-radius-x-small);
+
+		display: flex;
+		flex-direction: column;
+		gap: rem(12px);
+		overflow: hidden;
+		background-color: var(--color-surface);
+	}
+
+	&__row {
+		@include p(1, 2);
+
+		position: relative;
+		display: flex;
+		flex-flow: row wrap;
+		gap: rem(12px);
+	}
+
+	&__row-content {
+		@include sizer(fit-content, auto);
+
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		gap: rem(4px);
+		min-width: 0;
+	}
+
+	&__row-info {
+		@include justify-align-flex(flex-start, center);
+
+		flex-wrap: wrap;
+		gap: rem(8px);
+	}
+
+	&__link-title {
+		@include tui-custom-link("m");
+		@include line-clamp(2);
+
+		width: fit-content;
+
+		mark.highlight {
+			padding: 0 rem(2px);
+			color: var(--text-inversed);
+			background-color: var(--primary);
+			border-radius: rem(2px);
+		}
+	}
+
+	&__link-category {
+		@include text-setting(sm);
+
+		color: var(--text-secondary);
+
+		&--highlight {
+			font-weight: $font-weight-semi-bold;
+			color: var(--primary);
+		}
+	}
+
+	&__link-date {
+		@include text-setting(sm);
+
+		margin-left: 0;
+		color: var(--text-secondary);
+	}
+
+	&__thumbnail-box {
+		@include sizer(100%, rem(240px));
+		@include border-radius($border-radius-x-small);
+		@include background-image;
+
+		display: block;
+		flex-shrink: 0;
+		overflow: hidden;
+		outline: none;
+
+		&:focus-visible {
+			@include focus-outline(outline);
+
+			&:not(:focus) {
+				outline: none;
+			}
+		}
+	}
+
+	&__thumbnail {
+		@include ratio-box(math.div(4, 3));
+
+		object-fit: cover;
+	}
+
+	&__item-action {
+		@include justify-align-flex(space-between, flex-end);
+
+		flex: 1 1 100%;
+	}
+
+	&__tag {
+		@include border-radius($border-radius-x-small);
+		@include p(0, 1);
+		@include text-setting(xs);
+
+		display: inline-flex;
+		line-height: 1.2rem;
+		color: var(--text-inversed);
+		background-color: var(--secondary);
+
+		&--highlight {
+			background-color: var(--primary);
+		}
+	}
+
+	&__tag-cloud {
+		@include justify-align-flex(flex-start, flex-start);
+
+		flex-wrap: wrap;
+		gap: rem(8px);
+	}
+
+	&__divider {
+		@include sizer(100%, rem(1px));
+
+		background-color: var(--divider-dark);
+
+		@include only(last) {
+			display: none;
+		}
+	}
+}

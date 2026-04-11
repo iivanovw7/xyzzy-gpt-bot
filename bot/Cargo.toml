@@ -28,6 +28,7 @@ sqlx = { version = "0.8.6", features = [
     "runtime-tokio-native-tls",
     "macros",
 ] }
+scraper = "0.22.0"
 teloxide = { version = "0.17.0", features = ["macros", "bincode-serializer"] }
 thiserror = "2.0.17"
 tokio = { version = "1.37.0", features = ["full"] }

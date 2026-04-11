@@ -55,7 +55,7 @@ pub async fn server() {
         HttpServer::new(move || {
             let mut cors = Cors::default()
                 .allowed_origin(&CONFIG.web.url)
-                .allowed_methods(vec!["GET", "POST", "OPTIONS", "PUT"])
+                .allowed_methods(vec!["GET", "POST", "OPTIONS", "PUT", "DELETE"])
                 .allowed_headers(vec![
                     actix_web::http::header::AUTHORIZATION,
                     actix_web::http::header::ACCEPT,
@@ -104,6 +104,22 @@ pub async fn server() {
                     "/api/surf/forecast",
                     web::get().to(handlers::web::surf::forecast::get),
                 )
+                .route(
+                    "/api/links",
+                    web::get().to(handlers::web::links::links::get_links),
+                )
+                .route(
+                    "/api/links/{id}",
+                    web::delete().to(handlers::web::links::links::delete_link),
+                )
+                .route(
+                    "/api/links/categories",
+                    web::get().to(handlers::web::links::links::get_categories),
+                )
+                .route(
+                    "/api/links/tags",
+                    web::get().to(handlers::web::links::links::get_tags),
+                )
         })
         .bind(("0.0.0.0", CONFIG.api.port))
         .unwrap()
@@ -151,7 +167,7 @@ pub async fn server() {
     });
 
     let is_authorized_cb = dptree::filter(|q: CallbackQuery| q.from.id == UserId(ENV.user_id));
-    let is_unathorized_cb = dptree::filter(|q: CallbackQuery| q.from.id != UserId(ENV.user_id));
+    let is_unauthorized_cb = dptree::filter(|q: CallbackQuery| q.from.id != UserId(ENV.user_id));
 
     let message_filter = Update::filter_message()
         .filter(|msg: Message| msg.text().is_some())
@@ -166,7 +182,7 @@ pub async fn server() {
         .branch(
             Update::filter_callback_query()
                 .enter_dialogue::<CallbackQuery, InMemStorage<DialogueState>, DialogueState>()
-                .branch(is_unathorized_cb.endpoint(handlers::auth::bot::unauthorized_access_cb))
+                .branch(is_unauthorized_cb.endpoint(handlers::auth::bot::unauthorized_access_cb))
                 .branch(is_authorized_cb.endpoint(keyboard::core::callback)),
         )
         .branch(

@@ -25,3 +25,26 @@ pub struct TransactionRow {
     pub category_name: String,
     pub description: String,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct LinkRow {
+    pub id: i64,
+    pub user_id: i64,
+    pub url: String,
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub thumbnail_url: Option<String>,
+    pub category_id: Option<i64>,
+    pub category_name: Option<String>,
+    pub tags: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct LinkCategoryRow {
+    pub id: i64,
+    pub user_id: i64,
+    pub name: String,
+    pub created_at: NaiveDateTime,
+}

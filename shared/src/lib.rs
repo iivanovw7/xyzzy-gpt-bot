@@ -241,3 +241,67 @@ pub struct RecurrentStats {
     pub total_remaining: f32,
     pub percent_paid: f32,
 }
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct LinkResponse {
+    pub id: i64,
+    pub url: String,
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub thumbnail_url: Option<String>,
+    pub category_name: Option<String>,
+    pub tags: Vec<String>,
+    #[serde(with = "ts_seconds")]
+    #[ts(type = "number")]
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct LinksQuery {
+    pub category: Option<String>,
+    pub tag: Option<String>,
+    pub search: Option<String>,
+    pub limit: Option<i64>,
+    pub offset: Option<i64>,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct LinksListResponse {
+    pub links: Vec<LinkResponse>,
+    pub total_count: i64,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct LinkCategoryResponse {
+    pub id: i64,
+    pub name: String,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct LinkCategoriesResponse {
+    pub categories: Vec<LinkCategoryResponse>,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct LinkTagsResponse {
+    pub tags: Vec<String>,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export, export_to = "../generated/bindings.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteLinkResponse {
+    pub success: bool,
+}

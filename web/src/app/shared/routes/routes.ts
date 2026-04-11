@@ -3,6 +3,7 @@ import { map } from "ramda";
 export const basePath = {
 	budgeting: "budgeting",
 	home: "",
+	links: "links",
 	login: "login",
 	settings: "settings",
 } as const;

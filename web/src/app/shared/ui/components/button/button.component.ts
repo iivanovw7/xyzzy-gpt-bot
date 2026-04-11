@@ -11,6 +11,7 @@ import IconComponent from "../icon/icon.component";
 	host: {
 		"[attr.aria-busy]": "isLoading()",
 		"[attr.disabled]": 'disabled() ? "" : null',
+		"[class.button--color-error]": "color() === 'error'",
 		"[class.button--color-primary]": "color() === 'primary'",
 		"[class.button--color-secondary]": "color() === 'secondary'",
 		"[class.button--color-tertiary]": "color() === 'tertiary'",

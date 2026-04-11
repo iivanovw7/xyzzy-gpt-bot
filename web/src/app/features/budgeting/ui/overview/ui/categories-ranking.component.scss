@@ -83,7 +83,7 @@
 		@include only(first) {
 			@include text-setting(base);
 
-			font-weight: 600;
+			font-weight: $font-weight-bold;
 			color: var(--text-primary);
 		}
 
@@ -102,7 +102,7 @@
 		@include text-setting(base);
 
 		font-family: monospace;
-		font-weight: 500;
+		font-weight: $font-weight-semi-bold;
 	}
 
 	.categiries-ranking__category-bar-container {

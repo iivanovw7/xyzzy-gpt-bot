@@ -18,6 +18,40 @@ export type CreateTransactionRequest = {
 
 export type CreateTransactionResponse = { success: boolean };
 
+export type DeleteLinkResponse = { success: boolean };
+
+export type LinkCategoriesResponse = {
+  categories: Array<LinkCategoryResponse>;
+};
+
+export type LinkCategoryResponse = { id: bigint; name: string };
+
+export type LinkResponse = {
+  id: bigint;
+  url: string;
+  title: string | null;
+  description: string | null;
+  thumbnailUrl: string | null;
+  categoryName: string | null;
+  tags: Array<string>;
+  createdAt: number;
+};
+
+export type LinkTagsResponse = { tags: Array<string> };
+
+export type LinksListResponse = {
+  links: Array<LinkResponse>;
+  totalCount: bigint;
+};
+
+export type LinksQuery = {
+  category: string | null;
+  tag: string | null;
+  search: string | null;
+  limit: bigint | null;
+  offset: bigint | null;
+};
+
 export type LoginPayload = { initData: string };
 
 export type LoginResponse = {

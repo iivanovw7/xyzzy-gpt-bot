@@ -5,7 +5,7 @@ use teloxide::{
     prelude::*,
     types::{KeyboardButton, KeyboardMarkup, Me, ReplyMarkup},
 };
-use tracing::info;
+use tracing::{error, info};
 use url::Url;
 
 use crate::config::CONFIG;
@@ -115,6 +115,11 @@ pub async fn handle_keyboard(
     text: String,
 ) -> HandleResult {
     let chat_id = msg.chat.id;
+
+    if let Some(url) = handlers::links::processing::extract_url(&text) {
+        return handlers::links::processing::process_link(url, bot, client, msg, dialogue, db)
+            .await;
+    }
 
     if let Ok(item) = <MainMenuItems as FromStr>::from_str(&text) {
         match item {
@@ -378,6 +383,13 @@ pub async fn handle_keyboard(
                     .await?;
             }
         }
+        DialogueState::WaitingForLinkConfirmation { .. } => {
+            bot.send_message(
+                msg.chat.id,
+                "Please respond to the link confirmation above or select an option.",
+            )
+            .await?;
+        }
         DialogueState::Start => {
             return Ok(());
         }
@@ -492,6 +504,81 @@ pub async fn callback(
                     parsed_filter,
                 )
                 .await?;
+            }
+            ["link", "save"] => {
+                let Some(msg) = &q.message else {
+                    return Ok(());
+                };
+
+                let msg_id = msg.id();
+                let user_id = q.from.id.0 as i64;
+
+                let state = match dialogue.get().await {
+                    Ok(s) => s,
+                    Err(e) => {
+                        error!("Failed to get dialogue state: {}", e);
+                        bot.edit_message_text(q.from.id, msg_id, format!("❌ Database error: {}", e))
+                            .await?;
+                        return Ok(());
+                    }
+                };
+
+                let draft = match state {
+                    Some(DialogueState::WaitingForLinkConfirmation(draft)) => draft,
+                    _ => {
+                        bot.edit_message_text(q.from.id, msg_id, "❌ Link draft expired or not found.")
+                            .await?;
+                        return Ok(());
+                    }
+                };
+
+                let category_id = match db
+                    .links()
+                    .get_category_by_name(user_id, &draft.category)
+                    .await
+                {
+                    Ok(Some(cat)) => Some(cat.id),
+                    _ => db.links().add_category(user_id, &draft.category).await.ok(),
+                };
+
+                let tags_str = if draft.tags.is_empty() {
+                    None
+                } else {
+                    Some(draft.tags.join(","))
+                };
+
+                let save_result = db
+                    .links()
+                    .add_link(
+                        user_id,
+                        &draft.url,
+                        draft.title.as_deref(),
+                        draft.description.as_deref(),
+                        draft.thumbnail_url.as_deref(),
+                        category_id,
+                        tags_str.as_deref(),
+                    )
+                    .await;
+
+                let status_text = match save_result {
+                    Ok(_) => "✅ Link saved successfully!".to_string(),
+                    Err(e) => {
+                        error!("Failed to save link: {}", e);
+                        format!("❌ Failed to save link: {}", e)
+                    }
+                };
+
+                bot.edit_message_text(q.from.id, msg_id, status_text)
+                    .await?;
+
+                dialogue.update(DialogueState::Start).await?;
+            }
+            ["link", "ignore"] => {
+                if let Some(msg) = &q.message {
+                    bot.edit_message_text(q.from.id.to_string(), msg.id(), "❌ Link ignored.")
+                        .await?;
+                    dialogue.update(DialogueState::Start).await?;
+                }
             }
             ["transactions", "recent", id, category_name, kind_string, description] => {
                 let category_id = id.to_string();

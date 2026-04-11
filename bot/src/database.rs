@@ -2,7 +2,7 @@ use sqlx::SqlitePool;
 
 use crate::{
     env::ENV,
-    types::databases::{CategoriesDb, Database, TransactionsDb, UsersDb},
+    types::databases::{CategoriesDb, Database, LinksDb, TransactionsDb, UsersDb},
 };
 
 impl Database {
@@ -29,5 +29,9 @@ impl Database {
 
     pub fn transactions(&self) -> TransactionsDb {
         TransactionsDb::new(&self.pool)
+    }
+
+    pub fn links(&self) -> LinksDb {
+        LinksDb::new(&self.pool)
     }
 }
