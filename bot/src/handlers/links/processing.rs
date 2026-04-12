@@ -111,9 +111,13 @@ pub async fn process_link(
             URL: {}\n\
             Title: {}\n\
             Description: {}\n\n\
-            Existing Categories: {}\n\
-            Existing Tags: {}\n\n\
-            Please strongly prefer using the existing categories and tags if they accurately describe the link. Only create new ones if absolutely necessary.",
+            User's Existing Categories: {}\n\
+            User's Existing Tags: {}\n\n\
+            CRITICAL INSTRUCTIONS:\n\
+            1. Category: Choose the most accurate category. Use an existing one if it perfectly matches, otherwise invent a new one.\n\
+            2. Tags: Generate 3-4 tags strictly based on the URL, Title, and Description. \n\
+            3. DO NOT force the use of 'User's Existing Tags'. You must generate new, specific tags if the existing tags do not perfectly and specifically describe the content.\n\
+            4. Accuracy is more important than reusing existing tags.",
             url, title, description, categories_str, tags_str_context
         );
 
@@ -121,7 +125,7 @@ pub async fn process_link(
             .model(&CONFIG.open_ai.model)
             .messages([
                 ChatCompletionRequestSystemMessageArgs::default()
-                    .content("You are a helpful assistant. Output ONLY valid JSON in the exact format: {\"category\": \"string\", \"tags\": [\"string\", \"string\", \"string\"]}")
+                    .content("You are a helpful assistant that categorizes and tags links. Output ONLY valid JSON in the exact format: {\"category\": \"string\", \"tags\": [\"string\", \"string\", \"string\"]}. Do not restrict yourself to existing tags; create new ones when needed.")
                     .build()?
                     .into(),
                 ChatCompletionRequestUserMessageArgs::default()
