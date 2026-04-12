@@ -81,96 +81,103 @@ pub async fn process_link(
     let title = metadata.title.as_deref().unwrap_or("No title");
     let description = metadata.description.as_deref().unwrap_or("No description");
 
-    let existing_categories = db
-        .links()
-        .list_categories(user_id)
-        .await
-        .unwrap_or_default();
-    let category_names: Vec<String> = existing_categories.into_iter().map(|c| c.name).collect();
-    let categories_str = if category_names.is_empty() {
-        "None".to_string()
+    let analysis: GptLinkAnalysis = if (title == url || title == "No title") && description == "No description" {
+        GptLinkAnalysis {
+            category: "Uncategorized".to_string(),
+            tags: vec![],
+        }
     } else {
-        category_names.join(", ")
-    };
+        let existing_categories = db
+            .links()
+            .list_categories(user_id)
+            .await
+            .unwrap_or_default();
+        let category_names: Vec<String> = existing_categories.into_iter().map(|c| c.name).collect();
+        let categories_str = if category_names.is_empty() {
+            "None".to_string()
+        } else {
+            category_names.join(", ")
+        };
 
-    let existing_tags = db.links().list_tags(user_id).await.unwrap_or_default();
-    let tags_str_context = if existing_tags.is_empty() {
-        "None".to_string()
-    } else {
-        existing_tags.join(", ")
-    };
+        let existing_tags = db.links().list_tags(user_id).await.unwrap_or_default();
+        let tags_str_context = if existing_tags.is_empty() {
+            "None".to_string()
+        } else {
+            existing_tags.join(", ")
+        };
 
-    let prompt = format!(
-        "Analyze the following link and provide a single category and 3-4 short tags.\n\
-        URL: {}\n\
-        Title: {}\n\
-        Description: {}\n\n\
-        Existing Categories: {}\n\
-        Existing Tags: {}\n\n\
-        Please strongly prefer using the existing categories and tags if they accurately describe the link. Only create new ones if absolutely necessary.",
-        url, title, description, categories_str, tags_str_context
-    );
+        let prompt = format!(
+            "Analyze the following link and provide a single category and 3-4 short tags.\n\
+            URL: {}\n\
+            Title: {}\n\
+            Description: {}\n\n\
+            Existing Categories: {}\n\
+            Existing Tags: {}\n\n\
+            Please strongly prefer using the existing categories and tags if they accurately describe the link. Only create new ones if absolutely necessary.",
+            url, title, description, categories_str, tags_str_context
+        );
 
-    let request = match CreateChatCompletionRequestArgs::default()
-        .model(&CONFIG.open_ai.model)
-        .messages([
-            ChatCompletionRequestSystemMessageArgs::default()
-                .content("You are a helpful assistant. Output ONLY valid JSON in the exact format: {\"category\": \"string\", \"tags\": [\"string\", \"string\", \"string\"]}")
-                .build()?
-                .into(),
-            ChatCompletionRequestUserMessageArgs::default()
-                .content(prompt)
-                .build()?
-                .into(),
-        ])
-        .build() {
+        let request = match CreateChatCompletionRequestArgs::default()
+            .model(&CONFIG.open_ai.model)
+            .messages([
+                ChatCompletionRequestSystemMessageArgs::default()
+                    .content("You are a helpful assistant. Output ONLY valid JSON in the exact format: {\"category\": \"string\", \"tags\": [\"string\", \"string\", \"string\"]}")
+                    .build()?
+                    .into(),
+                ChatCompletionRequestUserMessageArgs::default()
+                    .content(prompt)
+                    .build()?
+                    .into(),
+            ])
+            .build() {
+                Ok(r) => r,
+                Err(e) => {
+                    error!("Failed to build request: {}", e);
+                    bot.edit_message_text(msg.chat.id, wait_msg.id, "Failed to build AI request.")
+                        .await?;
+                    return Ok(());
+                }
+            };
+
+        let response = match client.chat().create(request).await {
             Ok(r) => r,
             Err(e) => {
-                error!("Failed to build request: {}", e);
-                bot.edit_message_text(msg.chat.id, wait_msg.id, "Failed to build AI request.")
-                    .await?;
+                error!("Failed to call OpenAI: {}", e);
+                bot.edit_message_text(
+                    msg.chat.id,
+                    wait_msg.id,
+                    format!("AI Analysis failed: {}", e),
+                )
+                .await?;
                 return Ok(());
             }
         };
 
-    let response = match client.chat().create(request).await {
-        Ok(r) => r,
-        Err(e) => {
-            error!("Failed to call OpenAI: {}", e);
-            bot.edit_message_text(
-                msg.chat.id,
-                wait_msg.id,
-                format!("AI Analysis failed: {}", e),
-            )
-            .await?;
-            return Ok(());
-        }
-    };
+        let content = response
+            .choices
+            .first()
+            .and_then(|c| c.message.content.clone())
+            .unwrap_or_default();
 
-    let content = response
-        .choices
-        .first()
-        .and_then(|c| c.message.content.clone())
-        .unwrap_or_default();
+        let content = content
+            .trim_start_matches("```json\n")
+            .trim_start_matches("```\n")
+            .trim_end_matches("\n```")
+            .trim_end_matches("```")
+            .trim();
 
-    let content = content
-        .trim_start_matches("```json\n")
-        .trim_start_matches("```\n")
-        .trim_end_matches("\n```")
-        .trim_end_matches("```")
-        .trim();
-
-    let analysis: GptLinkAnalysis = match serde_json::from_str(content) {
-        Ok(a) => a,
-        Err(e) => {
-            error!("Failed to parse response: {} \nResponse: {}", e, content);
-            bot.edit_message_text(
-                msg.chat.id,
-                wait_msg.id,
-                format!("Failed to analyze link via AI: {}", e),
-            )
-            .await?;
-            return Ok(());
+        match serde_json::from_str(content) {
+            Ok(a) => a,
+            Err(e) => {
+                error!("Failed to parse response: {} \nResponse: {}", e, content);
+                bot.edit_message_text(
+                    msg.chat.id,
+                    wait_msg.id,
+                    format!("Failed to analyze link via AI: {}", e),
+                )
+                .await?;
+                return Ok(());
+            }
         }
     };
 

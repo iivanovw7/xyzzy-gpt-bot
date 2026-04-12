@@ -1,5 +1,6 @@
 use reqwest::Client;
 use scraper::{Html, Selector};
+use tracing::info;
 use url::Url;
 
 #[derive(Debug, Default)]
@@ -15,6 +16,20 @@ pub async fn scrape_metadata(url: &str) -> anyhow::Result<LinkMetadata> {
         .build()?;
 
     let res = client.get(url).send().await?;
+
+    if !res.status().is_success() {
+        info!(
+            "Failed to fetch metadata for {}: HTTP {}",
+            url,
+            res.status()
+        );
+        return Ok(LinkMetadata {
+            title: Some(url.to_string()),
+            description: None,
+            thumbnail_url: None,
+        });
+    }
+
     let html_content = res.text().await?;
     let document = Html::parse_document(&html_content);
 
@@ -34,6 +49,10 @@ pub async fn scrape_metadata(url: &str) -> anyhow::Result<LinkMetadata> {
             .select(&og_title_selector)
             .next()
             .and_then(|el| el.value().attr("content").map(|s| s.trim().to_string()));
+    }
+
+    if metadata.title.is_none() {
+        metadata.title = Some(url.to_string());
     }
 
     let desc_selector = Selector::parse("meta[name='description']").unwrap();
