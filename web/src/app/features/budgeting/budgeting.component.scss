@@ -15,14 +15,27 @@
 		background-color: var(--background-content);
 	}
 
-	.budgeting-page__tabs {
-		@include sizer(100%, auto);
-		@include p(3, 3, 0);
-		@include position(fixed, auto auto 80px auto);
-		@include z-index(navbar-extension);
+	.budgeting-page__tabs-container {
+		@include sizer(100%, rem(140px));
+		@include p(0, 2);
+		@include position(fixed, auto auto 0 auto);
+		@include justify-align-flex;
+		@include z-index(navbar-extension-underlay);
 
 		background-color: var(--background-primary);
 		border-top: 1px solid var(--tertiary);
-		border-bottom: 1px solid var(--background-primary);
+		border-bottom: none;
+	}
+
+	.budgeting-page__tabs {
+		@include justify-align-flex;
+		@include sizer(100%, auto);
+		@include z-index(navbar-extension);
+
+		border-bottom: none;
+	}
+
+	.navigation {
+		border-top: none;
 	}
 }
