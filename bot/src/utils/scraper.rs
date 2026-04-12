@@ -115,11 +115,18 @@ pub async fn scrape_metadata(url: &str) -> anyhow::Result<LinkMetadata> {
     }
 
     if let Some(thumb_url) = &metadata.thumbnail_url {
+        info!("Scraped thumbnail URL for {}: {}", url, thumb_url);
+
         if let Ok(parsed_base_url) = Url::parse(url) {
             if let Ok(absolute_thumb_url) = parsed_base_url.join(thumb_url) {
-                metadata.thumbnail_url = Some(absolute_thumb_url.to_string());
+                let final_url = absolute_thumb_url.to_string();
+
+                info!("Absolute thumbnail URL for {}: {}", url, final_url);
+                metadata.thumbnail_url = Some(final_url);
             }
         }
+    } else {
+        info!("No thumbnail URL found for {}", url);
     }
 
     Ok(metadata)

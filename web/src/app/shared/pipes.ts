@@ -29,7 +29,11 @@ export class HighlightPipe implements PipeTransform {
 	transform(value: null | string | undefined, search: null | string): string {
 		if (!value) return "";
 
-		let safeValue = value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+		// prettier-ignore
+		let safeValue = value
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;");
 
 		if (!search) return safeValue;
 
@@ -37,5 +41,23 @@ export class HighlightPipe implements PipeTransform {
 		let regex = new RegExp(`(${safeSearch})`, "gi");
 
 		return safeValue.replace(regex, `<mark class="highlight">$1</mark>`);
+	}
+}
+
+@Pipe({
+	name: "safeImageUrl",
+	standalone: true,
+})
+export class SafeImageUrlPipe implements PipeTransform {
+	transform(value: null | string | undefined): string {
+		if (!value) return "";
+
+		if (value.startsWith("data:")) {
+			return value;
+		}
+
+		let encodedUrl = encodeURIComponent(value);
+
+		return `https://wsrv.nl/?url=${encodedUrl}&w=400&h=300&fit=cover&output=webp`;
 	}
 }

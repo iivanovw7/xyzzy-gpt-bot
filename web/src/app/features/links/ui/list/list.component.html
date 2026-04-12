@@ -111,7 +111,11 @@
 								target="_blank"
 								rel="noopener noreferrer"
 								class="links-list__thumbnail-box">
-								<img [src]="link.thumbnailUrl" class="links-list__thumbnail" alt="thumbnail" />
+								<img
+									[src]="link.thumbnailUrl | safeImageUrl"
+									class="links-list__thumbnail"
+									alt="thumbnail"
+									referrerpolicy="no-referrer" />
 							</a>
 						}
 						<div class="links-list__item-action">

@@ -1,5 +1,5 @@
 import { config } from "@/app/shared/config";
-import { HighlightPipe } from "@/app/shared/pipes";
+import { HighlightPipe, SafeImageUrlPipe } from "@/app/shared/pipes";
 import ButtonComponent from "@/app/shared/ui/components/button/button.component";
 import SkeletonComponent from "@/app/shared/ui/components/skeleton/skeleton.component";
 import { CommonModule } from "@angular/common";
@@ -30,6 +30,7 @@ import { LinksService } from "../../service/links.service";
 		TuiInput,
 		TuiLink,
 		HighlightPipe,
+		SafeImageUrlPipe,
 	],
 	selector: "div[app-links-list]",
 	styleUrl: "./list.component.scss",
