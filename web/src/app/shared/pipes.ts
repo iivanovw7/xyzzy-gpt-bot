@@ -58,6 +58,6 @@ export class SafeImageUrlPipe implements PipeTransform {
 
 		let encodedUrl = encodeURIComponent(value);
 
-		return `https://wsrv.nl/?url=${encodedUrl}&w=400&h=300&fit=cover&output=webp`;
+		return `https://wsrv.nl/?url=${encodedUrl}&w=600&output=webp`;
 	}
 }

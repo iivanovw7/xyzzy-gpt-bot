@@ -48,6 +48,7 @@ $theme-variants: (
 				error: palette.get(monokai-light, text-error),
 				error-hover: palette.get(monokai-light, text-error-lighten),
 				background-primary: palette.get(monokai-light, background),
+				background-primary-translucent: palette.get(monokai-light, dark2-translucent),
 				background-overlay: palette.get(monokai-light, dark2),
 				background-content: palette.get(monokai-light, dark1),
 				background-content-lighten: palette.get(monokai-light, dark1-lighten),
@@ -85,7 +86,7 @@ $theme-variants: (
 				control-background-primary: palette.get(monokai-light, background),
 				control-disabled-primary: palette.get(monokai-light, dimmed5),
 				control-disabled-border-primary: palette.get(monokai-light, dimmed5),
-				control-disabled-backgound-primary: palette.get(monokai-light, dimmed3),
+				control-disabled-background-primary: palette.get(monokai-light, dimmed3),
 				control-hover-border-primary: palette.get(monokai-light, dimmed4),
 				// Skeleton
 				skeleton-shimmer-1: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%),
@@ -176,6 +177,7 @@ $theme-variants: (
 				error: palette.get(monokai, text-error),
 				error-hover: palette.get(monokai, text-error-lighten),
 				background-primary: palette.get(monokai, background),
+				background-primary-translucent: palette.get(monokai, dark2-translucent),
 				background-overlay: palette.get(monokai, dark2),
 				background-content: palette.get(monokai, dark1),
 				background-content-lighten: palette.get(monokai, dark1-lighten),
@@ -213,7 +215,7 @@ $theme-variants: (
 				control-background-primary: palette.get(monokai, background),
 				control-disabled-primary: palette.get(monokai, dimmed4),
 				control-disabled-border-primary: palette.get(monokai, dimmed5),
-				control-disabled-backgound-primary: palette.get(monokai, dark2-lighten),
+				control-disabled-background-primary: palette.get(monokai, dark2-lighten),
 				control-hover-border-primary: palette.get(monokai, dimmed4),
 				// Skeleton
 				skeleton-shimmer-1: linear-gradient(110deg, #2d2a2e 8%, #221f22 18%, #2d2a2e 33%),

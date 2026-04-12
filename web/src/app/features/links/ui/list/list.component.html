@@ -75,63 +75,27 @@
 			<div class="links-list__container">
 				@for (link of data.links; track link.id) {
 					<div class="links-list__row">
-						<div class="links-list__row-content">
-							<a
-								tuiLink
-								class="links-list__link-title"
-								[href]="link.url"
-								target="_blank"
-								rel="noopener noreferrer"
-								[innerHTML]="link.title || link.url | highlight: searchTerm()">
-							</a>
-							<div class="links-list__row-info">
-								@if (link.categoryName) {
-									<span
-										class="links-list__link-category"
-										[class.links-list__link-category--highlight]="
-											link.categoryName === selectedCategory()
-										">
-										[{{ link.categoryName }}]
-									</span>
-								}
-								<div class="links-list__tag-cloud">
-									@for (tag of link.tags; track tag) {
-										<span
-											class="links-list__tag"
-											[class.links-list__tag--highlight]="tag === selectedTag()">
-											{{ tag }}
-										</span>
-									}
-								</div>
-							</div>
-						</div>
-						@if (link.thumbnailUrl) {
-							<a
-								[href]="link.url"
-								target="_blank"
-								rel="noopener noreferrer"
-								class="links-list__thumbnail-box">
-								<img
-									[src]="link.thumbnailUrl | safeImageUrl"
-									class="links-list__thumbnail"
-									alt="thumbnail"
-									referrerpolicy="no-referrer" />
-							</a>
+						@if (!link.thumbnailUrl) {
+							<ng-container *ngTemplateOutlet="header; context: { $implicit: link, float: false }" />
+							<ng-container *ngTemplateOutlet="footer; context: { $implicit: link, float: false }" />
 						}
-						<div class="links-list__item-action">
-							<span class="links-list__link-date">
-								{{ link.createdAt * 1000 | date: "mediumDate" }}
-							</span>
-							<button
-								app-button
-								size="s"
-								color="error"
-								(click)="service.deleteLink(link.id)"
-								[isLoading]="service.deletingLinks().has(link.id)"
-								[disabled]="service.deletingLinks().has(link.id)">
-								Remove
-							</button>
-						</div>
+						@if (link.thumbnailUrl) {
+							<div class="links-list__row-content-box">
+								<ng-container *ngTemplateOutlet="header; context: { $implicit: link, float: true }" />
+								<a
+									[href]="link.url"
+									target="_blank"
+									rel="noopener noreferrer"
+									class="links-list__thumbnail-box">
+									<img
+										[src]="link.thumbnailUrl | safeImageUrl"
+										class="links-list__thumbnail"
+										alt="thumbnail"
+										referrerpolicy="no-referrer" />
+								</a>
+								<ng-container *ngTemplateOutlet="footer; context: { $implicit: link, float: true }" />
+							</div>
+						}
 					</div>
 					<span class="links-list__divider"></span>
 				}
@@ -143,3 +107,49 @@
 		}
 	}
 }
+
+<ng-template #header let-link let-float="float">
+	<div [ngClass]="{ 'links-list__row-content': true, 'links-list__row-content--is-float': float === true }">
+		<a
+			tuiLink
+			class="links-list__link-title"
+			[href]="link.url"
+			target="_blank"
+			rel="noopener noreferrer"
+			[innerHTML]="link.title || link.url | highlight: searchTerm()">
+		</a>
+		<div class="links-list__row-info">
+			@if (link.categoryName) {
+				<span
+					class="links-list__link-category"
+					[class.links-list__link-category--highlight]="link.categoryName === selectedCategory()">
+					[{{ link.categoryName }}]
+				</span>
+			}
+			<div class="links-list__tag-cloud">
+				@for (tag of link.tags; track tag) {
+					<span class="links-list__tag" [class.links-list__tag--highlight]="tag === selectedTag()">
+						{{ tag }}
+					</span>
+				}
+			</div>
+		</div>
+	</div>
+</ng-template>
+
+<ng-template #footer let-link let-float="float">
+	<div [ngClass]="{ 'links-list__item-action': true, 'links-list__item-action--is-float': float === true }">
+		<span class="links-list__link-date">
+			{{ link.createdAt * 1000 | date: "mediumDate" }}
+		</span>
+		<button
+			app-button
+			size="s"
+			color="error"
+			(click)="service.deleteLink(link.id)"
+			[isLoading]="service.deletingLinks().has(link.id)"
+			[disabled]="service.deletingLinks().has(link.id)">
+			Remove
+		</button>
+	</div>
+</ng-template>

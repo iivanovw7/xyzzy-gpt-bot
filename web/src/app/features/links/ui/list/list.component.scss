@@ -81,6 +81,23 @@
 		flex-direction: column;
 		gap: rem(4px);
 		min-width: 0;
+
+		&--is-float {
+			@include position(absolute, 0 auto auto 0);
+			@include z-index(content-overlay);
+			@include p(2, 3, 3);
+			@include sizer(100%, auto);
+
+			background-color: var(--background-primary-translucent);
+		}
+	}
+
+	&__row-content-box {
+		@include justify-align-flex;
+		@include sizer(100%, auto);
+
+		position: relative;
+		flex-direction: column;
 	}
 
 	&__row-info {
@@ -152,6 +169,11 @@
 		@include justify-align-flex(space-between, flex-end);
 
 		flex: 1 1 100%;
+
+		&--is-float {
+			@include pt(2);
+			@include sizer(100%, auto);
+		}
 	}
 
 	&__tag {
@@ -177,7 +199,7 @@
 	}
 
 	&__divider {
-		@include sizer(100%, rem(1px));
+		@include sizer(calc(100% - 16px), rem(1px));
 
 		background-color: var(--divider-dark);
 
