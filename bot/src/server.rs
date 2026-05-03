@@ -154,6 +154,13 @@ pub async fn server() {
         None
     };
 
+    let market_bot = bot.clone();
+    let market_openai_client = client.clone();
+
+    tokio::spawn(async move {
+        handlers::crypto::market::start_market_loop(market_bot, market_openai_client).await;
+    });
+
     let is_authorized = dptree::filter(|msg: Message| {
         msg.from
             .map(|user| user.id == UserId(ENV.user_id))

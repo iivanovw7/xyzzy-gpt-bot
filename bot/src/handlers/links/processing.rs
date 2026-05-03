@@ -125,7 +125,7 @@ pub async fn process_link(
             .model(&CONFIG.open_ai.model)
             .messages([
                 ChatCompletionRequestSystemMessageArgs::default()
-                    .content("You are a helpful assistant that categorizes and tags links. Output ONLY valid JSON in the exact format: {\"category\": \"string\", \"tags\": [\"string\", \"string\", \"string\"]}. Do not restrict yourself to existing tags; create new ones when needed.")
+                    .content(include_str!("../../prompts/link_analysis.md"))
                     .build()?
                     .into(),
                 ChatCompletionRequestUserMessageArgs::default()
