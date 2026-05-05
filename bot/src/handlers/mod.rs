@@ -1,6 +1,6 @@
 pub mod auth;
 pub mod budgeting;
-pub mod crypto;
+pub mod market;
 pub mod dice;
 pub mod gpt;
 pub mod help;

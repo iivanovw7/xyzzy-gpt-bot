@@ -1,27 +1,51 @@
-use serde::Deserialize;
-
-#[derive(Deserialize, Debug)]
-pub struct CoinGeckoHistory {
-    pub prices: Vec<Vec<f64>>,
-}
-
 pub struct MarketHistory {
     prices: Vec<f64>,
+    volumes: Vec<f64>,
 }
 
 impl MarketHistory {
     pub fn new(initial_prices: Vec<f64>) -> Self {
         MarketHistory {
             prices: initial_prices,
+            volumes: Vec::new(),
+        }
+    }
+
+    pub fn new_with_volume(initial_prices: Vec<f64>, initial_volumes: Vec<f64>) -> Self {
+        MarketHistory {
+            prices: initial_prices,
+            volumes: initial_volumes,
         }
     }
 
     pub fn update_price(&mut self, new_price: f64) {
         self.prices.push(new_price);
-
-        if self.prices.len() > 50 {
+        if self.prices.len() > 200 {
             self.prices.remove(0);
         }
+    }
+
+    pub fn update_volume(&mut self, new_volume: f64) {
+        self.volumes.push(new_volume);
+        if self.volumes.len() > 200 {
+            self.volumes.remove(0);
+        }
+    }
+
+    pub fn calculate_sma(&self, period: usize) -> f64 {
+        if self.prices.len() < period {
+            return *self.prices.last().unwrap_or(&0.0);
+        }
+        let sum: f64 = self.prices[self.prices.len() - period..].iter().sum();
+        sum / period as f64
+    }
+
+    pub fn calculate_volume_sma(&self, period: usize) -> f64 {
+        if self.volumes.len() < period {
+            return *self.volumes.last().unwrap_or(&0.0);
+        }
+        let sum: f64 = self.volumes[self.volumes.len() - period..].iter().sum();
+        sum / period as f64
     }
 
     pub fn calculate_rsi(&self) -> f64 {
