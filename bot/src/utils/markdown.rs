@@ -8,3 +8,9 @@ pub fn escape_markdown_v2(text: &str) -> String {
         })
         .collect()
 }
+
+pub fn escape_html(text: &str) -> String {
+    text.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+}

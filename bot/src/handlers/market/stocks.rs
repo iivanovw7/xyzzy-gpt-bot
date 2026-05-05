@@ -111,14 +111,13 @@ async fn analyze_asset(
             }
         };
 
-    let (_, _, prices_1d, vols_1d) =
-        match fetch_yahoo_data(http_client, symbol, "1d", "1y").await {
-            Ok(data) => data,
-            Err(e) => {
-                error!("Failed to fetch 1d data for {}: {}", symbol, e);
-                return;
-            }
-        };
+    let (_, _, prices_1d, vols_1d) = match fetch_yahoo_data(http_client, symbol, "1d", "1y").await {
+        Ok(data) => data,
+        Err(e) => {
+            error!("Failed to fetch 1d data for {}: {}", symbol, e);
+            return;
+        }
+    };
 
     if prices_1h.len() < 30 || prices_1d.len() < 30 {
         error!(
@@ -174,9 +173,20 @@ async fn analyze_asset(
         SMA 50: ${:.2} | SMA 200: ${:.2}\n\n\
         [FUNDAMENTAL CONTEXT]\n\
         Recent News: {}",
-        symbol, current_price, current_volume.unwrap_or(0.0), 
-        rsi_1h, macd_line_1h, macd_signal_1h, macd_hist_1h, sma_50_1h,
-        rsi_1d, macd_line_1d, macd_signal_1d, macd_hist_1d, sma_50_1d, sma_200_1d,
+        symbol,
+        current_price,
+        current_volume.unwrap_or(0.0),
+        rsi_1h,
+        macd_line_1h,
+        macd_signal_1h,
+        macd_hist_1h,
+        sma_50_1h,
+        rsi_1d,
+        macd_line_1d,
+        macd_signal_1d,
+        macd_hist_1d,
+        sma_50_1d,
+        sma_200_1d,
         news
     );
 
@@ -227,33 +237,35 @@ async fn analyze_asset(
                     };
 
                     let msg_text = format!(
-                        "{} *Stock Signal: {}* ({}%)\n\
-                        *Asset:* {} | *Price:* ${:.2}\n\
-                        *Regime:* {}\n\n\
-                        *Hourly (Short-term):*\n\
-                        \\- RSI: {:.2}\n\
-                        \\- MACD Hist: {:.2}\n\n\
-                        *Daily (Long-term):*\n\
-                        \\- RSI: {:.2}\n\
-                        \\- SMA 50: ${:.2} | SMA 200: ${:.2}\n\n\
-                        *Analysis:*\n{}",
+                        "{} <b>Stock Signal: {}</b> ({}%)\n\
+                        <b>Asset:</b> {} | <b>Price:</b> ${:.2}\n\
+                        <b>Regime:</b> {}\n\n\
+                        <b>Hourly (Short-term):</b>\n\
+                        - RSI: {:.2}\n\
+                        - MACD Line: {:.4} | Signal: {:.4} | Histogram: {:.4}\n\n\
+                        <b>Daily (Long-term):</b>\n\
+                        - RSI: {:.2}\n\
+                        - SMA 50: ${:.2} | SMA 200: ${:.2}\n\n\
+                        <b>Analysis:</b>\n{}",
                         emoji,
-                        crate::utils::markdown::escape_markdown_v2(&analysis.opportunity),
+                        crate::utils::markdown::escape_html(&analysis.opportunity),
                         analysis.confidence_score,
-                        crate::utils::markdown::escape_markdown_v2(symbol),
+                        crate::utils::markdown::escape_html(symbol),
                         current_price,
-                        crate::utils::markdown::escape_markdown_v2(&analysis.market_regime),
+                        crate::utils::markdown::escape_html(&analysis.market_regime),
                         rsi_1h,
+                        macd_line_1h,
+                        macd_signal_1h,
                         macd_hist_1h,
                         rsi_1d,
                         sma_50_1d,
                         sma_200_1d,
-                        crate::utils::markdown::escape_markdown_v2(&analysis.analysis_reasoning)
+                        crate::utils::markdown::escape_html(&analysis.analysis_reasoning)
                     );
 
                     if let Err(e) = bot
                         .send_message(target_user_id, msg_text)
-                        .parse_mode(teloxide::types::ParseMode::MarkdownV2)
+                        .parse_mode(teloxide::types::ParseMode::Html)
                         .await
                     {
                         error!("Failed to send market signal to user: {}", e);
@@ -278,7 +290,8 @@ pub async fn start_stock_loop(bot: Bot, openai_client: OpenAiClient<OpenAIConfig
 
     let assets = vec!["NVDA"];
 
-    loop {        for symbol in &assets {
+    loop {
+        for symbol in &assets {
             analyze_asset(&bot, &openai_client, &client, symbol, target_user_id).await;
             tokio::time::sleep(Duration::from_secs(10)).await;
         }

@@ -43,7 +43,7 @@ async fn fetch_coingecko_history(
     days: &str,
 ) -> anyhow::Result<Vec<f64>> {
     let url = format!(
-        "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days={}&interval=hourly",
+        "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days={}&interval=daily",
         days
     );
     let res = http_client
@@ -189,32 +189,34 @@ async fn fetch_and_analyze_crypto_data(
                                 };
 
                                 let msg_text = format!(
-                                    "{} *Crypto Signal: {}* ({}%)\n\
-                                    *Asset:* BTC/USD | *Price:* ${:.2}\n\
-                                    *Regime:* {}\n\n\
-                                    *Hourly (Short-term):*\n\
-                                    \\- RSI: {:.2}\n\
-                                    \\- MACD Hist: {:.2}\n\n\
-                                    *Daily (Long-term):*\n\
-                                    \\- RSI: {:.2}\n\
-                                    \\- SMA 50: ${:.2} | SMA 200: ${:.2}\n\n\
-                                    *Analysis:*\n{}",
+                                    "{} <b>Crypto Signal: {}</b> ({}%)\n\
+                                    <b>Asset:</b> BTC/USD | <b>Price:</b> ${:.2}\n\
+                                    <b>Regime:</b> {}\n\n\
+                                    <b>Hourly (Short-term):</b>\n\
+                                    - RSI: {:.2}\n\
+                                    - MACD Line: {:.4} | Signal: {:.4} | Histogram: {:.4}\n\n\
+                                    <b>Daily (Long-term):</b>\n\
+                                    - RSI: {:.2}\n\
+                                    - SMA 50: ${:.2} | SMA 200: ${:.2}\n\n\
+                                    <b>Analysis:</b>\n{}",
                                     emoji,
-                                    crate::utils::markdown::escape_markdown_v2(&analysis.opportunity),
+                                    crate::utils::markdown::escape_html(&analysis.opportunity),
                                     analysis.confidence_score,
                                     btc.usd,
-                                    crate::utils::markdown::escape_markdown_v2(&analysis.market_regime),
+                                    crate::utils::markdown::escape_html(&analysis.market_regime),
                                     rsi_1h,
+                                    macd_line_1h,
+                                    macd_signal_1h,
                                     macd_hist_1h,
                                     rsi_1d,
                                     sma_50_1d,
                                     sma_200_1d,
-                                    crate::utils::markdown::escape_markdown_v2(&analysis.analysis_reasoning)
+                                    crate::utils::markdown::escape_html(&analysis.analysis_reasoning)
                                 );
 
                                 if let Err(e) = bot
                                     .send_message(target_user_id, msg_text)
-                                    .parse_mode(teloxide::types::ParseMode::MarkdownV2)
+                                    .parse_mode(teloxide::types::ParseMode::Html)
                                     .await
                                 {
                                     error!("Failed to send crypto signal to user: {}", e);
