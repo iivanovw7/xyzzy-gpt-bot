@@ -9,6 +9,8 @@ pub struct Env {
     pub user_id: u64,
     pub database_url: String,
     pub jwt_secret: String,
+    pub alphavantage_api_key: String,
+    pub fred_api_key: String,
 }
 
 lazy_static! {

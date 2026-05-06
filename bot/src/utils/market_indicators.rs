@@ -1,27 +1,58 @@
 pub struct MarketHistory {
-    prices: Vec<f64>,
+    open_prices: Vec<f64>,
+    high_prices: Vec<f64>,
+    low_prices: Vec<f64>,
+    close_prices: Vec<f64>,
     volumes: Vec<f64>,
 }
 
 impl MarketHistory {
     pub fn new(initial_prices: Vec<f64>) -> Self {
         MarketHistory {
-            prices: initial_prices,
+            open_prices: initial_prices.clone(),
+            high_prices: initial_prices.clone(),
+            low_prices: initial_prices.clone(),
+            close_prices: initial_prices,
             volumes: Vec::new(),
         }
     }
 
     pub fn new_with_volume(initial_prices: Vec<f64>, initial_volumes: Vec<f64>) -> Self {
         MarketHistory {
-            prices: initial_prices,
+            open_prices: initial_prices.clone(),
+            high_prices: initial_prices.clone(),
+            low_prices: initial_prices.clone(),
+            close_prices: initial_prices,
+            volumes: initial_volumes,
+        }
+    }
+
+    pub fn new_with_ohlc(
+        initial_close_prices: Vec<f64>,
+        initial_high_prices: Vec<f64>,
+        initial_low_prices: Vec<f64>,
+        initial_volumes: Vec<f64>,
+    ) -> Self {
+        MarketHistory {
+            open_prices: Vec::new(),
+            high_prices: initial_high_prices,
+            low_prices: initial_low_prices,
+            close_prices: initial_close_prices,
             volumes: initial_volumes,
         }
     }
 
     pub fn update_price(&mut self, new_price: f64) {
-        self.prices.push(new_price);
-        if self.prices.len() > 200 {
-            self.prices.remove(0);
+        self.close_prices.push(new_price);
+        self.open_prices.push(new_price);
+        self.high_prices.push(new_price);
+        self.low_prices.push(new_price);
+
+        if self.close_prices.len() > 200 {
+            self.open_prices.remove(0);
+            self.high_prices.remove(0);
+            self.low_prices.remove(0);
+            self.close_prices.remove(0);
         }
     }
 
@@ -33,10 +64,12 @@ impl MarketHistory {
     }
 
     pub fn calculate_sma(&self, period: usize) -> f64 {
-        if self.prices.len() < period {
-            return *self.prices.last().unwrap_or(&0.0);
+        if self.close_prices.len() < period {
+            return *self.close_prices.last().unwrap_or(&0.0);
         }
-        let sum: f64 = self.prices[self.prices.len() - period..].iter().sum();
+        let sum: f64 = self.close_prices[self.close_prices.len() - period..]
+            .iter()
+            .sum();
         sum / period as f64
     }
 
@@ -50,7 +83,7 @@ impl MarketHistory {
 
     pub fn calculate_rsi(&self) -> f64 {
         let period = 14;
-        if self.prices.len() < period + 1 {
+        if self.close_prices.len() < period + 1 {
             return 50.0;
         }
 
@@ -58,8 +91,8 @@ impl MarketHistory {
         let mut loss_sum = 0.0;
 
         for i in 1..=period {
-            let change = self.prices[self.prices.len() - period + i - 1]
-                - self.prices[self.prices.len() - period + i - 2];
+            let change = self.close_prices[self.close_prices.len() - period + i - 1]
+                - self.close_prices[self.close_prices.len() - period + i - 2];
             if change >= 0.0 {
                 gain_sum += change;
             } else {
@@ -70,8 +103,8 @@ impl MarketHistory {
         let mut avg_gain = gain_sum / period as f64;
         let mut avg_loss = loss_sum / period as f64;
 
-        for i in (period + 1)..self.prices.len() {
-            let change = self.prices[i] - self.prices[i - 1];
+        for i in (period + 1)..self.close_prices.len() {
+            let change = self.close_prices[i] - self.close_prices[i - 1];
             let current_gain = if change >= 0.0 { change } else { 0.0 };
             let current_loss = if change < 0.0 { change.abs() } else { 0.0 };
 
@@ -88,15 +121,81 @@ impl MarketHistory {
         100.0 - (100.0 / (1.0 + rs))
     }
 
+    pub fn calculate_atr(&self, period: usize) -> Option<f64> {
+        if self.high_prices.len() < period
+            || self.low_prices.len() < period
+            || self.close_prices.len() < period
+        {
+            return None;
+        }
+
+        let mut true_ranges = Vec::new();
+        for i in 1..self.close_prices.len() {
+            let high_low = self.high_prices[i].max(self.low_prices[i])
+                - self.low_prices[i].min(self.high_prices[i]);
+            let high_prev_close = (self.high_prices[i] - self.close_prices[i - 1]).abs();
+            let low_prev_close = (self.low_prices[i] - self.close_prices[i - 1]).abs();
+            let true_range = high_low.max(high_prev_close).max(low_prev_close);
+            true_ranges.push(true_range);
+        }
+
+        if true_ranges.is_empty() {
+            return None;
+        }
+
+        let mut atr_values = Vec::new();
+        if true_ranges.len() >= period {
+            let initial_atr: f64 = true_ranges[0..period].iter().sum::<f64>() / period as f64;
+            atr_values.push(initial_atr);
+
+            let alpha = 1.0 / period as f64;
+            for i in period..true_ranges.len() {
+                let prev_atr = *atr_values.last().unwrap();
+                let atr = (true_ranges[i] * alpha) + (prev_atr * (1.0 - alpha));
+                atr_values.push(atr);
+            }
+        }
+        atr_values.last().copied()
+    }
+
+    pub fn calculate_historical_volatility(&self, period: usize) -> Option<f64> {
+        if self.close_prices.len() < period + 1 {
+            return None;
+        }
+
+        let mut log_returns = Vec::new();
+        for i in 1..self.close_prices.len() {
+            let current_price = self.close_prices[i];
+            let previous_price = self.close_prices[i - 1];
+            if previous_price > 0.0 {
+                log_returns.push((current_price / previous_price).ln());
+            } else {
+                return None;
+            }
+        }
+
+        if log_returns.len() < period {
+            return None;
+        }
+
+        let slice = &log_returns[log_returns.len() - period..];
+        let mean: f64 = slice.iter().sum::<f64>() / period as f64;
+
+        let variance: f64 = slice.iter().map(|&r| (r - mean).powi(2)).sum::<f64>() / period as f64;
+        let std_dev = variance.sqrt();
+
+        Some(std_dev * (252.0_f64.sqrt()))
+    }
+
     pub fn calculate_bollinger_bands(&self) -> (f64, f64, f64, String) {
         let period = 20;
         let std_dev_multiplier = 2.0;
 
-        if self.prices.len() < period {
+        if self.close_prices.len() < period {
             return (0.0, 0.0, 0.0, "mid".to_string());
         }
 
-        let slice = &self.prices[self.prices.len() - period..];
+        let slice = &self.close_prices[self.close_prices.len() - period..];
         let mean: f64 = slice.iter().sum::<f64>() / period as f64;
 
         let variance: f64 = slice.iter().map(|&p| (p - mean).powi(2)).sum::<f64>() / period as f64;
@@ -106,7 +205,7 @@ impl MarketHistory {
         let upper_band = mean + (std_dev_multiplier * std_dev);
         let middle_band = mean;
 
-        let current_price = *self.prices.last().unwrap_or(&0.0);
+        let current_price = *self.close_prices.last().unwrap_or(&0.0);
         let status = if current_price <= lower_band {
             "lower"
         } else if current_price >= upper_band {
@@ -119,19 +218,20 @@ impl MarketHistory {
     }
 
     fn calculate_ema(&self, period: usize) -> Vec<f64> {
-        if self.prices.len() < period {
+        if self.close_prices.len() < period {
             return Vec::new();
         }
 
         let multiplier = 2.0 / (period as f64 + 1.0);
-        let mut emas = Vec::with_capacity(self.prices.len() - period + 1);
+        let mut emas = Vec::with_capacity(self.close_prices.len() - period + 1);
 
-        let first_sma: f64 = self.prices[0..period].iter().sum::<f64>() / period as f64;
+        let first_sma: f64 = self.close_prices[0..period].iter().sum::<f64>() / period as f64;
 
         emas.push(first_sma);
 
-        for i in period..self.prices.len() {
-            let ema = (self.prices[i] - emas.last().unwrap()) * multiplier + emas.last().unwrap();
+        for i in period..self.close_prices.len() {
+            let ema =
+                (self.close_prices[i] - emas.last().unwrap()) * multiplier + emas.last().unwrap();
             emas.push(ema);
         }
         emas
@@ -142,7 +242,7 @@ impl MarketHistory {
         let slow_period = 26;
         let signal_period = 9;
 
-        if self.prices.len() < slow_period + signal_period {
+        if self.close_prices.len() < slow_period + signal_period {
             return (0.0, 0.0, 0.0);
         }
 
@@ -178,15 +278,15 @@ impl MarketHistory {
         let k_period = 14;
         let d_period = 3;
 
-        if self.prices.len() < k_period {
+        if self.close_prices.len() < k_period {
             return (0.0, 0.0);
         }
 
         let mut percent_k_values = Vec::new();
 
-        for i in k_period - 1..self.prices.len() {
+        for i in k_period - 1..self.close_prices.len() {
             let slice_start = i - (k_period - 1);
-            let slice = &self.prices[slice_start..=i];
+            let slice = &self.close_prices[slice_start..=i];
 
             let high = slice.iter().fold(f64::MIN, |acc, &x| acc.max(x));
             let low = slice.iter().fold(f64::MAX, |acc, &x| acc.min(x));
@@ -217,13 +317,13 @@ impl MarketHistory {
     }
 
     fn calculate_sma_for_stochastic(&self, period: usize) -> Vec<f64> {
-        if self.prices.len() < period {
+        if self.close_prices.len() < period {
             return Vec::new();
         }
 
         let mut smas = Vec::new();
-        for i in period - 1..self.prices.len() {
-            let sum: f64 = self.prices[i - (period - 1)..=i].iter().sum();
+        for i in period - 1..self.close_prices.len() {
+            let sum: f64 = self.close_prices[i - (period - 1)..=i].iter().sum();
             smas.push(sum / period as f64);
         }
         smas

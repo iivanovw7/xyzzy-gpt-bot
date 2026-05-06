@@ -2,7 +2,10 @@ use crate::{
     config::CONFIG,
     env::ENV,
     types::market::GptMarketAnalysis,
-    utils::{market_indicators::MarketHistory, market_news::fetch_market_news},
+    utils::{
+        alpha_vantage, economic_indicators, market_indicators::MarketHistory,
+        market_news::fetch_market_news,
+    },
 };
 use async_openai::{
     config::OpenAIConfig,
@@ -48,7 +51,10 @@ struct YahooIndicators {
 }
 
 #[derive(Deserialize, Debug)]
-struct YahooQuote {
+pub struct YahooQuote {
+    open: Vec<Option<f64>>,
+    high: Vec<Option<f64>>,
+    low: Vec<Option<f64>>,
     close: Vec<Option<f64>>,
     volume: Vec<Option<f64>>,
 }
@@ -58,7 +64,15 @@ async fn fetch_yahoo_data(
     symbol: &str,
     interval: &str,
     range: &str,
-) -> anyhow::Result<(f64, Option<f64>, Vec<f64>, Vec<f64>)> {
+) -> anyhow::Result<(
+    f64,
+    Option<f64>,
+    Vec<f64>,
+    Vec<f64>,
+    Vec<f64>,
+    Vec<f64>,
+    Vec<f64>,
+)> {
     let url = format!(
         "https://query1.finance.yahoo.com/v8/finance/chart/{}?interval={}&range={}",
         symbol, interval, range
@@ -87,10 +101,21 @@ async fn fetch_yahoo_data(
         .first()
         .ok_or_else(|| anyhow::anyhow!("No quotes from Yahoo"))?;
 
-    let prices: Vec<f64> = quote.close.iter().filter_map(|&p| p).collect();
+    let open_prices: Vec<f64> = quote.open.iter().filter_map(|&p| p).collect();
+    let high_prices: Vec<f64> = quote.high.iter().filter_map(|&p| p).collect();
+    let low_prices: Vec<f64> = quote.low.iter().filter_map(|&p| p).collect();
+    let close_prices: Vec<f64> = quote.close.iter().filter_map(|&p| p).collect();
     let volumes: Vec<f64> = quote.volume.iter().filter_map(|&v| v).collect();
 
-    Ok((current_price, current_volume, prices, volumes))
+    Ok((
+        current_price,
+        current_volume,
+        open_prices,
+        high_prices,
+        low_prices,
+        close_prices,
+        volumes,
+    ))
 }
 
 async fn analyze_asset(
@@ -102,59 +127,118 @@ async fn analyze_asset(
 ) {
     info!("Analyzing market data for {}...", symbol);
 
-    let (current_price, current_volume, prices_1h, vols_1h) =
-        match fetch_yahoo_data(http_client, symbol, "1h", "1mo").await {
+    let (current_price, current_volume, _, high_prices_1d, low_prices_1d, close_prices_1d, vols_1d) =
+        match fetch_yahoo_data(http_client, symbol, "1d", "1y").await {
             Ok(data) => data,
             Err(e) => {
-                error!("Failed to fetch 1h data for {}: {}", symbol, e);
+                error!("Failed to fetch 1d data for {}: {}", symbol, e);
                 return;
             }
         };
 
-    let (_, _, prices_1d, vols_1d) = match fetch_yahoo_data(http_client, symbol, "1d", "1y").await {
-        Ok(data) => data,
-        Err(e) => {
-            error!("Failed to fetch 1d data for {}: {}", symbol, e);
-            return;
-        }
-    };
+    let (_, _, _, high_prices_1wk, low_prices_1wk, close_prices_1wk, vols_1wk) =
+        match fetch_yahoo_data(http_client, symbol, "1wk", "5y").await {
+            Ok(data) => data,
+            Err(e) => {
+                error!("Failed to fetch 1wk data for {}: {}", symbol, e);
+                return;
+            }
+        };
 
-    if prices_1h.len() < 30 || prices_1d.len() < 30 {
+    if close_prices_1d.len() < 30 || close_prices_1wk.len() < 30 {
         error!(
-            "Not enough historical data for {}. 1h: {}, 1d: {}",
+            "Not enough historical data for {}. 1d: {}, 1wk: {}",
             symbol,
-            prices_1h.len(),
-            prices_1d.len()
+            close_prices_1d.len(),
+            close_prices_1wk.len()
         );
         return;
     }
 
-    let mut hist_1h = MarketHistory::new_with_volume(prices_1h, vols_1h);
-    hist_1h.update_price(current_price);
-    if let Some(vol) = current_volume {
-        hist_1h.update_volume(vol);
-    }
-
-    let mut hist_1d = MarketHistory::new_with_volume(prices_1d, vols_1d);
+    let mut hist_1d =
+        MarketHistory::new_with_ohlc(close_prices_1d, high_prices_1d, low_prices_1d, vols_1d);
     hist_1d.update_price(current_price);
     if let Some(vol) = current_volume {
         hist_1d.update_volume(vol);
     }
 
-    let rsi_1h = hist_1h.calculate_rsi();
-    let (macd_line_1h, macd_signal_1h, macd_hist_1h) = hist_1h.calculate_macd();
-    let sma_50_1h = hist_1h.calculate_sma(50);
-
     let rsi_1d = hist_1d.calculate_rsi();
     let (macd_line_1d, macd_signal_1d, macd_hist_1d) = hist_1d.calculate_macd();
     let sma_50_1d = hist_1d.calculate_sma(50);
     let sma_200_1d = hist_1d.calculate_sma(200);
+    let atr_1d = hist_1d.calculate_atr(14);
+    let historical_volatility_1d = hist_1d.calculate_historical_volatility(30);
+
+    let mut hist_1wk =
+        MarketHistory::new_with_ohlc(close_prices_1wk, high_prices_1wk, low_prices_1wk, vols_1wk);
+    hist_1wk.update_price(current_price);
+    if let Some(vol) = current_volume {
+        hist_1wk.update_volume(vol);
+    }
+
+    let rsi_1wk = hist_1wk.calculate_rsi();
+    let (macd_line_1wk, macd_signal_1wk, macd_hist_1wk) = hist_1wk.calculate_macd();
+    let sma_50_1wk = hist_1wk.calculate_sma(50);
+    let sma_200_1wk = hist_1wk.calculate_sma(200);
+    let atr_1wk = hist_1wk.calculate_atr(14);
+    let historical_volatility_1wk = hist_1wk.calculate_historical_volatility(30);
+
+    // Fetch fundamental data
+    let income_statement_data =
+        match alpha_vantage::fetch_income_statement(http_client, symbol).await {
+            Ok(data) => Some(data),
+            Err(e) => {
+                error!("Failed to fetch income statement for {}: {}", symbol, e);
+                None
+            }
+        };
+
+    let balance_sheet_data = match alpha_vantage::fetch_balance_sheet(http_client, symbol).await {
+        Ok(data) => Some(data),
+        Err(e) => {
+            error!("Failed to fetch balance sheet for {}: {}", symbol, e);
+            None
+        }
+    };
+
+    let cash_flow_data = match alpha_vantage::fetch_cash_flow(http_client, symbol).await {
+        Ok(data) => Some(data),
+        Err(e) => {
+            error!("Failed to fetch cash flow for {}: {}", symbol, e);
+            None
+        }
+    };
+
+    // Fetch economic indicators
+    let gdp_data = match economic_indicators::get_gdp(http_client).await {
+        Ok(data) => data,
+        Err(e) => {
+            error!("Failed to fetch GDP: {}", e);
+            None
+        }
+    };
+
+    let cpi_data = match economic_indicators::get_cpi(http_client).await {
+        Ok(data) => data,
+        Err(e) => {
+            error!("Failed to fetch CPI: {}", e);
+            None
+        }
+    };
+
+    let fed_funds_rate_data = match economic_indicators::get_fed_funds_rate(http_client).await {
+        Ok(data) => data,
+        Err(e) => {
+            error!("Failed to fetch Fed Funds Rate: {}", e);
+            None
+        }
+    };
 
     let news = fetch_market_news(http_client, symbol).await;
 
     info!(
-        "Successfully fetched {} data | Price: ${:.2} | 1h RSI: {:.2} | 1d RSI: {:.2}",
-        symbol, current_price, rsi_1h, rsi_1d
+        "Successfully fetched {} data | Price: ${:.2} | 1d RSI: {:.2} | 1wk RSI: {:.2}",
+        symbol, current_price, rsi_1d, rsi_1wk
     );
 
     let system_prompt = include_str!("../../prompts/market_analysis.md");
@@ -163,30 +247,59 @@ async fn analyze_asset(
         "Asset: {}\n\
         Current Price: ${:.2}\n\
         Current Volume: {:.0}\n\n\
-        [HOURLY TIME FRAME (Short-Term)]\n\
+        [DAILY TIME FRAME (Medium-Term)]\n\
         RSI (14): {:.2}\n\
         MACD Line: {:.4} | Signal: {:.4} | Histogram: {:.4}\n\
-        SMA 50: ${:.2}\n\n\
-        [DAILY TIME FRAME (Long-Term)]\n\
+        SMA 50: ${:.2} | SMA 200: ${:.2}\n\
+        ATR (14): {:.2}\n\
+        Historical Volatility (30d): {:.2}%\n\n\
+        [WEEKLY TIME FRAME (Long-Term)]\n\
         RSI (14): {:.2}\n\
         MACD Line: {:.4} | Signal: {:.4} | Histogram: {:.4}\n\
-        SMA 50: ${:.2} | SMA 200: ${:.2}\n\n\
-        [FUNDAMENTAL CONTEXT]\n\
-        Recent News: {}",
+        SMA 50: ${:.2} | SMA 200: ${:.2}\n\
+        ATR (14): {:.2}\n\
+        Historical Volatility (30d): {:.2}%\n\n\
+        [FUNDAMENTAL DATA]\n\
+        Income Statement (latest quarter): {}\n\
+        Balance Sheet (latest quarter): {}\n\
+        Cash Flow (latest quarter): {}\n\n\
+        [MACROECONOMIC INDICATORS (Latest)]\n\
+        GDP: {}\n\
+        CPI: {}\n\
+        Fed Funds Rate: {}\n\n\
+        [ANALYSIS INSTRUCTIONS]\n\
+        Given the provided multi-timeframe technical data, fundamental data, macroeconomic indicators, and recent news, provide a comprehensive market analysis suitable for a trading horizon of days to weeks. Focus on identifying strong trends, potential reversals, significant long-term catalysts (e.g., earnings, economic shifts), and potential risks. Explain how the different timeframes' indicators (daily, weekly), fundamental health, and economic environment align or diverge to support your long-term outlook. Crucially, assess the asset's volatility and suggest an appropriate position size based on the overall risk-reward profile and your confidence in the opportunity. Consider a position size as a percentage of a typical portfolio allocation.\n\n        Recent News: {}",
         symbol,
         current_price,
         current_volume.unwrap_or(0.0),
-        rsi_1h,
-        macd_line_1h,
-        macd_signal_1h,
-        macd_hist_1h,
-        sma_50_1h,
         rsi_1d,
         macd_line_1d,
         macd_signal_1d,
         macd_hist_1d,
         sma_50_1d,
         sma_200_1d,
+        atr_1d.unwrap_or(0.0),
+        historical_volatility_1d.unwrap_or(0.0) * 100.0,
+        rsi_1wk,
+        macd_line_1wk,
+        macd_signal_1wk,
+        macd_hist_1wk,
+        sma_50_1wk,
+        sma_200_1wk,
+        atr_1wk.unwrap_or(0.0),
+        historical_volatility_1wk.unwrap_or(0.0) * 100.0,
+        income_statement_data
+            .and_then(|data| data.quarterly_reports.first().map(|r| format!("Revenue: {}, Net Income: {}, EPS: {}", r.total_revenue.as_deref().unwrap_or("N/A"), r.net_income.as_deref().unwrap_or("N/A"), r.eps.as_deref().unwrap_or("N/A"))))
+            .unwrap_or_else(|| "N/A".to_string()),
+        balance_sheet_data
+            .and_then(|data| data.quarterly_reports.first().map(|r| format!("Total Assets: {}, Total Liabilities: {}", r.total_assets.as_deref().unwrap_or("N/A"), r.total_liabilities.as_deref().unwrap_or("N/A"))))
+            .unwrap_or_else(|| "N/A".to_string()),
+        cash_flow_data
+            .and_then(|data| data.quarterly_reports.first().map(|r| format!("Operating Cashflow: {}", r.operating_cashflow.as_deref().unwrap_or("N/A"))))
+            .unwrap_or_else(|| "N/A".to_string()),
+        gdp_data.unwrap_or_else(|| "N/A".to_string()),
+        cpi_data.unwrap_or_else(|| "N/A".to_string()),
+        fed_funds_rate_data.unwrap_or_else(|| "N/A".to_string()),
         news
     );
 
@@ -240,12 +353,22 @@ async fn analyze_asset(
                         "{} <b>Stock Signal: {}</b> ({}%)\n\
                         <b>Asset:</b> {} | <b>Price:</b> ${:.2}\n\
                         <b>Regime:</b> {}\n\n\
-                        <b>Hourly (Short-term):</b>\n\
+                        <b>Daily (Medium-term):</b>\n\
                         - RSI: {:.2}\n\
-                        - MACD Line: {:.4} | Signal: {:.4} | Histogram: {:.4}\n\n\
-                        <b>Daily (Long-term):</b>\n\
+                        - MACD Line: {:.4} | Signal: {:.4} | Histogram: {:.4}\n\
+                        - SMA 50: ${:.2} | SMA 200: ${:.2}\n\
+                        - ATR (14): {:.2}\n\
+                        - Historical Volatility (30d): {:.2}%\n\n\
+                        <b>Weekly (Long-term):</b>\n\
                         - RSI: {:.2}\n\
-                        - SMA 50: ${:.2} | SMA 200: ${:.2}\n\n\
+                        - MACD Line: {:.4} | Signal: {:.4} | Histogram: {:.4}\n\
+                        - SMA 50: ${:.2} | SMA 200: ${:.2}\n\
+                        - ATR (14): {:.2}\n\
+                        - Historical Volatility (30d): {:.2}%\n\n\
+                        <b>Fundamentals:</b> {}\n\
+                        <b>Economic Outlook:</b> {}\n\
+                        <b>Volatility:</b> {}\n\
+                        <b>Suggested Position:</b> {}\n\n\
                         <b>Analysis:</b>\n{}",
                         emoji,
                         crate::utils::markdown::escape_html(&analysis.opportunity),
@@ -253,13 +376,26 @@ async fn analyze_asset(
                         crate::utils::markdown::escape_html(symbol),
                         current_price,
                         crate::utils::markdown::escape_html(&analysis.market_regime),
-                        rsi_1h,
-                        macd_line_1h,
-                        macd_signal_1h,
-                        macd_hist_1h,
                         rsi_1d,
+                        macd_line_1d,
+                        macd_signal_1d,
+                        macd_hist_1d,
                         sma_50_1d,
                         sma_200_1d,
+                        atr_1d.unwrap_or(0.0),
+                        historical_volatility_1d.unwrap_or(0.0) * 100.0,
+                        rsi_1wk,
+                        macd_line_1wk,
+                        macd_signal_1wk,
+                        macd_hist_1wk,
+                        sma_50_1wk,
+                        sma_200_1wk,
+                        atr_1wk.unwrap_or(0.0),
+                        historical_volatility_1wk.unwrap_or(0.0) * 100.0,
+                        crate::utils::markdown::escape_html(&analysis.key_fundamentals),
+                        crate::utils::markdown::escape_html(&analysis.economic_outlook),
+                        crate::utils::markdown::escape_html(&analysis.volatility_metrics),
+                        crate::utils::markdown::escape_html(&analysis.suggested_position_size),
                         crate::utils::markdown::escape_html(&analysis.analysis_reasoning)
                     );
 
@@ -297,6 +433,6 @@ pub async fn start_stock_loop(bot: Bot, openai_client: OpenAiClient<OpenAIConfig
         }
 
         info!("Stock analysis cycle complete. Sleeping for 2 hours...");
-        tokio::time::sleep(Duration::from_secs(7200)).await;
+        tokio::time::sleep(Duration::from_secs(14400)).await;
     }
 }

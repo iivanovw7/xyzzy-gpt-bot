@@ -38,10 +38,7 @@ pub struct CoinGeckoHistory {
     pub prices: Vec<Vec<f64>>,
 }
 
-async fn fetch_coingecko_history(
-    http_client: &HttpClient,
-    days: &str,
-) -> anyhow::Result<Vec<f64>> {
+async fn fetch_coingecko_history(http_client: &HttpClient, days: &str) -> anyhow::Result<Vec<f64>> {
     let url = format!(
         "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days={}&interval=daily",
         days
@@ -84,7 +81,8 @@ async fn fetch_and_analyze_crypto_data(
     if prices_1h.len() < 30 || prices_1d.len() < 30 {
         error!(
             "Not enough historical data from CoinGecko. 1h: {}, 1d: {}",
-            prices_1h.len(), prices_1d.len()
+            prices_1h.len(),
+            prices_1d.len()
         );
         return;
     }
@@ -136,9 +134,20 @@ async fn fetch_and_analyze_crypto_data(
                     SMA 50: ${:.2} | SMA 200: ${:.2}\n\n\
                     [FUNDAMENTAL CONTEXT]\n\
                     Recent News: {}",
-                    btc.usd, btc.usd_24h_vol, btc.usd_24h_change, 
-                    rsi_1h, macd_line_1h, macd_signal_1h, macd_hist_1h, sma_50_1h,
-                    rsi_1d, macd_line_1d, macd_signal_1d, macd_hist_1d, sma_50_1d, sma_200_1d,
+                    btc.usd,
+                    btc.usd_24h_vol,
+                    btc.usd_24h_change,
+                    rsi_1h,
+                    macd_line_1h,
+                    macd_signal_1h,
+                    macd_hist_1h,
+                    sma_50_1h,
+                    rsi_1d,
+                    macd_line_1d,
+                    macd_signal_1d,
+                    macd_hist_1d,
+                    sma_50_1d,
+                    sma_200_1d,
                     news
                 );
 
@@ -211,7 +220,9 @@ async fn fetch_and_analyze_crypto_data(
                                     rsi_1d,
                                     sma_50_1d,
                                     sma_200_1d,
-                                    crate::utils::markdown::escape_html(&analysis.analysis_reasoning)
+                                    crate::utils::markdown::escape_html(
+                                        &analysis.analysis_reasoning
+                                    )
                                 );
 
                                 if let Err(e) = bot
@@ -261,6 +272,6 @@ pub async fn start_crypto_loop(bot: Bot, openai_client: OpenAiClient<OpenAIConfi
         .await;
 
         info!("Crypto analysis cycle complete. Sleeping for 2 hours...");
-        tokio::time::sleep(Duration::from_secs(7200)).await;
+        tokio::time::sleep(Duration::from_secs(14400)).await;
     }
 }
