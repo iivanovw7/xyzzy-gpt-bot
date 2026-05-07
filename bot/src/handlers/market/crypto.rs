@@ -2,7 +2,7 @@ use crate::{
     config::CONFIG,
     env::ENV,
     types::market::GptMarketAnalysis,
-    utils::{market_indicators::MarketHistory, market_news::fetch_market_news},
+    utils::{market_indicators::MarketHistory, marketaux},
 };
 use async_openai::{
     config::OpenAIConfig,
@@ -110,7 +110,12 @@ async fn fetch_and_analyze_crypto_data(
                 let sma_50_1d = hist_1d.calculate_sma(50);
                 let sma_200_1d = hist_1d.calculate_sma(200);
 
-                let news = fetch_market_news(http_client, "BTC-USD").await;
+                let news = marketaux::fetch_stock_news(http_client, "BTC")
+                    .await
+                    .unwrap_or_else(|e| {
+                        error!("Failed to fetch news for BTC: {}", e);
+                        "No recent news found.".to_string()
+                    });
 
                 info!(
                     "Successfully fetched crypto data | Price: ${:.2} | 1h RSI: {:.2} | 1d RSI: {:.2}",
@@ -201,13 +206,17 @@ async fn fetch_and_analyze_crypto_data(
                                     "{} <b>Crypto Signal: {}</b> ({}%)\n\
                                     <b>Asset:</b> BTC/USD | <b>Price:</b> ${:.2}\n\
                                     <b>Regime:</b> {}\n\n\
-                                    <b>Hourly (Short-term):</b>\n\
+                                    <blockquote expandable><b>Hourly (Short-term):</b>\n\
                                     - RSI: {:.2}\n\
                                     - MACD Line: {:.4} | Signal: {:.4} | Histogram: {:.4}\n\n\
                                     <b>Daily (Long-term):</b>\n\
                                     - RSI: {:.2}\n\
                                     - SMA 50: ${:.2} | SMA 200: ${:.2}\n\n\
-                                    <b>Analysis:</b>\n{}",
+                                    <b>Fundamentals:</b> {}\n\
+                                    <b>Economic Outlook:</b> {}\n\
+                                    <b>Volatility:</b> {}\n\
+                                    <b>Suggested Position:</b> {}\n\n\
+                                    <b>Analysis:</b>\n{}</blockquote>",
                                     emoji,
                                     crate::utils::markdown::escape_html(&analysis.opportunity),
                                     analysis.confidence_score,
@@ -220,6 +229,10 @@ async fn fetch_and_analyze_crypto_data(
                                     rsi_1d,
                                     sma_50_1d,
                                     sma_200_1d,
+                                    crate::utils::markdown::escape_html(&analysis.key_fundamentals),
+                                    crate::utils::markdown::escape_html(&analysis.economic_outlook),
+                                    crate::utils::markdown::escape_html(&analysis.volatility_metrics),
+                                    crate::utils::markdown::escape_html(&analysis.suggested_position_size),
                                     crate::utils::markdown::escape_html(
                                         &analysis.analysis_reasoning
                                     )

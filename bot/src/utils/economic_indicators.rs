@@ -2,7 +2,7 @@ use crate::env::ENV;
 use anyhow::Result;
 use reqwest::Client as HttpClient;
 use serde::Deserialize;
-use tracing::{error, info};
+use tracing::info;
 
 const FRED_API_BASE_URL: &str = "https://api.stlouisfed.org/fred/series/observations";
 

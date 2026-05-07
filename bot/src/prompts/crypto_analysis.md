@@ -20,5 +20,9 @@ Provide your response strictly in JSON format. Do not include markdown blocks ou
   "analysis_reasoning": "Step 1: The daily timeframe shows a strong uptrend (Price > SMA 200) but is currently overbought (RSI > 75). Step 2: The hourly timeframe shows bearish divergence on the MACD and dropping volume. Step 3: Recent news is positive but already priced in. Conclusion: Waiting for a pullback before entering.",
   "market_regime": "Trending Up / Trending Down / Ranging",
   "opportunity": "BUY" | "SELL" | "HOLD",
-  "confidence_score": 65
+  "confidence_score": 65,
+  "key_fundamentals": "Brief summary of the fundamental context or recent news.",
+  "economic_outlook": "Brief assessment of the macro environment impacting crypto.",
+  "volatility_metrics": "Brief assessment of volatility.",
+  "suggested_position_size": "Suggested position size based on risk."
 }

@@ -2,10 +2,7 @@ use crate::{
     config::CONFIG,
     env::ENV,
     types::market::GptMarketAnalysis,
-    utils::{
-        alpha_vantage, economic_indicators, market_indicators::MarketHistory,
-        market_news::fetch_market_news,
-    },
+    utils::{economic_indicators, finnhub, market_indicators::MarketHistory, marketaux},
 };
 use async_openai::{
     config::OpenAIConfig,
@@ -183,33 +180,14 @@ async fn analyze_asset(
     let atr_1wk = hist_1wk.calculate_atr(14);
     let historical_volatility_1wk = hist_1wk.calculate_historical_volatility(30);
 
-    // Fetch fundamental data
-    let income_statement_data =
-        match alpha_vantage::fetch_income_statement(http_client, symbol).await {
-            Ok(data) => Some(data),
-            Err(e) => {
-                error!("Failed to fetch income statement for {}: {}", symbol, e);
-                None
-            }
-        };
-
-    let balance_sheet_data = match alpha_vantage::fetch_balance_sheet(http_client, symbol).await {
+    let financials = match finnhub::fetch_basic_financials(http_client, symbol).await {
         Ok(data) => Some(data),
         Err(e) => {
-            error!("Failed to fetch balance sheet for {}: {}", symbol, e);
+            error!("Failed to fetch financials for {}: {}", symbol, e);
             None
         }
     };
 
-    let cash_flow_data = match alpha_vantage::fetch_cash_flow(http_client, symbol).await {
-        Ok(data) => Some(data),
-        Err(e) => {
-            error!("Failed to fetch cash flow for {}: {}", symbol, e);
-            None
-        }
-    };
-
-    // Fetch economic indicators
     let gdp_data = match economic_indicators::get_gdp(http_client).await {
         Ok(data) => data,
         Err(e) => {
@@ -234,7 +212,12 @@ async fn analyze_asset(
         }
     };
 
-    let news = fetch_market_news(http_client, symbol).await;
+    let news = marketaux::fetch_stock_news(http_client, symbol)
+        .await
+        .unwrap_or_else(|e| {
+            error!("Failed to fetch news for {}: {}", symbol, e);
+            "No recent news found.".to_string()
+        });
 
     info!(
         "Successfully fetched {} data | Price: ${:.2} | 1d RSI: {:.2} | 1wk RSI: {:.2}",
@@ -260,9 +243,7 @@ async fn analyze_asset(
         ATR (14): {:.2}\n\
         Historical Volatility (30d): {:.2}%\n\n\
         [FUNDAMENTAL DATA]\n\
-        Income Statement (latest quarter): {}\n\
-        Balance Sheet (latest quarter): {}\n\
-        Cash Flow (latest quarter): {}\n\n\
+        Basic Financials (latest quarter): {}\n\n\
         [MACROECONOMIC INDICATORS (Latest)]\n\
         GDP: {}\n\
         CPI: {}\n\
@@ -288,14 +269,22 @@ async fn analyze_asset(
         sma_200_1wk,
         atr_1wk.unwrap_or(0.0),
         historical_volatility_1wk.unwrap_or(0.0) * 100.0,
-        income_statement_data
-            .and_then(|data| data.quarterly_reports.first().map(|r| format!("Revenue: {}, Net Income: {}, EPS: {}", r.total_revenue.as_deref().unwrap_or("N/A"), r.net_income.as_deref().unwrap_or("N/A"), r.eps.as_deref().unwrap_or("N/A"))))
-            .unwrap_or_else(|| "N/A".to_string()),
-        balance_sheet_data
-            .and_then(|data| data.quarterly_reports.first().map(|r| format!("Total Assets: {}, Total Liabilities: {}", r.total_assets.as_deref().unwrap_or("N/A"), r.total_liabilities.as_deref().unwrap_or("N/A"))))
-            .unwrap_or_else(|| "N/A".to_string()),
-        cash_flow_data
-            .and_then(|data| data.quarterly_reports.first().map(|r| format!("Operating Cashflow: {}", r.operating_cashflow.as_deref().unwrap_or("N/A"))))
+        financials
+            .and_then(|f| {
+                f.series.and_then(|s| {
+                    s.quarterly.map(|q| {
+                        format!(
+                            "Revenue: {}, Net Income: {}, EPS: {}, Total Assets: {}, Total Liabilities: {}, Operating Cashflow: {}",
+                            q.total_revenue.as_ref().and_then(|v| v.first()).map(|v| v.v.to_string()).unwrap_or_else(|| "N/A".to_string()),
+                            q.net_income.as_ref().and_then(|v| v.first()).map(|v| v.v.to_string()).unwrap_or_else(|| "N/A".to_string()),
+                            q.eps.as_ref().and_then(|v| v.first()).map(|v| v.v.to_string()).unwrap_or_else(|| "N/A".to_string()),
+                            q.total_assets.as_ref().and_then(|v| v.first()).map(|v| v.v.to_string()).unwrap_or_else(|| "N/A".to_string()),
+                            q.total_liabilities.as_ref().and_then(|v| v.first()).map(|v| v.v.to_string()).unwrap_or_else(|| "N/A".to_string()),
+                            q.operating_cash_flow.as_ref().and_then(|v| v.first()).map(|v| v.v.to_string()).unwrap_or_else(|| "N/A".to_string())
+                        )
+                    })
+                })
+            })
             .unwrap_or_else(|| "N/A".to_string()),
         gdp_data.unwrap_or_else(|| "N/A".to_string()),
         cpi_data.unwrap_or_else(|| "N/A".to_string()),
@@ -353,7 +342,7 @@ async fn analyze_asset(
                         "{} <b>Stock Signal: {}</b> ({}%)\n\
                         <b>Asset:</b> {} | <b>Price:</b> ${:.2}\n\
                         <b>Regime:</b> {}\n\n\
-                        <b>Daily (Medium-term):</b>\n\
+                        <blockquote expandable><b>Daily (Medium-term):</b>\n\
                         - RSI: {:.2}\n\
                         - MACD Line: {:.4} | Signal: {:.4} | Histogram: {:.4}\n\
                         - SMA 50: ${:.2} | SMA 200: ${:.2}\n\
@@ -369,7 +358,7 @@ async fn analyze_asset(
                         <b>Economic Outlook:</b> {}\n\
                         <b>Volatility:</b> {}\n\
                         <b>Suggested Position:</b> {}\n\n\
-                        <b>Analysis:</b>\n{}",
+                        <b>Analysis:</b>\n{}</blockquote>",
                         emoji,
                         crate::utils::markdown::escape_html(&analysis.opportunity),
                         analysis.confidence_score,
