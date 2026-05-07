@@ -413,7 +413,7 @@ pub async fn start_stock_loop(bot: Bot, openai_client: OpenAiClient<OpenAIConfig
     let client = HttpClient::new();
     let target_user_id = UserId(ENV.user_id);
 
-    let assets = vec!["NVDA"];
+    let assets = vec!["NVDA", "TSLA"];
 
     loop {
         for symbol in &assets {
