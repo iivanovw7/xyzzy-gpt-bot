@@ -2,18 +2,21 @@ use crate::{
     commands::commands,
     config::CONFIG,
     env::ENV,
-    handlers, keyboard,
+    handlers::{self, market::stocks::analyze_asset},
+    keyboard,
     types::{
         auth::AuthState,
         common::{ChatHistories, Commands, DialogueState},
         databases::Database,
     },
+    utils::market::start_stock_loop,
 };
 use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::{web, App, HttpServer};
 use async_openai::{config::OpenAIConfig, Client};
 use dotenv::dotenv;
+use futures::FutureExt;
 use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
@@ -158,7 +161,14 @@ pub async fn server() {
     let stock_openai_client = client.clone();
 
     tokio::spawn(async move {
-        handlers::market::stocks::start_stock_loop(stock_bot, stock_openai_client).await;
+        start_stock_loop(
+            stock_bot,
+            &stock_openai_client,
+            |bot, openai, client, symbol, user_id| {
+                analyze_asset(bot, openai, client, symbol, user_id).boxed()
+            },
+        )
+        .await;
     });
 
     let crypto_bot = bot.clone();

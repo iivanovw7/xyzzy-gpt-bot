@@ -1,8 +1,9 @@
-pub mod finnhub;
-pub mod marketaux;
 pub mod economic_indicators;
+pub mod finnhub;
 pub mod markdown;
+pub mod market;
 pub mod market_indicators;
+pub mod marketaux;
 pub mod scraper;
 pub mod statistics;
 pub mod strings;

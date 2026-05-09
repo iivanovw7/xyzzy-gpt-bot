@@ -10,6 +10,18 @@ pub struct Config {
     pub api: ApiConfig,
     pub surf: SurfConfig,
     pub budgeting: BudgetingConfig,
+    pub market: MarketConfig,
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct MarketConfig {
+    pub stocks_symbols: Vec<String>,
+    pub stocks_analysis_interval_sec: u64,
+    pub stocks_market_open_hour: u64,
+    pub stocks_market_open_minute: u64,
+    pub stocks_market_close_hour: u64,
+    pub stocks_market_close_minute: u64,
+    pub crypto_analysis_interval_sec: u64,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]

@@ -1,6 +1,5 @@
 use crate::{
     config::CONFIG,
-    env::ENV,
     types::market::GptMarketAnalysis,
     utils::{economic_indicators, finnhub, market_indicators::MarketHistory, marketaux},
 };
@@ -14,7 +13,6 @@ use async_openai::{
 };
 use reqwest::Client as HttpClient;
 use serde::Deserialize;
-use std::time::Duration;
 use teloxide::{prelude::*, types::UserId};
 use tracing::{error, info};
 
@@ -56,7 +54,7 @@ pub struct YahooQuote {
     volume: Vec<Option<f64>>,
 }
 
-async fn fetch_yahoo_data(
+pub async fn fetch_yahoo_data(
     http_client: &HttpClient,
     symbol: &str,
     interval: &str,
@@ -115,7 +113,7 @@ async fn fetch_yahoo_data(
     ))
 }
 
-async fn analyze_asset(
+pub async fn analyze_asset(
     bot: &Bot,
     openai_client: &OpenAiClient<OpenAIConfig>,
     http_client: &HttpClient,
@@ -404,24 +402,5 @@ async fn analyze_asset(
         Err(e) => {
             error!("OpenAI request failed: {}", e);
         }
-    }
-}
-
-pub async fn start_stock_loop(bot: Bot, openai_client: OpenAiClient<OpenAIConfig>) {
-    info!("Starting stock data fetcher service...");
-
-    let client = HttpClient::new();
-    let target_user_id = UserId(ENV.user_id);
-
-    let assets = vec!["NVDA", "TSLA"];
-
-    loop {
-        for symbol in &assets {
-            analyze_asset(&bot, &openai_client, &client, symbol, target_user_id).await;
-            tokio::time::sleep(Duration::from_secs(10)).await;
-        }
-
-        info!("Stock analysis cycle complete. Sleeping for 2 hours...");
-        tokio::time::sleep(Duration::from_secs(14400)).await;
     }
 }

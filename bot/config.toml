@@ -14,3 +14,11 @@ lon = -9.4139
 [budgeting]
 recurrent_income_categories = [1, 27]
 recurrent_payment_categories = [11, 12, 21, 22]
+[market]
+crypto_analysis_interval_sec = 86400
+stocks_analysis_interval_sec = 14400
+stocks_symbols = ["NVDA", "TSLA"]
+stocks_market_open_hour = 9
+stocks_market_open_minute = 30
+stocks_market_close_hour = 16
+stocks_market_close_minute = 0

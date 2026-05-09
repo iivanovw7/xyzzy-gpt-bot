@@ -231,8 +231,12 @@ async fn fetch_and_analyze_crypto_data(
                                     sma_200_1d,
                                     crate::utils::markdown::escape_html(&analysis.key_fundamentals),
                                     crate::utils::markdown::escape_html(&analysis.economic_outlook),
-                                    crate::utils::markdown::escape_html(&analysis.volatility_metrics),
-                                    crate::utils::markdown::escape_html(&analysis.suggested_position_size),
+                                    crate::utils::markdown::escape_html(
+                                        &analysis.volatility_metrics
+                                    ),
+                                    crate::utils::markdown::escape_html(
+                                        &analysis.suggested_position_size
+                                    ),
                                     crate::utils::markdown::escape_html(
                                         &analysis.analysis_reasoning
                                     )
@@ -285,6 +289,9 @@ pub async fn start_crypto_loop(bot: Bot, openai_client: OpenAiClient<OpenAIConfi
         .await;
 
         info!("Crypto analysis cycle complete. Sleeping for 2 hours...");
-        tokio::time::sleep(Duration::from_secs(14400)).await;
+        tokio::time::sleep(Duration::from_secs(
+            CONFIG.market.crypto_analysis_interval_sec,
+        ))
+        .await;
     }
 }
