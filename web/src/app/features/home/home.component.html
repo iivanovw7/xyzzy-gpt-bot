@@ -23,8 +23,7 @@
 			<div
 				class="home-page__scroll-spy-trigger"
 				id="home-page-surf-forecast-section"
-				[appScrollSpyTarget]="'home-page-surf-forecast-section'">
-			</div>
+				[appScrollSpyTarget]="'home-page-surf-forecast-section'"></div>
 			<div app-surf-forecast></div>
 		}
 	}
@@ -84,7 +83,7 @@
 			app-button
 			class="home-page__subnav-item"
 			size="m"
-            [scrollContainer]="'body'"
+			[scrollContainer]="'body'"
 			[appScrollTo]="'home-page-surf-forecast-section'"
 			[ngClass]="{ active: (activeSectionId$ | async) === 'home-page-surf-forecast-section' }"
 			type="button">
@@ -94,7 +93,7 @@
 			app-button
 			class="home-page__subnav-item"
 			size="m"
-            [scrollContainer]="'body'"
+			[scrollContainer]="'body'"
 			[appScrollTo]="'home-page-recurrent-payments-section-payments'"
 			[ngClass]="{ active: (activeSectionId$ | async) === 'home-page-recurrent-payments-section-payments' }"
 			type="button">
@@ -104,7 +103,7 @@
 			app-button
 			class="home-page__subnav-item"
 			size="m"
-            [scrollContainer]="'body'"
+			[scrollContainer]="'body'"
 			[appScrollTo]="'home-page-recurrent-payments-section-incomes'"
 			[ngClass]="{ active: (activeSectionId$ | async) === 'home-page-recurrent-payments-section-incomes' }"
 			type="button">
@@ -114,7 +113,7 @@
 			app-button
 			class="home-page__subnav-item"
 			size="m"
-            [scrollContainer]="'body'"
+			[scrollContainer]="'body'"
 			[appScrollTo]="'home-page-sysinfo-section'"
 			[ngClass]="{ active: (activeSectionId$ | async) === 'home-page-sysinfo-section' }"
 			type="button">
