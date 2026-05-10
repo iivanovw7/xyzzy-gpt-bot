@@ -20,6 +20,11 @@
 			</div>
 		}
 		@case ("success") {
+			<div
+				class="home-page__scroll-spy-trigger"
+				id="home-page-surf-forecast-section"
+				[appScrollSpyTarget]="'home-page-surf-forecast-section'">
+			</div>
 			<div app-surf-forecast></div>
 		}
 	}
@@ -36,9 +41,17 @@
 		}
 		@case ("success") {
 			<div
+				class="home-page__scroll-spy-trigger"
+				id="home-page-recurrent-payments-section-payments"
+				[appScrollSpyTarget]="'home-page-recurrent-payments-section-payments'"></div>
+			<div
 				app-recurrent
 				[dashboard]="recurrentService.dashboards()?.expenses ?? null"
 				title="💸 Recurrent Payments"></div>
+			<div
+				class="home-page__scroll-spy-trigger"
+				id="home-page-recurrent-payments-section-incomes"
+				[appScrollSpyTarget]="'home-page-recurrent-payments-section-incomes'"></div>
 			<div
 				app-recurrent
 				[dashboard]="recurrentService.dashboards()?.incomes ?? null"
@@ -57,8 +70,56 @@
 			</div>
 		}
 		@case ("success") {
+			<div
+				class="home-page__scroll-spy-trigger"
+				id="home-page-sysinfo-section"
+				[appScrollSpyTarget]="'home-page-sysinfo-section'"></div>
 			<div app-sysinfo></div>
 		}
 	}
+</div>
+<div class="home-page__subnav-container">
+	<div class="home-page__subnav">
+		<button
+			app-button
+			class="home-page__subnav-item"
+			size="m"
+            [scrollContainer]="'body'"
+			[appScrollTo]="'home-page-surf-forecast-section'"
+			[ngClass]="{ active: (activeSectionId$ | async) === 'home-page-surf-forecast-section' }"
+			type="button">
+			<app-icon class="item-status-icon" name="Cloud" size="small"></app-icon>
+		</button>
+		<button
+			app-button
+			class="home-page__subnav-item"
+			size="m"
+            [scrollContainer]="'body'"
+			[appScrollTo]="'home-page-recurrent-payments-section-payments'"
+			[ngClass]="{ active: (activeSectionId$ | async) === 'home-page-recurrent-payments-section-payments' }"
+			type="button">
+			<app-icon class="item-status-icon" name="BanknoteArrowUp" size="small"></app-icon>
+		</button>
+		<button
+			app-button
+			class="home-page__subnav-item"
+			size="m"
+            [scrollContainer]="'body'"
+			[appScrollTo]="'home-page-recurrent-payments-section-incomes'"
+			[ngClass]="{ active: (activeSectionId$ | async) === 'home-page-recurrent-payments-section-incomes' }"
+			type="button">
+			<app-icon class="item-status-icon" name="BanknoteArrowDown" size="small"></app-icon>
+		</button>
+		<button
+			app-button
+			class="home-page__subnav-item"
+			size="m"
+            [scrollContainer]="'body'"
+			[appScrollTo]="'home-page-sysinfo-section'"
+			[ngClass]="{ active: (activeSectionId$ | async) === 'home-page-sysinfo-section' }"
+			type="button">
+			<app-icon class="item-status-icon" name="Info" size="small"></app-icon>
+		</button>
+	</div>
 </div>
 <nav app-navigation></nav>

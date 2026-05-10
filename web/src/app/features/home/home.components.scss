@@ -63,4 +63,62 @@
 		flex-direction: column;
 		gap: 1rem;
 	}
+
+	.home-page__subnav-container {
+		@include sizer(100%, rem(140px));
+		@include position(fixed, auto auto 0 auto);
+		@include justify-align-flex;
+		@include z-index(navbar-extension-underlay);
+		@include p(3, 2);
+		@include text-setting(base);
+
+		display: flex;
+		font-weight: $font-weight-bold;
+		background-color: var(--background-primary);
+		border-top: 1px solid var(--tertiary);
+	}
+
+	.home-page__subnav {
+		@include justify-align-flex;
+		@include sizer(100%, auto);
+		@include z-index(navbar-extension);
+		@include px(2);
+
+		gap: rem(16px);
+		border-bottom: none;
+	}
+
+	.home-page__subnav-item {
+		@include text-setting(base);
+		@include p(1);
+		@include border-radius($border-radius-x-small);
+		@include sizer(42px, 28px);
+
+		color: var(--text-primary);
+		cursor: pointer;
+		background-color: transparent;
+		border: none;
+
+		&.active {
+			color: var(--primary);
+		}
+
+		&:focus-visible {
+			@include focus-outline(outline);
+
+			&:not(:focus) {
+				outline: none;
+			}
+		}
+	}
+
+	.home-page__scroll-spy-trigger {
+		width: 100%;
+		height: 1px;
+		pointer-events: none;
+	}
+
+	.navigation {
+		border-top: none;
+	}
 }
