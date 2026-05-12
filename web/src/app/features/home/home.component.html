@@ -82,43 +82,43 @@
 		<button
 			app-button
 			class="home-page__subnav-item"
-			size="m"
+			color="tertiary"
+			size="s"
 			[scrollContainer]="'body'"
 			[appScrollTo]="'home-page-surf-forecast-section'"
 			[ngClass]="{ active: (activeSectionId$ | async) === 'home-page-surf-forecast-section' }"
-			type="button">
-			<app-icon class="item-status-icon" name="Cloud" size="small"></app-icon>
-		</button>
+			icon="Cloud"
+			type="button"></button>
 		<button
 			app-button
 			class="home-page__subnav-item"
-			size="m"
+			color="tertiary"
+			size="s"
 			[scrollContainer]="'body'"
 			[appScrollTo]="'home-page-recurrent-payments-section-payments'"
 			[ngClass]="{ active: (activeSectionId$ | async) === 'home-page-recurrent-payments-section-payments' }"
-			type="button">
-			<app-icon class="item-status-icon" name="BanknoteArrowUp" size="small"></app-icon>
-		</button>
+			icon="BanknoteArrowUp"
+			type="button"></button>
 		<button
 			app-button
 			class="home-page__subnav-item"
-			size="m"
+			color="tertiary"
+			size="s"
 			[scrollContainer]="'body'"
 			[appScrollTo]="'home-page-recurrent-payments-section-incomes'"
 			[ngClass]="{ active: (activeSectionId$ | async) === 'home-page-recurrent-payments-section-incomes' }"
-			type="button">
-			<app-icon class="item-status-icon" name="BanknoteArrowDown" size="small"></app-icon>
-		</button>
+			icon="BanknoteArrowDown"
+			type="button"></button>
 		<button
 			app-button
 			class="home-page__subnav-item"
-			size="m"
+			size="s"
+			color="tertiary"
 			[scrollContainer]="'body'"
 			[appScrollTo]="'home-page-sysinfo-section'"
 			[ngClass]="{ active: (activeSectionId$ | async) === 'home-page-sysinfo-section' }"
-			type="button">
-			<app-icon class="item-status-icon" name="Info" size="small"></app-icon>
-		</button>
+			icon="Info"
+			type="button"></button>
 	</div>
 </div>
 <nav app-navigation></nav>

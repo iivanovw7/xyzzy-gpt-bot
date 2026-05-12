@@ -2,7 +2,6 @@ import type { OnInit } from "@angular/core";
 
 import { ScrollToDirective } from "@/app/shared/directives/scroll-to.directive";
 import ButtonComponent from "@/app/shared/ui/components/button/button.component";
-import IconComponent from "@/app/shared/ui/components/icon/icon.component";
 import SkeletonComponent from "@/app/shared/ui/components/skeleton/skeleton.component";
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
@@ -32,7 +31,6 @@ import SysInfoComponent from "./ui/sysinfo/sysinfo.component";
 		SkeletonComponent,
 		ButtonComponent,
 		CommonModule,
-		IconComponent,
 		ScrollToDirective,
 	],
 	selector: "section[app-home-page]",

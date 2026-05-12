@@ -90,13 +90,10 @@
 
 	.home-page__subnav-item {
 		@include text-setting(base);
-		@include p(1);
 		@include border-radius($border-radius-x-small);
-		@include sizer(42px, 28px);
 
 		color: var(--text-primary);
 		cursor: pointer;
-		background-color: transparent;
 		border: none;
 
 		&.active {
@@ -110,6 +107,12 @@
 				outline: none;
 			}
 		}
+	}
+
+	.home-page__subnav-icon {
+		@include sizer(rem(14px));
+
+		margin-right: 0;
 	}
 
 	.home-page__scroll-spy-trigger {

@@ -35,6 +35,7 @@ $theme-variants: (
 				dimmed3: palette.get(monokai-light, dimmed3),
 				dimmed4: palette.get(monokai-light, dimmed4),
 				dimmed5: palette.get(monokai-light, dimmed5),
+				dimmed5-lighten: palette.get(monokai-light, dimmed5-lighten),
 				dimmed6: palette.get(monokai-light, dimmed6),
 				// Common
 				primary: palette.get(monokai-light, accent3),
@@ -164,6 +165,7 @@ $theme-variants: (
 				dimmed3: palette.get(monokai, dimmed3),
 				dimmed4: palette.get(monokai, dimmed4),
 				dimmed5: palette.get(monokai, dimmed5),
+				dimmed5-lighten: palette.get(monokai, dimmed5-lighten),
 				dimmed6: palette.get(monokai, dimmed6),
 				// Common
 				primary: palette.get(monokai, accent3),
