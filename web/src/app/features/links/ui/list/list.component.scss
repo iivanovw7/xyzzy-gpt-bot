@@ -67,6 +67,7 @@
 	&__row {
 		@include mx(2);
 		@include p(2);
+		@include ellipsis;
 
 		position: relative;
 		display: flex;
@@ -77,6 +78,7 @@
 
 	&__row-content {
 		@include sizer(fit-content, auto);
+		@include ellipsis;
 
 		display: flex;
 		flex: 1;
@@ -112,6 +114,7 @@
 	&__link-title {
 		@include tui-custom-link("m");
 		@include line-clamp(2);
+		@include ellipsis;
 
 		width: fit-content;
 
