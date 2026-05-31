@@ -59,6 +59,9 @@ pub async fn commands(
         Commands::Links => {
             handlers::links::links::list_recent(bot, msg, &db).await?;
         }
+        Commands::RemapCategory { from_id, to_id } => {
+            handlers::budgeting::bot::remap_category_command(bot, msg, db, from_id, to_id).await?;
+        }
     }
 
     Ok(())

@@ -232,4 +232,20 @@ impl TransactionsDb {
             })
             .collect()
     }
+
+    pub async fn remap_category(
+        &self,
+        old_category_id: i64,
+        new_category_id: i64,
+    ) -> sqlx::Result<u64> {
+        let result = sqlx::query!(
+            "UPDATE transactions SET category_id = ? WHERE category_id = ?",
+            new_category_id,
+            old_category_id
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(result.rows_affected())
+    }
 }

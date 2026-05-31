@@ -74,6 +74,8 @@ pub enum Commands {
     Reset,
     #[command(description = "View last 10 saved links")]
     Links,
+    #[command(description = "Remap all transactions from one category to another.", parse_with = "split")]
+    RemapCategory { from_id: i64, to_id: i64 },
 }
 
 #[derive(
