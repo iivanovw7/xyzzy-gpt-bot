@@ -2,7 +2,7 @@
 model = "gpt-4"
 [web]
 auth = true
-url = "https://goodnewseveryone.site"
+url = "https://goodnewseveryone.shop"
 port = 5005
 dist = "./web-dist/browser"
 [api]

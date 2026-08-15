@@ -14,7 +14,7 @@ teloxide telegram bot
 
 ## Installation
 
-`.entransformMonthv` file example
+`.env` file example
 
 ```bash
 TOKEN=XXX
